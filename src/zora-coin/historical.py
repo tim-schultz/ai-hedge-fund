@@ -19,7 +19,6 @@ Requires:
 
 import pandas as pd
 from ape import chain, Contract
-from ape import project
 from pathlib import Path
 
 CONTRACT_ADDRESS = "0x777777751622c0d3258f214F9DF38E35BF45baF3"
@@ -62,6 +61,7 @@ def main() -> None:
     # Lazily fetch the contract to ensure we have its ABI locally.
     breakpoint()
     contract = Contract(CONTRACT_ADDRESS)
+    print(contract)
     
 
     # Example: fetch the last 10 000 blocks worth of transactions involving the contract

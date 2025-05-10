@@ -1,6 +1,5 @@
 import numpy as np
 import pandas as pd
-from pathlib import Path
 from src.selv.indicators import (
     add_indicators,
     long_short_strategy,
