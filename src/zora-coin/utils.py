@@ -13,6 +13,7 @@ from web3 import Web3
 # Network configuration & canonical contract addresses
 # ────────────────────────────────────────────────────────────
 BASE_RPC_URL: str | None = os.getenv("BASE_RPC_URL")
+BASE_ALCHEMY_RPC_URL: str | None = os.getenv("BASE_ALCHEMY_RPC_URL")
 web3 = Web3(Web3.HTTPProvider(BASE_RPC_URL))
 
 COIN_FACTORY_ADDRESS = "0x777777751622c0d3258f214F9DF38E35BF45baF3"
