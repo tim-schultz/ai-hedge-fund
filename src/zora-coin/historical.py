@@ -188,9 +188,5 @@ def main() -> None:
 
 
 
-
-# https://docs.apeworx.io/silverback/stable/userguides/quickstart.html use this for bots
-
-
 if __name__ == "__main__":
     main()
