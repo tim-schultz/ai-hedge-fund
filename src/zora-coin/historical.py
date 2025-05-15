@@ -77,9 +77,25 @@ def chunk_number(number, chunk_size):
         yield range(i, min(i + chunk_size, number))
 
 def decode_coin_event(row):
-    # TODO: decode the coin event data
-    breakpoint()
-    print(row)
+    # event CoinCreated(
+    #     address indexed caller,
+    #     address indexed payoutRecipient,
+    #     address indexed platformReferrer,
+    #     address currency,
+    #     string uri,
+    #     string name,
+    #     string symbol,
+    #     address coin,
+    #     address pool,
+    #     string version
+    # );
+    try:
+        param_types = ['address', 'string', 'string', 'string', 'address', 'address', 'string']
+        event_data_bytes = row['data']
+        return decode(param_types, event_data_bytes)
+    except Exception as e:
+        print(f"Error decoding event data: {e}")
+        return None
     
 
 def get_created_coins():
@@ -87,15 +103,13 @@ def get_created_coins():
     Get all coins created by the coin factory
     """
 
-    for coin_events in os.listdir("coins"):
-        if coin_events.endswith(".parquet"):
+    coins = df_from_dir("coins")
+    bytes_coin_event = hexstr_to_bytes('0x3d1462491f7fa8396808c230d95c3fa60fd09ef59506d0b9bd1cf072d2a03f56')
+    coin_events = coins[coins['topic0'] == bytes_coin_event]
 
-            df = pd.read_parquet(f"coins/{coin_events}")
-            bytes_coin_event = hexstr_to_bytes('0xddf252ad1be2c89b69c2b068fc378daa952ba7f163c4a11628f55a4df523b3ef')
-            coin_events = df[df['topic0'] == bytes_coin_event]
-
-            coin_events['pool_address'] = coin_events.apply(decode_coin_event, axis=1)
-            breakpoint()
+    columns = ['currency', 'ipfs_hash', 'name', 'symbol', 'coin', 'pool', 'version']
+    coin_events[columns] = coin_events.apply(decode_coin_event, axis=1, result_type='expand')
+    return coin_events
 
 def fetch_events(blocks: list[str], start: int, stop: int):
     """
@@ -168,8 +182,10 @@ def get_coin_events():
 
 def main() -> None:
     
-    get_coin_events()
-    # get_created_coins()
+    # get_coin_events()
+    decoded_coins = get_created_coins()
+    decoded_coins.to_parquet("coins/decoded_coins.parquet")
+
 
 
 
