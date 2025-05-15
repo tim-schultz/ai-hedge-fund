@@ -93,3 +93,5 @@ def latest_synched_block(directory: str) -> int:
     if df.empty:
         return DEPLOYMENT_BLOCK
     return int(df.sort_values("block_number", ascending=False).iloc[0]["block_number"])
+
+TRYAGGREGATE_4b = hexstr_to_bytes("0xbce38bd7")
