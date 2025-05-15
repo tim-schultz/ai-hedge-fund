@@ -9,6 +9,13 @@ import logging
 
 from pathlib import Path
 
+import os
+from web3 import Web3
+
+# --- configuration for chunked slot0 fetching ---
+BLOCK_STRIDE = 900      # ≈ 30 minutes (900 blocks × 2 s)
+CHUNK_SIZE   = 100_000  # fetch at most this many blocks per cryo query
+
 LIQ_CACHE = Path("coins_with_liquidity.parquet")
 SLOT0_CACHE = Path("slot0_timeseries.parquet")
 
@@ -121,15 +128,18 @@ if __name__ == "__main__":
     
 
     # --- slot0 time‑series (sqrtPriceX96) ---
-    if SLOT0_CACHE.exists():
+    if  SLOT0_CACHE.exists():
         slot0_timeseries = pd.read_parquet(SLOT0_CACHE)
-        breakpoint()
         logger.info(
             "Loaded cached slot0 time‑series from %s (shape=%s)",
             SLOT0_CACHE,
             slot0_timeseries.shape,
         )
     else:
+        # --- fetch slot0 in manageable block chunks ---
+        w3 = Web3(Web3.HTTPProvider(utils.BASE_ALCHEMY_RPC_URL))
+        latest_block = w3.eth.block_number
+
         slot0_sig = utils.hexstr_to_bytes("0x3850c7bd")
         pools = coins_with_liquidity["pool"]
         inner_calldata = [[pool, slot0_sig] for pool in pools]
@@ -139,40 +149,68 @@ if __name__ == "__main__":
         m3_calldata = utils.bytes_to_hexstr(
             utils.TRYAGGREGATE_4b + m3_calldata_bytes
         )
-        one_hr_ish_slot0_data = cryo.collect(
-            "eth_calls",
-            include_columns=(["block_number", "output_data"]),
-            to_address=[utils.MULTICALL3_ADDRESS],
-            call_data=[m3_calldata],
-            output_format="pandas",
-            blocks=[f"{utils.DEPLOYMENT_BLOCK}:latest/1848"],
-            no_verbose=True,
-            rpc=utils.BASE_ALCHEMY_RPC_URL,
-            requests_per_second=12,
-        )
 
-
-
-        # Build time‑series rows
         slot0_rows = []
-        for _, row in one_hr_ish_slot0_data.iterrows():
-            per_pool_vals = _decode_slot0_outputs(row["output_data"])
-            slot0_rows.append(
-                {
-                    "block_number": row["block_number"],
-                    **{
-                        str(pool): vals[0] if vals is not None else None
-                        for pool, vals in zip(pools, per_pool_vals)
-                    },
-                }
+        os.makedirs("slot0_chunks", exist_ok=True)
+
+        start_block = utils.DEPLOYMENT_BLOCK
+        while start_block <= latest_block:
+            end_block = min(start_block + CHUNK_SIZE - 1, latest_block)
+            block_selector = f"{start_block}:{end_block}/{BLOCK_STRIDE}"
+            logger.info("Fetching slot0 data for %s", block_selector)
+
+            data_chunk = cryo.collect(
+                "eth_calls",
+                include_columns=(["block_number", "output_data"]),
+                to_address=[utils.MULTICALL3_ADDRESS],
+                call_data=[m3_calldata],
+                output_format="pandas",
+                blocks=[block_selector],
+                no_verbose=True,
+                rpc=utils.BASE_ALCHEMY_RPC_URL,
+                requests_per_second=12,
             )
 
+            if data_chunk.empty:
+                start_block = end_block + 1
+                continue
+
+            # Decode and build rows for this chunk
+            for _, row in data_chunk.iterrows():
+                per_pool_vals = _decode_slot0_outputs(row["output_data"])
+                slot0_rows.append(
+                    {
+                        "block_number": row["block_number"],
+                        **{
+                            str(pool): vals[0] if vals is not None else None
+                            for pool, vals in zip(pools, per_pool_vals)
+                        },
+                    }
+                )
+
+            # Persist the chunk for resumability
+            chunk_df = (
+                pd.DataFrame(slot0_rows[-len(data_chunk):])
+                .set_index("block_number")
+                .sort_index()
+            )
+            # Cast large uint values (sqrtPriceX96) to string to avoid Arrow int overflow
+            chunk_df = chunk_df.apply(lambda col: col.astype("string"))
+            chunk_path = Path("slot0_chunks") / f"slot0_{start_block}_{end_block}.parquet"
+            chunk_df.to_parquet(chunk_path)
+            logger.info("Wrote slot0 chunk %s (rows=%d)", chunk_path, len(chunk_df))
+
+            start_block = end_block + 1  # move to next window
+
+        # Consolidate all rows into final DataFrame
         slot0_timeseries = (
             pd.DataFrame(slot0_rows).set_index("block_number").sort_index()
         )
+        # Convert bigint columns to string so pyarrow can write without overflow
+        slot0_timeseries = slot0_timeseries.apply(lambda col: col.astype("string"))
         slot0_timeseries.to_parquet(SLOT0_CACHE)
         logger.info(
-            "Saved slot0 time‑series to %s (shape=%s)",
+            "Saved consolidated slot0 time‑series to %s (shape=%s)",
             SLOT0_CACHE,
             slot0_timeseries.shape,
         )
