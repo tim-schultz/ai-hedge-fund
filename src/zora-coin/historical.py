@@ -24,6 +24,11 @@ from pathlib import Path
 import cryo
 import binascii
 from eth_abi import decode, encode
+import glob
+
+from web3 import Web3
+
+web3 = Web3(Web3.HTTPProvider(os.getenv("BASE_RPC_URL")))
 
 def bytes_to_hexstr(x: dict | bytes | list[bytes]) -> str | list[str] | dict:
     """
@@ -83,7 +88,7 @@ def get_created_coins():
 
     for coin_events in os.listdir("coins"):
         if coin_events.endswith(".parquet"):
-            print(coin_events)
+
             df = pd.read_parquet(f"coins/{coin_events}")
             bytes_coin_event = hexstr_to_bytes('0xddf252ad1be2c89b69c2b068fc378daa952ba7f163c4a11628f55a4df523b3ef')
             coin_events = df[df['topic0'] == bytes_coin_event]
@@ -91,38 +96,77 @@ def get_created_coins():
             coin_events['pool_address'] = coin_events.apply(decode_coin_event, axis=1)
             breakpoint()
 
-def get_coin_events():
+def fetch_events(blocks: list[str], start: int, stop: int):
+    """
+    Fetch events from the coin factory
+    """
+    coins_created = cryo.collect(
+        "logs",
+        # include_columns=(["block_number", "output_data"]),
+        to_address=[COIN_FACTORY_ADDRESS],
+        output_format="pandas",
+        blocks=blocks,
+        no_verbose=True,
+        rpc=base_provider,
+        requests_per_second=12,
+        max_concurrent_chunks=1,
+        # event_signature="CoinCreated(address indexed caller, address indexed payoutRecipient, address indexed platformReferrer, address currency, string uri, string name, string symbol, address coin, address pool, string version)",
+    )
+
+    print("coins_created", blocks)
+    coins_created.to_parquet(f"coins/coins_created_{start}_{stop}.parquet")
+    
+
+def df_from_dir(dir: str) -> pd.DataFrame:
+    """
+    Get all indexed parquet files
+    """
+    pattern = os.path.join(dir, "*.parquet")
+    all_files = glob.glob(pattern)
+    coins = pd.read_parquet(all_files)
+    return coins
+
+
+def latest_synched_block(dir: str) -> int:
+    """
+    Get the latest indexed block
+    """
     deployment_block = 26828875
-    diff = 30234486 - deployment_block
+    df = df_from_dir(dir)
+    if df.empty:
+        return deployment_block
+    latest_block = df.sort_values("block_number", ascending=False).iloc[0]['block_number']
+    return latest_block
 
-    for i in chunk_number(diff, 1000):
-        start = i.start + deployment_block
-        stop = i.stop + deployment_block
+def get_coin_events():
+    last_indexed_block = latest_synched_block("coins")
+    latest_block = web3.eth.get_block('latest')
+    diff = latest_block.number - last_indexed_block
+
+    max_attempts = 10
+
+    for i in chunk_number(diff, 500):
+        start = i.start + last_indexed_block
+        stop = i.stop + last_indexed_block
         blocks = [f"{start}:{stop}"]
-        print(blocks)
-        coins_created = cryo.collect(
-            "logs",
-            # include_columns=(["block_number", "output_data"]),
-            to_address=[COIN_FACTORY_ADDRESS],
-            output_format="pandas",
-            blocks=blocks,
-            no_verbose=True,
-            rpc=base_provider,
-            requests_per_second=12,
-            max_concurrent_chunks=1,
-            # event_signature="CoinCreated(address indexed caller, address indexed payoutRecipient, address indexed platformReferrer, address currency, string uri, string name, string symbol, address coin, address pool, string version)",
-        )
 
-        print("coins_created", blocks)
-        coins_created.to_parquet(f"coins/coins_created_{start}_{stop}.parquet")
+        for attempt in range(max_attempts):
+            if attempt > 0:
+                print(f"Attempt {attempt + 1} of {max_attempts} for blocks {blocks}")
+            try:
+                fetch_events(blocks, start, stop)
+                break
+            except Exception as e:
+                print(f"Error fetching events: {e}")
+                if attempt == max_attempts - 1:
+                    print("Max attempts reached. Moving to next chunk.")
+                    break
     
 
 def main() -> None:
     
-    # get_coin_events()
-    
-
-    get_created_coins()
+    get_coin_events()
+    # get_created_coins()
 
 
 

@@ -37,6 +37,8 @@ debug/
 .cursorignore
 .cursorindexingignore
 
+coins
+
 # OS
 .DS_Store
 Thumbs.db
