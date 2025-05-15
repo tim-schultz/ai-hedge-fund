@@ -25,6 +25,7 @@ import cryo
 import binascii
 from eth_abi import decode, encode
 import glob
+import time
 
 from web3 import Web3
 
@@ -152,7 +153,9 @@ def get_coin_events():
 
         for attempt in range(max_attempts):
             if attempt > 0:
-                print(f"Attempt {attempt + 1} of {max_attempts} for blocks {blocks}")
+                wait_time = (2 ** attempt)
+                print(f"Attempt {attempt + 1} of {max_attempts} for blocks {blocks}. Waiting {wait_time}s before retrying...")
+                time.sleep(wait_time)
             try:
                 fetch_events(blocks, start, stop)
                 break
