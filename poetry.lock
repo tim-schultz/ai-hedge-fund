@@ -241,6 +241,319 @@ test = ["anyio[trio]", "coverage[toml] (>=4.5)", "hypothesis (>=4.0)", "mock (>=
 trio = ["trio (<0.22)"]
 
 [[package]]
+name = "ape-alchemy"
+version = "0.8.8"
+description = "ape-alchemy: Alchemy provider plugins"
+optional = false
+python-versions = "<4,>=3.9"
+groups = ["main"]
+markers = "implementation_name == \"cpython\" or implementation_name == \"pypy\""
+files = [
+    {file = "ape_alchemy-0.8.8-py3-none-any.whl", hash = "sha256:02fd1459078b0bb1e79a83d61a1cd5429084078d3b028de7cb886e037fdf7aa7"},
+    {file = "ape_alchemy-0.8.8.tar.gz", hash = "sha256:ff6b25a5f097e7af125996b9b77e9be0d994397f01fddc27ba9d6612cebed37f"},
+]
+
+[package.dependencies]
+eth-ape = ">=0.8.21,<0.9"
+eth-pydantic-types = ">=0.1.3,<0.2"
+ethpm-types = ">=0.6.19,<0.7"
+evm-trace = ">=0.2.3,<0.3"
+evmchains = ">=0.1.3,<0.2"
+requests = ">=2.32.3,<3"
+web3 = ">=6.20.1,<8"
+
+[package.extras]
+dev = ["IPython", "ape-arbitrum", "ape-base", "ape-fantom", "ape-optimism", "ape-polygon", "ape-polygon-zkevm", "black (>=25.1.0,<26)", "commitizen", "flake8 (>=7.1.2,<8)", "flake8-breakpoint (>=1.1.0,<2)", "flake8-print (>=5.0.0,<6)", "flake8-pydantic", "flake8-type-checking", "hypothesis (>=6.2.0,<7.0)", "ipdb", "isort (>=6.0.0,<7)", "mdformat (>=0.7.22)", "mdformat-frontmatter (>=0.4.1)", "mdformat-gfm (>=0.3.5)", "mdformat-pyproject (>=0.0.2)", "mypy (>=1.15.0,<2)", "pre-commit", "pytest (>=6.0)", "pytest-cov", "pytest-mock", "pytest-watch", "pytest-xdist", "setuptools (>=75.6.0)", "sphinx-ape", "twine", "types-requests", "types-setuptools", "websocket-client", "wheel"]
+doc = ["sphinx-ape"]
+lint = ["black (>=25.1.0,<26)", "flake8 (>=7.1.2,<8)", "flake8-breakpoint (>=1.1.0,<2)", "flake8-print (>=5.0.0,<6)", "flake8-pydantic", "flake8-type-checking", "isort (>=6.0.0,<7)", "mdformat (>=0.7.22)", "mdformat-frontmatter (>=0.4.1)", "mdformat-gfm (>=0.3.5)", "mdformat-pyproject (>=0.0.2)", "mypy (>=1.15.0,<2)", "types-requests", "types-setuptools"]
+release = ["setuptools (>=75.6.0)", "twine", "wheel"]
+test = ["ape-arbitrum", "ape-base", "ape-fantom", "ape-optimism", "ape-polygon", "ape-polygon-zkevm", "hypothesis (>=6.2.0,<7.0)", "pytest (>=6.0)", "pytest-cov", "pytest-mock", "pytest-xdist", "websocket-client"]
+
+[[package]]
+name = "ape-base"
+version = "0.8.1"
+description = "ape-base: Base ecosystem for Ape"
+optional = false
+python-versions = "<4,>=3.9"
+groups = ["main"]
+markers = "implementation_name == \"cpython\" or implementation_name == \"pypy\""
+files = [
+    {file = "ape-base-0.8.1.tar.gz", hash = "sha256:cbcc505743c62b097348c1e0a24e12e55d3a829a4a691e3c925a19f980a72465"},
+    {file = "ape_base-0.8.1-py3-none-any.whl", hash = "sha256:9c3cc4a9644949f860581cf62dcf0100e30c5943089e857daf46f40d64023a23"},
+]
+
+[package.dependencies]
+ape-optimism = "*"
+eth-ape = ">=0.8.1,<0.9"
+ethpm-types = "*"
+
+[package.extras]
+dev = ["IPython", "black (>=24.10.0,<25)", "commitizen", "flake8 (>=7.1.1,<8)", "flake8-breakpoint (>=1.1.0,<2)", "flake8-print (>=5.0.0,<6)", "flake8-pydantic", "flake8-type-checking", "hypothesis (>=6.2.0,<7.0)", "ipdb", "isort (>=5.13.2,<6)", "mdformat (>=0.7.19)", "mdformat-frontmatter (>=0.4.1)", "mdformat-gfm (>=0.3.5)", "mdformat-pyproject (>=0.0.2)", "mypy (>=1.13.0,<2)", "pre-commit", "pytest (>=6.0)", "pytest-cov", "pytest-watch", "pytest-xdist", "setuptools", "twine", "types-setuptools", "wheel"]
+lint = ["black (>=24.10.0,<25)", "flake8 (>=7.1.1,<8)", "flake8-breakpoint (>=1.1.0,<2)", "flake8-print (>=5.0.0,<6)", "flake8-pydantic", "flake8-type-checking", "isort (>=5.13.2,<6)", "mdformat (>=0.7.19)", "mdformat-frontmatter (>=0.4.1)", "mdformat-gfm (>=0.3.5)", "mdformat-pyproject (>=0.0.2)", "mypy (>=1.13.0,<2)", "types-setuptools"]
+release = ["setuptools", "twine", "wheel"]
+test = ["hypothesis (>=6.2.0,<7.0)", "pytest (>=6.0)", "pytest-cov", "pytest-xdist"]
+
+[[package]]
+name = "ape-ens"
+version = "0.8.2"
+description = "ape-ens: Ape plugin for ENS argument conversion and contracts"
+optional = false
+python-versions = "<4,>=3.9"
+groups = ["main"]
+markers = "implementation_name == \"cpython\" or implementation_name == \"pypy\""
+files = [
+    {file = "ape_ens-0.8.2-py3-none-any.whl", hash = "sha256:cb36f3a2c10e0d348c7a116cbd666aad8d88f5bc2a149edbc42b20956b0df34b"},
+    {file = "ape_ens-0.8.2.tar.gz", hash = "sha256:766ef3a244c90070f6f170530d0197cc7c8f33bc4997953e45b9367a2ed3923c"},
+]
+
+[package.dependencies]
+eth-ape = ">=0.8.25,<0.9"
+web3 = ">=6.20.1,<8"
+
+[package.extras]
+dev = ["IPython", "ape-polygon", "black (>=24.10.0,<25)", "commitizen", "flake8 (>=7.1.1,<8)", "flake8-breakpoint (>=1.1.0,<2)", "flake8-print (>=5.0.0,<6)", "flake8-pydantic", "flake8-type-checking", "ipdb", "isort (>=5.13.2,<6)", "mdformat (>=0.7.19)", "mdformat-frontmatter (>=0.4.1)", "mdformat-gfm (>=0.3.5)", "mdformat-pyproject (>=0.0.2)", "mypy (>=1.13.0,<2)", "pre-commit", "pytest (>=6.0)", "pytest-cov", "pytest-mock", "pytest-watch", "pytest-xdist", "setuptools (>=75.6.0)", "setuptools-scm", "sphinx-ape", "twine", "types-setuptools", "wheel"]
+doc = ["sphinx-ape"]
+lint = ["black (>=24.10.0,<25)", "flake8 (>=7.1.1,<8)", "flake8-breakpoint (>=1.1.0,<2)", "flake8-print (>=5.0.0,<6)", "flake8-pydantic", "flake8-type-checking", "isort (>=5.13.2,<6)", "mdformat (>=0.7.19)", "mdformat-frontmatter (>=0.4.1)", "mdformat-gfm (>=0.3.5)", "mdformat-pyproject (>=0.0.2)", "mypy (>=1.13.0,<2)", "types-setuptools"]
+release = ["setuptools (>=75.6.0)", "setuptools-scm", "twine", "wheel"]
+test = ["ape-polygon", "pytest (>=6.0)", "pytest-cov", "pytest-mock", "pytest-xdist"]
+
+[[package]]
+name = "ape-etherscan"
+version = "0.8.4"
+description = "ape-etherscan: Etherscan Explorer Plugin for Ethereum-based networks"
+optional = false
+python-versions = "<4,>=3.9"
+groups = ["main"]
+markers = "implementation_name == \"cpython\" or implementation_name == \"pypy\""
+files = [
+    {file = "ape_etherscan-0.8.4-py3-none-any.whl", hash = "sha256:23358309badd10e71754473de7244becdd066b2239bc2c6640516a6e0a4907a8"},
+    {file = "ape_etherscan-0.8.4.tar.gz", hash = "sha256:39f17738a32a1199fdf10fed0b5d7794a93aca4670c1c9256e8698f66c6ee9b9"},
+]
+
+[package.dependencies]
+eth-ape = ">=0.8.21,<0.9"
+ethpm_types = "*"
+requests = "*"
+yarl = "*"
+
+[package.extras]
+dev = ["IPython", "ape-arbitrum", "ape-base", "ape-blast", "ape-bsc", "ape-fantom", "ape-infura", "ape-optimism", "ape-polygon", "ape-polygon-zkevm", "ape-scroll", "ape-solidity", "black (>=24.10.0,<25)", "commitizen", "flake8 (>=7.1.1,<8)", "flake8-breakpoint (>=1.1.0,<2)", "flake8-print (>=5.0.0,<6)", "flake8-pydantic", "flake8-type-checking", "hypothesis (>=6.2.0,<7)", "ipdb", "isort (>=5.13.2,<6)", "mdformat (>=0.7.19)", "mdformat-frontmatter (>=0.4.1)", "mdformat-gfm (>=0.3.5)", "mdformat-pyproject (>=0.0.2)", "mypy (>=1.13.0,<2)", "pre-commit", "pytest (>=6.0)", "pytest-cov", "pytest-mock", "pytest-watch", "pytest-xdist", "setuptools (>=72.2.0)", "setuptools-scm", "sphinx-ape", "twine", "types-PyYAML", "types-requests (>=2.28.7)", "types-setuptools", "wheel"]
+doc = ["sphinx-ape"]
+lint = ["black (>=24.10.0,<25)", "flake8 (>=7.1.1,<8)", "flake8-breakpoint (>=1.1.0,<2)", "flake8-print (>=5.0.0,<6)", "flake8-pydantic", "flake8-type-checking", "isort (>=5.13.2,<6)", "mdformat (>=0.7.19)", "mdformat-frontmatter (>=0.4.1)", "mdformat-gfm (>=0.3.5)", "mdformat-pyproject (>=0.0.2)", "mypy (>=1.13.0,<2)", "types-PyYAML", "types-requests (>=2.28.7)", "types-setuptools"]
+release = ["setuptools (>=72.2.0)", "setuptools-scm", "twine", "wheel"]
+test = ["ape-arbitrum", "ape-base", "ape-blast", "ape-bsc", "ape-fantom", "ape-infura", "ape-optimism", "ape-polygon", "ape-polygon-zkevm", "ape-scroll", "ape-solidity", "hypothesis (>=6.2.0,<7)", "pytest (>=6.0)", "pytest-cov", "pytest-mock", "pytest-xdist"]
+
+[[package]]
+name = "ape-foundry"
+version = "0.8.7"
+description = "ape-foundry: Ape network provider for Foundry"
+optional = false
+python-versions = "<4,>=3.9"
+groups = ["main"]
+markers = "implementation_name == \"cpython\" or implementation_name == \"pypy\""
+files = [
+    {file = "ape_foundry-0.8.7-py3-none-any.whl", hash = "sha256:0a9b45ee69af6c67c31d3445b283d989039d59eb62b0f92a8f3cb5079a7f48a7"},
+    {file = "ape_foundry-0.8.7.tar.gz", hash = "sha256:b36d08ec4eb26bbe8d43c6e41988ddcee69d59f382592b3f533beb5e31db8f14"},
+]
+
+[package.dependencies]
+eth-ape = ">=0.8.21,<0.9"
+eth_pydantic_types = ">=0.1.3,<0.2"
+ethpm-types = ">=0.6.19,<0.7"
+evm-trace = ">=0.2.3,<0.3"
+hexbytes = ">=0.3.1,<2"
+web3 = ">=6.20.1,<8"
+yarl = ">=1.9.2,<2"
+
+[package.extras]
+dev = ["IPython", "ape-alchemy", "ape-optimism", "ape-polygon", "black (>=24.10.0,<25)", "commitizen", "flake8 (>=7.1.1,<8)", "flake8-breakpoint (>=1.1.0,<2)", "flake8-print (>=5.0.0,<6)", "flake8-pydantic", "flake8-type-checking", "hypothesis (>=6.2.0,<7.0)", "ipdb", "isort (>=5.13.2,<6)", "mdformat (>=0.7.19)", "mdformat-frontmatter (>=0.4.1)", "mdformat-gfm (>=0.3.5)", "mdformat-pyproject (>=0.0.2)", "mypy (>=1.13.0,<2)", "pre-commit", "pytest (>=6.0)", "pytest-benchmark", "pytest-cov", "pytest-mock", "pytest-xdist", "setuptools (>=75.6.0)", "setuptools-scm", "sphinx-ape", "twine", "types-PyYAML", "types-requests", "types-setuptools", "wheel"]
+doc = ["sphinx-ape"]
+lint = ["black (>=24.10.0,<25)", "flake8 (>=7.1.1,<8)", "flake8-breakpoint (>=1.1.0,<2)", "flake8-print (>=5.0.0,<6)", "flake8-pydantic", "flake8-type-checking", "isort (>=5.13.2,<6)", "mdformat (>=0.7.19)", "mdformat-frontmatter (>=0.4.1)", "mdformat-gfm (>=0.3.5)", "mdformat-pyproject (>=0.0.2)", "mypy (>=1.13.0,<2)", "types-PyYAML", "types-requests", "types-setuptools"]
+release = ["setuptools (>=75.6.0)", "setuptools-scm", "twine", "wheel"]
+test = ["ape-alchemy", "ape-optimism", "ape-polygon", "hypothesis (>=6.2.0,<7.0)", "pytest (>=6.0)", "pytest-benchmark", "pytest-cov", "pytest-mock", "pytest-xdist"]
+
+[[package]]
+name = "ape-hardhat"
+version = "0.8.5"
+description = "ape-hardhat: Ape network provider for Hardhat"
+optional = false
+python-versions = "<4,>=3.8"
+groups = ["main"]
+markers = "implementation_name == \"cpython\" or implementation_name == \"pypy\""
+files = [
+    {file = "ape_hardhat-0.8.5-py3-none-any.whl", hash = "sha256:b5f1fcc37ed7a2133d0aa6571207b593f008966db50e4400a240ca4a22ae523d"},
+    {file = "ape_hardhat-0.8.5.tar.gz", hash = "sha256:c56eebb01c6f19c70c1551fa060b6c6444e27e2b8d9e0dba7fa48b0623dbf6d9"},
+]
+
+[package.dependencies]
+chompjs = ">=1.1.9,<2"
+eth-ape = ">=0.8.21,<0.9"
+ethpm-types = ">=0.6.19,<0.7"
+evm-trace = ">=0.2.3,<0.3"
+hexbytes = ">=0.3.1,<2"
+packaging = ">=23.0,<24"
+requests = ">=2.28.1,<3"
+web3 = ">=6.20.1,<8"
+yarl = ">=1.9.2,<2"
+
+[package.extras]
+dev = ["IPython", "ape-alchemy", "ape-polygon", "black (>=24.10.0,<25)", "commitizen", "flake8 (>=7.1.1,<8)", "flake8-breakpoint (>=1.1.0,<2)", "flake8-print (>=5.0.0,<6)", "flake8-pydantic", "flake8-type-checking", "hypothesis (>=6.2.0,<7.0)", "ipdb", "isort (>=5.13.2,<6)", "mdformat (>=0.7.19)", "mdformat-frontmatter (>=0.4.1)", "mdformat-gfm (>=0.3.5)", "mdformat-pyproject (>=0.0.2)", "mypy (>=1.13.0,<2)", "pre-commit", "pytest (>=6.0)", "pytest-cov", "pytest-mock", "pytest-watch", "pytest-xdist", "rich", "setuptools (>=75.6.0)", "setuptools-scm", "sphinx-ape", "twine", "types-PyYAML", "types-requests", "types-setuptools", "wheel"]
+doc = ["sphinx-ape"]
+lint = ["black (>=24.10.0,<25)", "flake8 (>=7.1.1,<8)", "flake8-breakpoint (>=1.1.0,<2)", "flake8-print (>=5.0.0,<6)", "flake8-pydantic", "flake8-type-checking", "isort (>=5.13.2,<6)", "mdformat (>=0.7.19)", "mdformat-frontmatter (>=0.4.1)", "mdformat-gfm (>=0.3.5)", "mdformat-pyproject (>=0.0.2)", "mypy (>=1.13.0,<2)", "types-PyYAML", "types-requests", "types-setuptools"]
+release = ["setuptools (>=75.6.0)", "setuptools-scm", "twine", "wheel"]
+test = ["ape-alchemy", "ape-polygon", "hypothesis (>=6.2.0,<7.0)", "pytest (>=6.0)", "pytest-cov", "pytest-mock", "pytest-xdist", "rich"]
+
+[[package]]
+name = "ape-infura"
+version = "0.8.4"
+description = "ape-infura: Infura Provider plugins for Ethereum-based networks"
+optional = false
+python-versions = "<4,>=3.9"
+groups = ["main"]
+markers = "implementation_name == \"cpython\" or implementation_name == \"pypy\""
+files = [
+    {file = "ape_infura-0.8.4-py3-none-any.whl", hash = "sha256:83ac3a946eb23890a1006fefa3a978a3bbee71ffd88f73435328be8eca8afaa5"},
+    {file = "ape_infura-0.8.4.tar.gz", hash = "sha256:d56eba427b796e22c1e4b26fb648e28ff0c82b3304fd0c74e2f844c040ed38c3"},
+]
+
+[package.dependencies]
+eth-ape = ">=0.8.1,<0.9"
+requests = ">=2.28.1,<3"
+web3 = ">=6.20.1,<8"
+
+[package.extras]
+dev = ["IPython", "ape-arbitrum", "ape-avalanche", "ape-blast", "ape-optimism", "ape-polygon", "black (>=24.10.0,<25)", "commitizen", "flake8 (>=7.1.1,<8)", "flake8-breakpoint (>=1.1.0,<2)", "flake8-print (>=5.0.0,<6)", "flake8-pydantic", "flake8-type-checking", "hypothesis (>=6.2.0,<7.0)", "ipdb", "isort (>=5.13.2,<6)", "mdformat (>=0.7.21)", "mdformat-frontmatter (>=0.4.1)", "mdformat-gfm (>=0.3.5)", "mdformat-pyproject (>=0.0.2)", "mypy (>=1.14.1,<2)", "pre-commit", "pytest (>=6.0)", "pytest-cov", "pytest-mock", "pytest-watch", "pytest-xdist", "setuptools (>=75.6.0)", "setuptools-scm", "sphinx-ape", "twine", "types-setuptools", "websocket-client", "wheel"]
+doc = ["sphinx-ape"]
+lint = ["black (>=24.10.0,<25)", "flake8 (>=7.1.1,<8)", "flake8-breakpoint (>=1.1.0,<2)", "flake8-print (>=5.0.0,<6)", "flake8-pydantic", "flake8-type-checking", "isort (>=5.13.2,<6)", "mdformat (>=0.7.21)", "mdformat-frontmatter (>=0.4.1)", "mdformat-gfm (>=0.3.5)", "mdformat-pyproject (>=0.0.2)", "mypy (>=1.14.1,<2)", "types-setuptools"]
+release = ["setuptools (>=75.6.0)", "setuptools-scm", "twine", "wheel"]
+test = ["ape-arbitrum", "ape-avalanche", "ape-blast", "ape-optimism", "ape-polygon", "hypothesis (>=6.2.0,<7.0)", "pytest (>=6.0)", "pytest-cov", "pytest-mock", "pytest-xdist", "websocket-client"]
+
+[[package]]
+name = "ape-optimism"
+version = "0.8.3"
+description = "ape-optimism: Ape Ecosystem Plugin for Optimism"
+optional = false
+python-versions = "<4,>=3.9"
+groups = ["main"]
+markers = "implementation_name == \"cpython\" or implementation_name == \"pypy\""
+files = [
+    {file = "ape_optimism-0.8.3-py3-none-any.whl", hash = "sha256:4d263764922096debbd061eae8e5a3bb520573923958c1512fe518b894d8ac5d"},
+    {file = "ape_optimism-0.8.3.tar.gz", hash = "sha256:eb48e34923759761a9c27b9d314c61530dbea1c4627be48fc4ca8fed623d7f72"},
+]
+
+[package.dependencies]
+eth-ape = ">=0.8.1,<0.9"
+ethpm-types = "*"
+
+[package.extras]
+dev = ["IPython", "black (>=24.10.0,<25)", "commitizen", "flake8 (>=7.1.1,<8)", "flake8-breakpoint (>=1.1.0,<2)", "flake8-print (>=5.0.0,<6)", "flake8-pydantic", "flake8-type-checking", "hypothesis (>=6.2.0,<7.0)", "ipdb", "isort (>=5.13.2,<6)", "mdformat (>=0.7.19)", "mdformat-frontmatter (>=0.4.1)", "mdformat-gfm (>=0.3.5)", "mdformat-pyproject (>=0.0.2)", "mypy (>=1.13.0,<2)", "pre-commit", "pytest (>=6.0)", "pytest-cov", "pytest-watch", "pytest-xdist", "setuptools (>=75.6.0)", "twine", "types-setuptools", "wheel"]
+lint = ["black (>=24.10.0,<25)", "flake8 (>=7.1.1,<8)", "flake8-breakpoint (>=1.1.0,<2)", "flake8-print (>=5.0.0,<6)", "flake8-pydantic", "flake8-type-checking", "isort (>=5.13.2,<6)", "mdformat (>=0.7.19)", "mdformat-frontmatter (>=0.4.1)", "mdformat-gfm (>=0.3.5)", "mdformat-pyproject (>=0.0.2)", "mypy (>=1.13.0,<2)", "types-setuptools"]
+release = ["setuptools (>=75.6.0)", "twine", "wheel"]
+test = ["hypothesis (>=6.2.0,<7.0)", "pytest (>=6.0)", "pytest-cov", "pytest-xdist"]
+
+[[package]]
+name = "ape-solidity"
+version = "0.8.5"
+description = "Plugin for Ape Ethereum Framework for compiling Solidity contracts"
+optional = false
+python-versions = "<4,>=3.9"
+groups = ["main"]
+markers = "implementation_name == \"cpython\" or implementation_name == \"pypy\""
+files = [
+    {file = "ape-solidity-0.8.5.tar.gz", hash = "sha256:8200ca4d0d1df0608f14418a16cd98a730d65c3073450ad76e458bfda64e1535"},
+    {file = "ape_solidity-0.8.5-py3-none-any.whl", hash = "sha256:75094fd996ad0914cb2425598e0ec9329adc881050d55b4224d74f75dd994794"},
+]
+
+[package.dependencies]
+eth-ape = ">=0.8.4,<0.9"
+eth-pydantic-types = "*"
+ethpm-types = "*"
+packaging = "*"
+py-solc-x = ">=2.0.2,<3"
+requests = "*"
+
+[package.extras]
+dev = ["IPython", "Sphinx (>=6.1.3,<7)", "black (>=24.10.0,<25)", "commitizen", "flake8 (>=7.1.1,<8)", "flake8-pydantic", "flake8-type-checking", "hypothesis (>=6.2.0,<7.0)", "ipdb", "isort (>=5.13.2,<6)", "mdformat (>=0.7.18)", "mdformat-frontmatter (>=0.4.1)", "mdformat-gfm (>=0.3.5)", "mdformat-pyproject (>=0.0.1)", "mypy (>=1.13.0,<2)", "pytest (>=6.0)", "pytest-benchmark", "pytest-cov", "pytest-mock", "pytest-watch", "pytest-xdist", "setuptools", "setuptools-scm", "sphinx-rtd-theme (>=1.2.0,<2)", "towncrier (>=19.2.0,<20)", "twine (==3.8)", "types-requests", "types-setuptools", "wheel"]
+doc = ["Sphinx (>=6.1.3,<7)", "sphinx-rtd-theme (>=1.2.0,<2)", "towncrier (>=19.2.0,<20)"]
+lint = ["black (>=24.10.0,<25)", "flake8 (>=7.1.1,<8)", "flake8-pydantic", "flake8-type-checking", "isort (>=5.13.2,<6)", "mdformat (>=0.7.18)", "mdformat-frontmatter (>=0.4.1)", "mdformat-gfm (>=0.3.5)", "mdformat-pyproject (>=0.0.1)", "mypy (>=1.13.0,<2)", "types-requests", "types-setuptools"]
+release = ["setuptools", "setuptools-scm", "twine (==3.8)", "wheel"]
+test = ["hypothesis (>=6.2.0,<7.0)", "pytest (>=6.0)", "pytest-benchmark", "pytest-cov", "pytest-mock", "pytest-xdist"]
+
+[[package]]
+name = "ape-template"
+version = "0.8.0"
+description = "ape-template: ape plugin for cookiecutter based templates"
+optional = false
+python-versions = "<4,>=3.9"
+groups = ["main"]
+markers = "implementation_name == \"cpython\" or implementation_name == \"pypy\""
+files = [
+    {file = "ape-template-0.8.0.tar.gz", hash = "sha256:df297d5a81c0b877ffb9d65d737eb6d9b4d350bc74dbaf522c7a838f7e121208"},
+    {file = "ape_template-0.8.0-py3-none-any.whl", hash = "sha256:a09d8b27feedcf8e037d023c1b0cfb89f603e4bfe3e2e72f4e76c982726cd0a8"},
+]
+
+[package.dependencies]
+click = "*"
+cookiecutter = ">=2.1.1,<2.2.0"
+eth-ape = ">=0.8.1,<0.9"
+
+[package.extras]
+dev = ["IPython", "black (>=24.4.2,<25)", "commitizen", "flake8 (>=7.0.0,<8)", "flake8-breakpoint (>=1.1.0,<2)", "flake8-print (>=5.0.0,<6)", "hypothesis (>=6.2.0,<7.0)", "ipdb", "isort (>=5.13.2,<6)", "mdformat (>=0.7.17)", "mdformat-frontmatter (>=0.4.1)", "mdformat-gfm (>=0.3.5)", "mdformat-pyproject (>=0.0.1)", "mypy (>=1.10.0,<2)", "pre-commit", "pytest (>=6.0)", "pytest-cov", "pytest-watch", "pytest-xdist", "setuptools", "twine", "types-setuptools", "wheel"]
+lint = ["black (>=24.4.2,<25)", "flake8 (>=7.0.0,<8)", "flake8-breakpoint (>=1.1.0,<2)", "flake8-print (>=5.0.0,<6)", "isort (>=5.13.2,<6)", "mdformat (>=0.7.17)", "mdformat-frontmatter (>=0.4.1)", "mdformat-gfm (>=0.3.5)", "mdformat-pyproject (>=0.0.1)", "mypy (>=1.10.0,<2)", "types-setuptools"]
+release = ["setuptools", "twine", "wheel"]
+test = ["hypothesis (>=6.2.0,<7.0)", "pytest (>=6.0)", "pytest-cov", "pytest-xdist"]
+
+[[package]]
+name = "ape-tokens"
+version = "0.8.5"
+description = "ape-tokens: tokenlists plugin for Ape"
+optional = false
+python-versions = "<4,>=3.9"
+groups = ["main"]
+markers = "implementation_name == \"cpython\" or implementation_name == \"pypy\""
+files = [
+    {file = "ape_tokens-0.8.5-py3-none-any.whl", hash = "sha256:82f6220d2ec13272220a75b934530085960f60119157eae9895c13146feafa87"},
+    {file = "ape_tokens-0.8.5.tar.gz", hash = "sha256:48785a93198e3fdc065439483083d85d932950187c47af35c5ca6ef894f552c5"},
+]
+
+[package.dependencies]
+eth-ape = ">=0.8.1,<0.9"
+tokenlists = ">=0.1.7"
+
+[package.extras]
+dev = ["IPython", "Sphinx (>=6.1.3,<7)", "black (>=24.10.0,<25)", "commitizen", "flake8 (>=7.1.1,<8)", "flake8-breakpoint (>=1.1.0,<2)", "flake8-print (>=5.0.0,<6)", "flake8-pydantic", "flake8-type-checking", "hypothesis (>=6.2.0,<7.0)", "ipdb", "isort (>=5.13.2,<6)", "mdformat (>=0.7.19)", "mdformat-frontmatter (>=0.4.1)", "mdformat-gfm (>=0.3.5)", "mdformat-pyproject (>=0.0.2)", "mypy (>=1.13.0,<2)", "pre-commit", "pytest (>=6.0)", "pytest-cov", "pytest-watch", "pytest-xdist", "setuptools (>=75.6.0)", "setuptools-scm", "sphinx_rtd_theme (>=1.2.0,<2)", "towncrier (>=19.2.0,<20)", "twine", "types-setuptools", "wheel"]
+doc = ["Sphinx (>=6.1.3,<7)", "sphinx_rtd_theme (>=1.2.0,<2)", "towncrier (>=19.2.0,<20)"]
+lint = ["black (>=24.10.0,<25)", "flake8 (>=7.1.1,<8)", "flake8-breakpoint (>=1.1.0,<2)", "flake8-print (>=5.0.0,<6)", "flake8-pydantic", "flake8-type-checking", "isort (>=5.13.2,<6)", "mdformat (>=0.7.19)", "mdformat-frontmatter (>=0.4.1)", "mdformat-gfm (>=0.3.5)", "mdformat-pyproject (>=0.0.2)", "mypy (>=1.13.0,<2)", "types-setuptools"]
+release = ["setuptools (>=75.6.0)", "setuptools-scm", "twine", "wheel"]
+test = ["hypothesis (>=6.2.0,<7.0)", "pytest (>=6.0)", "pytest-cov", "pytest-xdist"]
+
+[[package]]
+name = "ape-vyper"
+version = "0.8.9"
+description = "Plugin for Ape Ethereum Framework for compiling Vyper contracts"
+optional = false
+python-versions = "<4,>=3.10"
+groups = ["main"]
+markers = "implementation_name == \"cpython\" or implementation_name == \"pypy\""
+files = [
+    {file = "ape_vyper-0.8.9-py3-none-any.whl", hash = "sha256:011b2a5959bdc73b98f0192a57b8b06c7288a48199ae48c59c172db4e379342f"},
+    {file = "ape_vyper-0.8.9.tar.gz", hash = "sha256:0e658fcf667ee3de3e64b645f5d7bcb8c986ff360076edcd947dbd1d5d41d47c"},
+]
+
+[package.dependencies]
+eth-ape = ">=0.8.25,<0.9"
+ethpm-types = "*"
+tqdm = "*"
+vvm = ">=0.2.0,<0.4"
+vyper = ">=0.3.7,<0.5"
+
+[package.extras]
+dev = ["IPython", "black (>=24.10.0,<25)", "commitizen", "flake8 (>=7.1.1,<8)", "flake8-breakpoint (>=1.1.0,<2)", "flake8-print (>=5.0.0,<6)", "flake8-pydantic", "flake8-type-checking", "hypothesis (>=6.2.0,<7.0)", "ipdb", "isort (>=5.13.2)", "mdformat (>=0.7.19)", "mdformat-frontmatter (>=0.4.1)", "mdformat-gfm (>=0.3.5)", "mdformat-pyproject (>=0.0.2)", "mypy (>=1.13.0,<2)", "pre-commit", "pytest (>=6.0)", "pytest-cov", "pytest-mock", "pytest-watch", "pytest-xdist", "setuptools (>=75.6.0)", "snekmate", "twine", "types-setuptools", "wheel"]
+lint = ["black (>=24.10.0,<25)", "flake8 (>=7.1.1,<8)", "flake8-breakpoint (>=1.1.0,<2)", "flake8-print (>=5.0.0,<6)", "flake8-pydantic", "flake8-type-checking", "isort (>=5.13.2)", "mdformat (>=0.7.19)", "mdformat-frontmatter (>=0.4.1)", "mdformat-gfm (>=0.3.5)", "mdformat-pyproject (>=0.0.2)", "mypy (>=1.13.0,<2)", "types-setuptools"]
+release = ["setuptools (>=75.6.0)", "twine", "wheel"]
+test = ["hypothesis (>=6.2.0,<7.0)", "pytest (>=6.0)", "pytest-cov", "pytest-mock", "pytest-xdist", "snekmate"]
+
+[[package]]
 name = "appnope"
 version = "0.1.4"
 description = "Disable App Nap on macOS >= 10.9"
@@ -320,7 +633,7 @@ version = "1.3.0"
 description = "Better dates & times for Python"
 optional = false
 python-versions = ">=3.8"
-groups = ["dev"]
+groups = ["main", "dev"]
 markers = "implementation_name == \"cpython\" or implementation_name == \"pypy\""
 files = [
     {file = "arrow-1.3.0-py3-none-any.whl", hash = "sha256:c728b120ebc00eb84e01882a6f5e7927a53960aa990ce7dd2b10f39005a67f80"},
@@ -442,6 +755,22 @@ chardet = ["chardet"]
 charset-normalizer = ["charset-normalizer"]
 html5lib = ["html5lib"]
 lxml = ["lxml"]
+
+[[package]]
+name = "binaryornot"
+version = "0.4.4"
+description = "Ultra-lightweight pure Python package to check if a file is binary or text."
+optional = false
+python-versions = "*"
+groups = ["main"]
+markers = "implementation_name == \"cpython\" or implementation_name == \"pypy\""
+files = [
+    {file = "binaryornot-0.4.4-py2.py3-none-any.whl", hash = "sha256:b8b71173c917bddcd2c16070412e369c3ed7f0528926f70cac18a6c97fd563e4"},
+    {file = "binaryornot-0.4.4.tar.gz", hash = "sha256:359501dfc9d40632edc9fac890e19542db1a287bbcfa58175b66658392018061"},
+]
+
+[package.dependencies]
+chardet = ">=3.0.2"
 
 [[package]]
 name = "bitarray"
@@ -681,6 +1010,66 @@ files = [
 ]
 
 [[package]]
+name = "cbor2"
+version = "5.6.5"
+description = "CBOR (de)serializer with extensive tag support"
+optional = false
+python-versions = ">=3.8"
+groups = ["main"]
+markers = "implementation_name == \"cpython\" or implementation_name == \"pypy\""
+files = [
+    {file = "cbor2-5.6.5-cp310-cp310-macosx_10_9_x86_64.whl", hash = "sha256:e16c4a87fc999b4926f5c8f6c696b0d251b4745bc40f6c5aee51d69b30b15ca2"},
+    {file = "cbor2-5.6.5-cp310-cp310-macosx_11_0_arm64.whl", hash = "sha256:87026fc838370d69f23ed8572939bd71cea2b3f6c8f8bb8283f573374b4d7f33"},
+    {file = "cbor2-5.6.5-cp310-cp310-manylinux_2_17_aarch64.manylinux2014_aarch64.whl", hash = "sha256:a88f029522aec5425fc2f941b3df90da7688b6756bd3f0472ab886d21208acbd"},
+    {file = "cbor2-5.6.5-cp310-cp310-manylinux_2_17_x86_64.manylinux2014_x86_64.whl", hash = "sha256:b9d15b638539b68aa5d5eacc56099b4543a38b2d2c896055dccf7e83d24b7955"},
+    {file = "cbor2-5.6.5-cp310-cp310-musllinux_1_2_aarch64.whl", hash = "sha256:47261f54a024839ec649b950013c4de5b5f521afe592a2688eebbe22430df1dc"},
+    {file = "cbor2-5.6.5-cp310-cp310-musllinux_1_2_x86_64.whl", hash = "sha256:559dcf0d897260a9e95e7b43556a62253e84550b77147a1ad4d2c389a2a30192"},
+    {file = "cbor2-5.6.5-cp310-cp310-win_amd64.whl", hash = "sha256:5b856fda4c50c5bc73ed3664e64211fa4f015970ed7a15a4d6361bd48462feaf"},
+    {file = "cbor2-5.6.5-cp311-cp311-macosx_10_9_x86_64.whl", hash = "sha256:863e0983989d56d5071270790e7ed8ddbda88c9e5288efdb759aba2efee670bc"},
+    {file = "cbor2-5.6.5-cp311-cp311-macosx_11_0_arm64.whl", hash = "sha256:5cff06464b8f4ca6eb9abcba67bda8f8334a058abc01005c8e616728c387ad32"},
+    {file = "cbor2-5.6.5-cp311-cp311-manylinux_2_17_aarch64.manylinux2014_aarch64.whl", hash = "sha256:f4c7dbcdc59ea7f5a745d3e30ee5e6b6ff5ce7ac244aa3de6786391b10027bb3"},
+    {file = "cbor2-5.6.5-cp311-cp311-manylinux_2_17_x86_64.manylinux2014_x86_64.whl", hash = "sha256:34cf5ab0dc310c3d0196caa6ae062dc09f6c242e2544bea01691fe60c0230596"},
+    {file = "cbor2-5.6.5-cp311-cp311-musllinux_1_2_aarch64.whl", hash = "sha256:6797b824b26a30794f2b169c0575301ca9b74ae99064e71d16e6ba0c9057de51"},
+    {file = "cbor2-5.6.5-cp311-cp311-musllinux_1_2_x86_64.whl", hash = "sha256:73b9647eed1493097db6aad61e03d8f1252080ee041a1755de18000dd2c05f37"},
+    {file = "cbor2-5.6.5-cp311-cp311-win_amd64.whl", hash = "sha256:6e14a1bf6269d25e02ef1d4008e0ce8880aa271d7c6b4c329dba48645764f60e"},
+    {file = "cbor2-5.6.5-cp312-cp312-macosx_10_13_x86_64.whl", hash = "sha256:e25c2aebc9db99af7190e2261168cdde8ed3d639ca06868e4f477cf3a228a8e9"},
+    {file = "cbor2-5.6.5-cp312-cp312-macosx_11_0_arm64.whl", hash = "sha256:fde21ac1cf29336a31615a2c469a9cb03cf0add3ae480672d4d38cda467d07fc"},
+    {file = "cbor2-5.6.5-cp312-cp312-manylinux_2_17_aarch64.manylinux2014_aarch64.whl", hash = "sha256:a8947c102cac79d049eadbd5e2ffb8189952890df7cbc3ee262bbc2f95b011a9"},
+    {file = "cbor2-5.6.5-cp312-cp312-manylinux_2_17_x86_64.manylinux2014_x86_64.whl", hash = "sha256:38886c41bebcd7dca57739439455bce759f1e4c551b511f618b8e9c1295b431b"},
+    {file = "cbor2-5.6.5-cp312-cp312-musllinux_1_2_aarch64.whl", hash = "sha256:ae2b49226224e92851c333b91d83292ec62eba53a19c68a79890ce35f1230d70"},
+    {file = "cbor2-5.6.5-cp312-cp312-musllinux_1_2_x86_64.whl", hash = "sha256:f2764804ffb6553283fc4afb10a280715905a4cea4d6dc7c90d3e89c4a93bc8d"},
+    {file = "cbor2-5.6.5-cp312-cp312-win_amd64.whl", hash = "sha256:a3ac50485cf67dfaab170a3e7b527630e93cb0a6af8cdaa403054215dff93adf"},
+    {file = "cbor2-5.6.5-cp313-cp313-macosx_10_13_x86_64.whl", hash = "sha256:f0d0a9c5aabd48ecb17acf56004a7542a0b8d8212be52f3102b8218284bd881e"},
+    {file = "cbor2-5.6.5-cp313-cp313-macosx_11_0_arm64.whl", hash = "sha256:61ceb77e6aa25c11c814d4fe8ec9e3bac0094a1f5bd8a2a8c95694596ea01e08"},
+    {file = "cbor2-5.6.5-cp313-cp313-manylinux_2_17_aarch64.manylinux2014_aarch64.whl", hash = "sha256:97a7e409b864fecf68b2ace8978eb5df1738799a333ec3ea2b9597bfcdd6d7d2"},
+    {file = "cbor2-5.6.5-cp313-cp313-manylinux_2_17_x86_64.manylinux2014_x86_64.whl", hash = "sha256:7f6d69f38f7d788b04c09ef2b06747536624b452b3c8b371ab78ad43b0296fab"},
+    {file = "cbor2-5.6.5-cp313-cp313-musllinux_1_2_aarch64.whl", hash = "sha256:f91e6d74fa6917df31f8757fdd0e154203b0dd0609ec53eb957016a2b474896a"},
+    {file = "cbor2-5.6.5-cp313-cp313-musllinux_1_2_x86_64.whl", hash = "sha256:5ce13a27ef8fddf643fc17a753fe34aa72b251d03c23da6a560c005dc171085b"},
+    {file = "cbor2-5.6.5-cp313-cp313-win_amd64.whl", hash = "sha256:54c72a3207bb2d4480c2c39dad12d7971ce0853a99e3f9b8d559ce6eac84f66f"},
+    {file = "cbor2-5.6.5-cp38-cp38-macosx_10_9_x86_64.whl", hash = "sha256:4586a4f65546243096e56a3f18f29d60752ee9204722377021b3119a03ed99ff"},
+    {file = "cbor2-5.6.5-cp38-cp38-macosx_11_0_arm64.whl", hash = "sha256:3d1a18b3a58dcd9b40ab55c726160d4a6b74868f2a35b71f9e726268b46dc6a2"},
+    {file = "cbor2-5.6.5-cp38-cp38-manylinux_2_17_aarch64.manylinux2014_aarch64.whl", hash = "sha256:a83b76367d1c3e69facbcb8cdf65ed6948678e72f433137b41d27458aa2a40cb"},
+    {file = "cbor2-5.6.5-cp38-cp38-manylinux_2_17_x86_64.manylinux2014_x86_64.whl", hash = "sha256:90bfa36944caccec963e6ab7e01e64e31cc6664535dc06e6295ee3937c999cbb"},
+    {file = "cbor2-5.6.5-cp38-cp38-musllinux_1_2_aarch64.whl", hash = "sha256:37096663a5a1c46a776aea44906cbe5fa3952f29f50f349179c00525d321c862"},
+    {file = "cbor2-5.6.5-cp38-cp38-musllinux_1_2_x86_64.whl", hash = "sha256:93676af02bd9a0b4a62c17c5b20f8e9c37b5019b1a24db70a2ee6cb770423568"},
+    {file = "cbor2-5.6.5-cp38-cp38-win_amd64.whl", hash = "sha256:8f747b7a9aaa58881a0c5b4cd4a9b8fb27eca984ed261a769b61de1f6b5bd1e6"},
+    {file = "cbor2-5.6.5-cp39-cp39-macosx_10_9_x86_64.whl", hash = "sha256:94885903105eec66d7efb55f4ce9884fdc5a4d51f3bd75b6fedc68c5c251511b"},
+    {file = "cbor2-5.6.5-cp39-cp39-macosx_11_0_arm64.whl", hash = "sha256:fe11c2eb518c882cfbeed456e7a552e544893c17db66fe5d3230dbeaca6b615c"},
+    {file = "cbor2-5.6.5-cp39-cp39-manylinux_2_17_aarch64.manylinux2014_aarch64.whl", hash = "sha256:66dd25dd919cddb0b36f97f9ccfa51947882f064729e65e6bef17c28535dc459"},
+    {file = "cbor2-5.6.5-cp39-cp39-manylinux_2_17_x86_64.manylinux2014_x86_64.whl", hash = "sha256:fa61a02995f3a996c03884cf1a0b5733f88cbfd7fa0e34944bf678d4227ee712"},
+    {file = "cbor2-5.6.5-cp39-cp39-musllinux_1_2_aarch64.whl", hash = "sha256:824f202b556fc204e2e9a67d6d6d624e150fbd791278ccfee24e68caec578afd"},
+    {file = "cbor2-5.6.5-cp39-cp39-musllinux_1_2_x86_64.whl", hash = "sha256:7488aec919f8408f9987a3a32760bd385d8628b23a35477917aa3923ff6ad45f"},
+    {file = "cbor2-5.6.5-cp39-cp39-win_amd64.whl", hash = "sha256:a34ee99e86b17444ecbe96d54d909dd1a20e2da9f814ae91b8b71cf1ee2a95e4"},
+    {file = "cbor2-5.6.5-py3-none-any.whl", hash = "sha256:3038523b8fc7de312bb9cdcbbbd599987e64307c4db357cd2030c472a6c7d468"},
+    {file = "cbor2-5.6.5.tar.gz", hash = "sha256:b682820677ee1dbba45f7da11898d2720f92e06be36acec290867d5ebf3d7e09"},
+]
+
+[package.extras]
+benchmarks = ["pytest-benchmark (==4.0.0)"]
+doc = ["Sphinx (>=7)", "packaging", "sphinx-autodoc-typehints (>=1.2.0)", "sphinx-rtd-theme (>=1.3.0)", "typing-extensions ; python_version < \"3.12\""]
+test = ["coverage (>=7)", "hypothesis", "pytest"]
+
+[[package]]
 name = "cchecksum"
 version = "0.2.6"
 description = "A ~8x faster drop-in replacement for eth_utils.to_checksum_address. Raises the exact same Exceptions. Implemented in C."
@@ -818,6 +1207,19 @@ files = [
 pycparser = "*"
 
 [[package]]
+name = "chardet"
+version = "5.2.0"
+description = "Universal encoding detector for Python 3"
+optional = false
+python-versions = ">=3.7"
+groups = ["main"]
+markers = "implementation_name == \"cpython\" or implementation_name == \"pypy\""
+files = [
+    {file = "chardet-5.2.0-py3-none-any.whl", hash = "sha256:e1cf59446890a00105fe7b7912492ea04b6e6f06d4b742b2c788469e34c82970"},
+    {file = "chardet-5.2.0.tar.gz", hash = "sha256:1b3b6ff479a8c414bc3fa2c0852995695c4a026dcd6d0633b2dd092ca39c1cf7"},
+]
+
+[[package]]
 name = "charset-normalizer"
 version = "3.4.1"
 description = "The Real First Universal Charset Detector. Open, modern and actively maintained alternative to Chardet."
@@ -918,6 +1320,58 @@ files = [
     {file = "charset_normalizer-3.4.1-cp39-cp39-win_amd64.whl", hash = "sha256:49402233c892a461407c512a19435d1ce275543138294f7ef013f0b63d5d3765"},
     {file = "charset_normalizer-3.4.1-py3-none-any.whl", hash = "sha256:d98b1668f06378c6dbefec3b92299716b931cd4e6061f3c875a71ced1780ab85"},
     {file = "charset_normalizer-3.4.1.tar.gz", hash = "sha256:44251f18cd68a75b56585dd00dae26183e102cd5e0f9f1466e6df5da2ed64ea3"},
+]
+
+[[package]]
+name = "chompjs"
+version = "1.3.1"
+description = "Parsing JavaScript objects into Python dictionaries"
+optional = false
+python-versions = ">=3.8"
+groups = ["main"]
+markers = "implementation_name == \"cpython\" or implementation_name == \"pypy\""
+files = [
+    {file = "chompjs-1.3.1-cp310-cp310-macosx_10_9_x86_64.whl", hash = "sha256:26b91b5f15dff13515b253cc1710e324f01c859cc3bc41c3b5da0fc1a08f386c"},
+    {file = "chompjs-1.3.1-cp310-cp310-macosx_11_0_arm64.whl", hash = "sha256:e663d825309654d6570c14b1d8505d44a397a3d4693acb1c57389b2288f9d30a"},
+    {file = "chompjs-1.3.1-cp310-cp310-manylinux_2_17_x86_64.manylinux2014_x86_64.whl", hash = "sha256:88ffc687a10148481d101990be7304a0bcd6f18b6d6ae67ae1c90776774392d1"},
+    {file = "chompjs-1.3.1-cp310-cp310-manylinux_2_5_i686.manylinux1_i686.manylinux_2_17_i686.manylinux2014_i686.whl", hash = "sha256:538df7517accdd7c5dd89173a1d347b200b9ff7465941a30fc6621a083b079ce"},
+    {file = "chompjs-1.3.1-cp310-cp310-musllinux_1_2_i686.whl", hash = "sha256:cbe2e4dc5dae69ccf9016135bf29ccc5d782927893dccfbbca4c462454edd91d"},
+    {file = "chompjs-1.3.1-cp310-cp310-musllinux_1_2_x86_64.whl", hash = "sha256:0d5200e7a5db99f698544b606dfc79b1c9a659395ff3b51847e77136b283db94"},
+    {file = "chompjs-1.3.1-cp310-cp310-win32.whl", hash = "sha256:eba4e70c29c396a8931bfbd8a0499dbddf354a8afdd497d7657a249ebf606216"},
+    {file = "chompjs-1.3.1-cp310-cp310-win_amd64.whl", hash = "sha256:9d3c8843a4ffa0c0ae347bb2762ed5e97b26083ba0a2a30b0a8f19db0d3247ae"},
+    {file = "chompjs-1.3.1-cp311-cp311-macosx_10_9_x86_64.whl", hash = "sha256:cc2324f21be5a36bf9534e872d854d99eb7a7b8cebd3befbcce3cef014cd335d"},
+    {file = "chompjs-1.3.1-cp311-cp311-macosx_11_0_arm64.whl", hash = "sha256:01d7b4c7e0c08513584ffa759d9757c37685609d5ee704d38056b1ffbce2ca49"},
+    {file = "chompjs-1.3.1-cp311-cp311-manylinux_2_17_x86_64.manylinux2014_x86_64.whl", hash = "sha256:077c4b06e5ffcedd32f4326db1b788890b40ad07d90587bc019acf7fdfedf2df"},
+    {file = "chompjs-1.3.1-cp311-cp311-manylinux_2_5_i686.manylinux1_i686.manylinux_2_17_i686.manylinux2014_i686.whl", hash = "sha256:fd1e6a328d6aa899d2e5b06ed01b47266144cc36575b450a498301e60c89d439"},
+    {file = "chompjs-1.3.1-cp311-cp311-musllinux_1_2_i686.whl", hash = "sha256:e123414fd7a4b781500c32988ccc761402121df615cd3bed3d74f28b907ebb20"},
+    {file = "chompjs-1.3.1-cp311-cp311-musllinux_1_2_x86_64.whl", hash = "sha256:01d5a4a269ea98ebe52ce69e0508c99db24e641a402d6e854f26c33d623ac881"},
+    {file = "chompjs-1.3.1-cp311-cp311-win32.whl", hash = "sha256:49a44b41cf95e598d691219e5bef620b4422452a971c0ae4d6ed84260c9b4702"},
+    {file = "chompjs-1.3.1-cp311-cp311-win_amd64.whl", hash = "sha256:1080a34f37abccc4c29fd31ec7a2bc043a7ec5cc051526f82e036701a5e8f6a3"},
+    {file = "chompjs-1.3.1-cp312-cp312-macosx_10_13_x86_64.whl", hash = "sha256:65bf207a3a71bb7d7c727766813dd1608b7b83a1b447cde99546250e172796dd"},
+    {file = "chompjs-1.3.1-cp312-cp312-macosx_11_0_arm64.whl", hash = "sha256:cbc739db8037b4cb3389098abe02c33532150a1a5d1b40dbf586ed0db56d3141"},
+    {file = "chompjs-1.3.1-cp312-cp312-manylinux_2_17_x86_64.manylinux2014_x86_64.whl", hash = "sha256:20176af4c9bdee6822435c63dbbd4cb93338509cff5608a894f80bda5add1a66"},
+    {file = "chompjs-1.3.1-cp312-cp312-manylinux_2_5_i686.manylinux1_i686.manylinux_2_17_i686.manylinux2014_i686.whl", hash = "sha256:d27a2eae4cc1e5689151251864ae6bd1eab69d8130093164ff1aad9f20df8492"},
+    {file = "chompjs-1.3.1-cp312-cp312-musllinux_1_2_i686.whl", hash = "sha256:2bdfa67ec11a99133b21e7b6fe0341a6ffaf669bf53e92c6548228681c7b7a6e"},
+    {file = "chompjs-1.3.1-cp312-cp312-musllinux_1_2_x86_64.whl", hash = "sha256:af2645d9a148dd73e1e544d30ece2ee21f05ef42b3a0dc8c8acd7600e15d323a"},
+    {file = "chompjs-1.3.1-cp312-cp312-win32.whl", hash = "sha256:97d591de4877208ad7de3e8182f69059fcb8699c2c92bc1e8e77d7ab22539cad"},
+    {file = "chompjs-1.3.1-cp312-cp312-win_amd64.whl", hash = "sha256:c03cf57247e67ba439765d81e2ab482c875a93a3018d10c7fbd890023daab24d"},
+    {file = "chompjs-1.3.1-cp313-cp313-macosx_10_13_x86_64.whl", hash = "sha256:464e58c4a4079fcb977480272528beb8d29b51cfe1fe989d1f74539525c97b0a"},
+    {file = "chompjs-1.3.1-cp313-cp313-macosx_11_0_arm64.whl", hash = "sha256:b7d4b6ad5d49c80a6b3e3ec4e17018292f6054e70d38e4769807f52b184e5b56"},
+    {file = "chompjs-1.3.1-cp313-cp313-manylinux_2_17_x86_64.manylinux2014_x86_64.whl", hash = "sha256:72d936ce62a929dc0e95b560ac49653ca0b44dd05e7c4ab0b0ed908ed6d67af1"},
+    {file = "chompjs-1.3.1-cp313-cp313-manylinux_2_5_i686.manylinux1_i686.manylinux_2_17_i686.manylinux2014_i686.whl", hash = "sha256:c702c97344c8096a5241a67b5f379e810deb457f38f4fa14cfb329c86f19c559"},
+    {file = "chompjs-1.3.1-cp313-cp313-musllinux_1_2_i686.whl", hash = "sha256:829a50083fac34c3d9f674f10f08b967378167c73be6792b68530d4ebe183d99"},
+    {file = "chompjs-1.3.1-cp313-cp313-musllinux_1_2_x86_64.whl", hash = "sha256:5ca3881f2c306d12b18a6dbf75fd04a1ed6720a93f8cfc9c459d6a0d67c85e8f"},
+    {file = "chompjs-1.3.1-cp313-cp313-win32.whl", hash = "sha256:d5547d19d0891c427adcc3a87110bc3e83ce50d86350ee1db6c64001b2e3da6e"},
+    {file = "chompjs-1.3.1-cp313-cp313-win_amd64.whl", hash = "sha256:a2e10a6eb67f52244ab51c6062f315622839fb94a0a0fe6c7bd0fce514bdee69"},
+    {file = "chompjs-1.3.1-cp39-cp39-macosx_10_9_x86_64.whl", hash = "sha256:a592ed1259e484e03543d035c120d92fe75cb83453b4fb1735be001b9f9d9d27"},
+    {file = "chompjs-1.3.1-cp39-cp39-macosx_11_0_arm64.whl", hash = "sha256:2ed1059400c86208e4ce56a8b3097f8cae9af77f904ff4d2b0efff4e57e636f1"},
+    {file = "chompjs-1.3.1-cp39-cp39-manylinux_2_17_x86_64.manylinux2014_x86_64.whl", hash = "sha256:aa81b64755dc75a0c98a9b8b938b1a3b93aba380f2487889a0fa22162dc8c730"},
+    {file = "chompjs-1.3.1-cp39-cp39-manylinux_2_5_i686.manylinux1_i686.manylinux_2_17_i686.manylinux2014_i686.whl", hash = "sha256:2ee99737140bffdfab1950f8871cbb45a67699691d751fb9f143ccc9d7f506d4"},
+    {file = "chompjs-1.3.1-cp39-cp39-musllinux_1_2_i686.whl", hash = "sha256:4a2da082bb27fe0f2f492f7d7aee3623098c9c503db9948d8dd07fdab4119ba5"},
+    {file = "chompjs-1.3.1-cp39-cp39-musllinux_1_2_x86_64.whl", hash = "sha256:4286a05d480c58f57d2e59410821fca60f59a92a0ee6d85d706a3726c7f5f08a"},
+    {file = "chompjs-1.3.1-cp39-cp39-win32.whl", hash = "sha256:a92c83da5c616eb72432f469773a6d7bdd1fe3da4c7ae9332fe9adcc0b05acf5"},
+    {file = "chompjs-1.3.1-cp39-cp39-win_amd64.whl", hash = "sha256:da866e0f71c306d688a4cc440e76795bc0f7e6a506361dc09fcf381a3612b51f"},
+    {file = "chompjs-1.3.1.tar.gz", hash = "sha256:2cc5e4b266e9e58307e9a5235e6a033d4c4282d9fa56e8810e5057112e409363"},
 ]
 
 [[package]]
@@ -1156,6 +1610,64 @@ docs = ["furo", "sphinx (>=7.2)", "sphinx-copybutton"]
 mypy = ["bokeh", "contourpy[bokeh,docs]", "docutils-stubs", "mypy (==1.15.0)", "types-Pillow"]
 test = ["Pillow", "contourpy[test-no-images]", "matplotlib"]
 test-no-images = ["pytest", "pytest-cov", "pytest-rerunfailures", "pytest-xdist", "wurlitzer"]
+
+[[package]]
+name = "cookiecutter"
+version = "2.1.1"
+description = "A command-line utility that creates projects from project templates, e.g. creating a Python package project from a Python package project template."
+optional = false
+python-versions = ">=3.7"
+groups = ["main"]
+markers = "implementation_name == \"cpython\" or implementation_name == \"pypy\""
+files = [
+    {file = "cookiecutter-2.1.1-py2.py3-none-any.whl", hash = "sha256:9f3ab027cec4f70916e28f03470bdb41e637a3ad354b4d65c765d93aad160022"},
+    {file = "cookiecutter-2.1.1.tar.gz", hash = "sha256:f3982be8d9c53dac1261864013fdec7f83afd2e42ede6f6dd069c5e149c540d5"},
+]
+
+[package.dependencies]
+binaryornot = ">=0.4.4"
+click = ">=7.0,<9.0.0"
+Jinja2 = ">=2.7,<4.0.0"
+jinja2-time = ">=0.2.0"
+python-slugify = ">=4.0.0"
+pyyaml = ">=5.3.1"
+requests = ">=2.23.0"
+
+[[package]]
+name = "cryo"
+version = "0.3.2"
+description = "cryo is the easiest way to extract blockchain data to parquet, csv, json, or a python dataframe."
+optional = false
+python-versions = ">=3.7"
+groups = ["main"]
+markers = "implementation_name == \"cpython\" or implementation_name == \"pypy\""
+files = [
+    {file = "cryo-0.3.2-cp310-cp310-macosx_10_12_x86_64.whl", hash = "sha256:cbec63e5e03fb43d2a9a6dad21bc130b018db78ead2f75d5ce36311de22e7e0d"},
+    {file = "cryo-0.3.2-cp310-cp310-macosx_11_0_arm64.whl", hash = "sha256:99c33155870a9d2b4c7d0f29b86e571e79bb4eb75ed7c4d1e6004c3d5484de78"},
+    {file = "cryo-0.3.2-cp310-cp310-manylinux_2_17_x86_64.manylinux2014_x86_64.whl", hash = "sha256:cc3169e2592d668b71eb31587bc7a1b6db118aa675657a55f102978394085202"},
+    {file = "cryo-0.3.2-cp310-none-win_amd64.whl", hash = "sha256:45d7b2470ab705e099d9b87cde7a537fbf63234af68efceb22bb5e6a58f72c92"},
+    {file = "cryo-0.3.2-cp311-cp311-macosx_10_12_x86_64.whl", hash = "sha256:2f97a37c4ba2e5e2fddd1ac53905f843da3b53b3f39e6ae37c4c0a23da77bcd2"},
+    {file = "cryo-0.3.2-cp311-cp311-macosx_11_0_arm64.whl", hash = "sha256:145e65246f6ed4202af70aaa26029015f51f60399d50c9b4b0ea434edaa5a12e"},
+    {file = "cryo-0.3.2-cp311-cp311-manylinux_2_17_x86_64.manylinux2014_x86_64.whl", hash = "sha256:91cae8b4555d38951d6bdab0b5cf2c7dd1441f30969865eae5ff1b635d47d7a3"},
+    {file = "cryo-0.3.2-cp311-none-win_amd64.whl", hash = "sha256:7b9e58d92247e86b8d8b4e17f4fb360d08ca0a675969090f975d5783aa3251c1"},
+    {file = "cryo-0.3.2-cp312-cp312-macosx_10_12_x86_64.whl", hash = "sha256:699bc8d4cf0c6b04eb7c57e94d2eb31d66637e750ad065cc8ec02c4fce0f68e9"},
+    {file = "cryo-0.3.2-cp312-cp312-macosx_11_0_arm64.whl", hash = "sha256:7ed466ed629aa114f3b9375f76ba79970df8e9b9b71ffee3fcbc9451b5f612c0"},
+    {file = "cryo-0.3.2-cp312-cp312-manylinux_2_17_x86_64.manylinux2014_x86_64.whl", hash = "sha256:07d848a5c008c888dd105da5e7dc5dc1872234c7ee1bdbc1dd46e43f53a2bab3"},
+    {file = "cryo-0.3.2-cp312-none-win_amd64.whl", hash = "sha256:25a96a3fdb2189e98232919435ee2360a9bd6335c3d28a22e7cc96a0678ebf66"},
+    {file = "cryo-0.3.2-cp37-cp37m-macosx_10_12_x86_64.whl", hash = "sha256:033582e979922a09d5b05413f54823cfcc381615602e6a0a5bc6878b3d34a292"},
+    {file = "cryo-0.3.2-cp37-cp37m-macosx_11_0_arm64.whl", hash = "sha256:13f6a2ecf4c3ae95adc212c8b94f5ee71199edfe68ee9708befadf33ff64d830"},
+    {file = "cryo-0.3.2-cp37-cp37m-manylinux_2_17_x86_64.manylinux2014_x86_64.whl", hash = "sha256:3fc57ce2fc9c786709e0c0e42eb5a627009fc8e38da65dbb7db9b3e46ed0f70e"},
+    {file = "cryo-0.3.2-cp37-none-win_amd64.whl", hash = "sha256:009f7907c7dc40d12fce80234e44a8b72ae24dea37896bc98c10b28a6d549523"},
+    {file = "cryo-0.3.2-cp38-cp38-macosx_10_12_x86_64.whl", hash = "sha256:8beffbf69ae2b1ba2d5587f8f142e5a2f31857796f5b7250f9e8674baa835ec3"},
+    {file = "cryo-0.3.2-cp38-cp38-macosx_11_0_arm64.whl", hash = "sha256:1fa7f471f58000df0a4548b5ab9f473e55c45ccf82ccfdf76671be07897e3e31"},
+    {file = "cryo-0.3.2-cp38-cp38-manylinux_2_17_x86_64.manylinux2014_x86_64.whl", hash = "sha256:4a1acbec58d75246c0fb8add235f8e8fa03429a8facc0219268ada2db2b13d75"},
+    {file = "cryo-0.3.2-cp38-none-win_amd64.whl", hash = "sha256:9b0e1f50d756464634bb33b3e472d34e59c4b5a4351ddfb2c435a134573b8cdf"},
+    {file = "cryo-0.3.2-cp39-cp39-macosx_10_12_x86_64.whl", hash = "sha256:3abf720446c4eeffe1321725917e96a5c0980876a112d562eaf88f3605615e6c"},
+    {file = "cryo-0.3.2-cp39-cp39-macosx_11_0_arm64.whl", hash = "sha256:809ce4e66ff3084e799ea269cd9dbaf66170b7ef11f3b690653d5d00c90e9030"},
+    {file = "cryo-0.3.2-cp39-cp39-manylinux_2_17_x86_64.manylinux2014_x86_64.whl", hash = "sha256:86ff3117fe1e3a3d45831c98a7b58550b6ad34ada7087e2dad84c52a498a86db"},
+    {file = "cryo-0.3.2-cp39-none-win_amd64.whl", hash = "sha256:2ec41267915ad95fd269327fa8e5815d24359119f30d0390d9adddd16909c172"},
+    {file = "cryo-0.3.2.tar.gz", hash = "sha256:0411c6168e9e6a125fdadac5263718b3fd0a108d47859b2da742a0729f2a14ee"},
+]
 
 [[package]]
 name = "cryptography"
@@ -1537,6 +2049,16 @@ files = [
 ]
 
 [package.dependencies]
+ape-alchemy = {version = "*", optional = true, markers = "extra == \"recommended-plugins\""}
+ape-ens = {version = "*", optional = true, markers = "extra == \"recommended-plugins\""}
+ape-etherscan = {version = "*", optional = true, markers = "extra == \"recommended-plugins\""}
+ape-foundry = {version = "*", optional = true, markers = "extra == \"recommended-plugins\""}
+ape-hardhat = {version = "*", optional = true, markers = "extra == \"recommended-plugins\""}
+ape-infura = {version = "*", optional = true, markers = "extra == \"recommended-plugins\""}
+ape-solidity = {version = "*", optional = true, markers = "extra == \"recommended-plugins\""}
+ape-template = {version = "*", optional = true, markers = "extra == \"recommended-plugins\""}
+ape-tokens = {version = "*", optional = true, markers = "extra == \"recommended-plugins\""}
+ape-vyper = {version = "*", optional = true, markers = "extra == \"recommended-plugins\""}
 asttokens = ">=2.4.1,<3"
 cchecksum = ">=0.0.3,<1"
 click = ">=8.1.6,<9"
@@ -2708,6 +3230,31 @@ files = [
 ]
 
 [[package]]
+name = "importlib-metadata"
+version = "8.7.0"
+description = "Read metadata from Python packages"
+optional = false
+python-versions = ">=3.9"
+groups = ["main"]
+markers = "implementation_name == \"cpython\" or implementation_name == \"pypy\""
+files = [
+    {file = "importlib_metadata-8.7.0-py3-none-any.whl", hash = "sha256:e5dd1551894c77868a30651cef00984d50e1002d06942a7101d34870c5f02afd"},
+    {file = "importlib_metadata-8.7.0.tar.gz", hash = "sha256:d13b81ad223b890aa16c5471f2ac3056cf76c5f10f82d6f9292f0b415f389000"},
+]
+
+[package.dependencies]
+zipp = ">=3.20"
+
+[package.extras]
+check = ["pytest-checkdocs (>=2.4)", "pytest-ruff (>=0.2.1) ; sys_platform != \"cygwin\""]
+cover = ["pytest-cov"]
+doc = ["furo", "jaraco.packaging (>=9.3)", "jaraco.tidelift (>=1.4)", "rst.linker (>=1.9)", "sphinx (>=3.5)", "sphinx-lint"]
+enabler = ["pytest-enabler (>=2.2)"]
+perf = ["ipython"]
+test = ["flufl.flake8", "importlib_resources (>=1.3) ; python_version < \"3.9\"", "jaraco.test (>=5.4)", "packaging", "pyfakefs", "pytest (>=6,!=8.1.*)", "pytest-perf (>=0.9.2)"]
+type = ["pytest-mypy"]
+
+[[package]]
 name = "iniconfig"
 version = "2.1.0"
 description = "brain-dead simple config-ini parsing"
@@ -2876,7 +3423,7 @@ version = "3.1.6"
 description = "A very fast and expressive template engine."
 optional = false
 python-versions = ">=3.7"
-groups = ["dev"]
+groups = ["main", "dev"]
 markers = "implementation_name == \"cpython\" or implementation_name == \"pypy\""
 files = [
     {file = "jinja2-3.1.6-py3-none-any.whl", hash = "sha256:85ece4451f492d0c13c5dd7c13a64681a86afae63a5f347908daf103ce6d2f67"},
@@ -2888,6 +3435,23 @@ MarkupSafe = ">=2.0"
 
 [package.extras]
 i18n = ["Babel (>=2.7)"]
+
+[[package]]
+name = "jinja2-time"
+version = "0.2.0"
+description = "Jinja2 Extension for Dates and Times"
+optional = false
+python-versions = "*"
+groups = ["main"]
+markers = "implementation_name == \"cpython\" or implementation_name == \"pypy\""
+files = [
+    {file = "jinja2-time-0.2.0.tar.gz", hash = "sha256:d14eaa4d315e7688daa4969f616f226614350c48730bfa1692d2caebd8c90d40"},
+    {file = "jinja2_time-0.2.0-py2.py3-none-any.whl", hash = "sha256:d3eab6605e3ec8b7a0863df09cc1d23714908fa61aa6986a845c20ba488b4efa"},
+]
+
+[package.dependencies]
+arrow = "*"
+jinja2 = "*"
 
 [[package]]
 name = "jiter"
@@ -3698,6 +4262,25 @@ requests-toolbelt = ">=1.0.0,<2.0.0"
 langsmith-pyo3 = ["langsmith-pyo3 (>=0.1.0rc2,<0.2.0)"]
 
 [[package]]
+name = "lark"
+version = "1.2.2"
+description = "a modern parsing library"
+optional = false
+python-versions = ">=3.8"
+groups = ["main"]
+markers = "implementation_name == \"cpython\" or implementation_name == \"pypy\""
+files = [
+    {file = "lark-1.2.2-py3-none-any.whl", hash = "sha256:c2276486b02f0f1b90be155f2c8ba4a8e194d42775786db622faccd652d8e80c"},
+    {file = "lark-1.2.2.tar.gz", hash = "sha256:ca807d0162cd16cef15a8feecb862d7319e7a09bdb13aef927968e45040fed80"},
+]
+
+[package.extras]
+atomic-cache = ["atomicwrites"]
+interegular = ["interegular (>=0.3.1,<0.4.0)"]
+nearley = ["js2py"]
+regex = ["regex"]
+
+[[package]]
 name = "lazyasd"
 version = "0.1.4"
 description = "Lazy & self-destructive tools for speeding up module imports"
@@ -3997,6 +4580,34 @@ files = [
 
 [package.dependencies]
 traitlets = "*"
+
+[[package]]
+name = "maturin"
+version = "1.8.4"
+description = "Build and publish crates with pyo3, cffi and uniffi bindings as well as rust binaries as python packages"
+optional = false
+python-versions = ">=3.7"
+groups = ["main"]
+markers = "implementation_name == \"cpython\" or implementation_name == \"pypy\""
+files = [
+    {file = "maturin-1.8.4-py3-none-linux_armv6l.whl", hash = "sha256:85b45d624cc3acb326d45c9b149870c5ffe6e2aac4cfe9a82edfa662967c09d0"},
+    {file = "maturin-1.8.4-py3-none-macosx_10_12_x86_64.macosx_11_0_arm64.macosx_10_12_universal2.whl", hash = "sha256:ffeb2b7b31abc8c3232ae5cfd37cb200701486b4deaf68b251f70e851f5a989a"},
+    {file = "maturin-1.8.4-py3-none-macosx_10_12_x86_64.whl", hash = "sha256:28a6efab7227da723d29d93fef271ef2065bf2f04b78c3034aecd471dce92be3"},
+    {file = "maturin-1.8.4-py3-none-manylinux_2_12_i686.manylinux2010_i686.musllinux_1_1_i686.whl", hash = "sha256:1f01b38c2ff34e596732b1ad4e11b1f5db9d2c55e5e5169d3bc6686a392a431e"},
+    {file = "maturin-1.8.4-py3-none-manylinux_2_12_x86_64.manylinux2010_x86_64.musllinux_1_1_x86_64.whl", hash = "sha256:5e785979409bd54d8baf10cabcde71168b6be172f701e3e37459b445dccdaf3d"},
+    {file = "maturin-1.8.4-py3-none-manylinux_2_17_aarch64.manylinux2014_aarch64.musllinux_1_1_aarch64.whl", hash = "sha256:78a846a7ba5563c87a47a27ca6247b6fb374d1b27429276b5a2b85f284034543"},
+    {file = "maturin-1.8.4-py3-none-manylinux_2_17_armv7l.manylinux2014_armv7l.musllinux_1_1_armv7l.whl", hash = "sha256:8c56e107ea3a4484b31912fa353a800b1ca7647993858dbb46c2013df5c23f34"},
+    {file = "maturin-1.8.4-py3-none-manylinux_2_17_ppc64le.manylinux2014_ppc64le.musllinux_1_1_ppc64le.whl", hash = "sha256:8b942711bd7ecfb3f0809bb895c1a36f05d901d69fa96d66cf6868971dca2236"},
+    {file = "maturin-1.8.4-py3-none-manylinux_2_17_s390x.manylinux2014_s390x.whl", hash = "sha256:b3d2a551ffc2ed19f7e18fa5ce40edb856281f05b443b8b92a7d9a2612f153b8"},
+    {file = "maturin-1.8.4-py3-none-win32.whl", hash = "sha256:de700dac5cbaa0f3c72bb1933f142ee795047a57e83b1af8753586597b13d11e"},
+    {file = "maturin-1.8.4-py3-none-win_amd64.whl", hash = "sha256:bd3d2262cb9581e7a383ab6fde6a96875b59d21091e8db5f6058fa0c4a97aca2"},
+    {file = "maturin-1.8.4-py3-none-win_arm64.whl", hash = "sha256:1177706bdda1aab84783fa04619dcedd6eb48477e6895704063478855ba5c9de"},
+    {file = "maturin-1.8.4.tar.gz", hash = "sha256:abe251545c3bf172b9514460d46ba22eaf2ca6c4310f7b06cebf69b4d365e4f7"},
+]
+
+[package.extras]
+patchelf = ["patchelf"]
+zig = ["ziglang (>=0.10.0,<0.13.0)"]
 
 [[package]]
 name = "mccabe"
@@ -4963,6 +5574,51 @@ dev = ["pre-commit", "tox"]
 testing = ["pytest", "pytest-benchmark"]
 
 [[package]]
+name = "polars"
+version = "1.29.0"
+description = "Blazingly fast DataFrame library"
+optional = false
+python-versions = ">=3.9"
+groups = ["main"]
+markers = "implementation_name == \"cpython\" or implementation_name == \"pypy\""
+files = [
+    {file = "polars-1.29.0-cp39-abi3-macosx_10_12_x86_64.whl", hash = "sha256:d053ee3217df31468caf2f5ddb9fd0f3a94fd42afdf7d9abe23d9d424adca02b"},
+    {file = "polars-1.29.0-cp39-abi3-macosx_11_0_arm64.whl", hash = "sha256:14131078e365eae5ccda3e67383cd43c0c0598d7f760bdf1cb4082566c5494ce"},
+    {file = "polars-1.29.0-cp39-abi3-manylinux_2_17_x86_64.manylinux2014_x86_64.whl", hash = "sha256:54f6902da333f99208b8d27765d580ba0299b412787c0564275912122c228e40"},
+    {file = "polars-1.29.0-cp39-abi3-manylinux_2_24_aarch64.whl", hash = "sha256:7a0ac6a11088279af4d715f4b58068835f551fa5368504a53401743006115e78"},
+    {file = "polars-1.29.0-cp39-abi3-win_amd64.whl", hash = "sha256:f5aac4656e58b1e12f9481950981ef68b5b0e53dd4903bd72472efd2d09a74c8"},
+    {file = "polars-1.29.0-cp39-abi3-win_arm64.whl", hash = "sha256:0c105b07b980b77fe88c3200b015bf4695e53185385f0f244c13e2d1027c7bbf"},
+    {file = "polars-1.29.0.tar.gz", hash = "sha256:d2acb71fce1ff0ea76db5f648abd91a7a6c460fafabce9a2e8175184efa00d02"},
+]
+
+[package.extras]
+adbc = ["adbc-driver-manager[dbapi]", "adbc-driver-sqlite[dbapi]"]
+all = ["polars[async,cloudpickle,database,deltalake,excel,fsspec,graph,iceberg,numpy,pandas,plot,pyarrow,pydantic,style,timezone]"]
+async = ["gevent"]
+calamine = ["fastexcel (>=0.9)"]
+cloudpickle = ["cloudpickle"]
+connectorx = ["connectorx (>=0.3.2)"]
+database = ["polars[adbc,connectorx,sqlalchemy]"]
+deltalake = ["deltalake (>=0.19.0)"]
+excel = ["polars[calamine,openpyxl,xlsx2csv,xlsxwriter]"]
+fsspec = ["fsspec"]
+gpu = ["cudf-polars-cu12"]
+graph = ["matplotlib"]
+iceberg = ["pyiceberg (>=0.7.1)"]
+numpy = ["numpy (>=1.16.0)"]
+openpyxl = ["openpyxl (>=3.0.0)"]
+pandas = ["pandas", "polars[pyarrow]"]
+plot = ["altair (>=5.4.0)"]
+polars-cloud = ["polars-cloud (>=0.0.1a1)"]
+pyarrow = ["pyarrow (>=7.0.0)"]
+pydantic = ["pydantic"]
+sqlalchemy = ["polars[pandas]", "sqlalchemy"]
+style = ["great-tables (>=0.8.0)"]
+timezone = ["tzdata ; platform_system == \"Windows\""]
+xlsx2csv = ["xlsx2csv (>=0.8.0)"]
+xlsxwriter = ["xlsxwriter"]
+
+[[package]]
 name = "prometheus-client"
 version = "0.21.1"
 description = "Python client for the Prometheus monitoring system."
@@ -5350,6 +6006,30 @@ base58 = ">=1.0.2,<2.0"
 morphys = ">=1.0,<2.0"
 six = ">=1.10.0,<2.0"
 varint = ">=1.0.2,<2.0"
+
+[[package]]
+name = "py-solc-x"
+version = "2.0.3"
+description = "Python wrapper and version management tool for the solc Solidity compiler."
+optional = false
+python-versions = "<4,>=3.8"
+groups = ["main"]
+markers = "implementation_name == \"cpython\" or implementation_name == \"pypy\""
+files = [
+    {file = "py-solc-x-2.0.3.tar.gz", hash = "sha256:1b5fe26d5f4976b1fcc2b3276fb2fe182633bc35757a3abf3b9af5ac57ec2544"},
+    {file = "py_solc_x-2.0.3-py3-none-any.whl", hash = "sha256:ef131f2f0e708fcaf92068a38c7569920839d259fdaa9946af3393f1dc86c5b1"},
+]
+
+[package.dependencies]
+packaging = ">=23.1,<24"
+requests = ">=2.19.0,<3"
+
+[package.extras]
+dev = ["IPython", "Sphinx (>=6.1.3,<7)", "black (>=23.11.0,<24)", "commitizen", "flake8 (>=6.1.0,<7)", "hypothesis (>=6.2.0,<7.0)", "ipdb", "isort (>=5.10.1,<6)", "mdformat (>=0.7.17)", "mdformat-frontmatter (>=0.4.1)", "mdformat-gfm (>=0.3.5)", "mypy (>=1.6.1,<2)", "myst-parser (>=1.0.0,<2)", "pre-commit", "pytest (>=6.0)", "pytest-cov", "pytest-mock", "pytest-watch", "pytest-xdist", "setuptools", "setuptools-scm", "sphinx-click (>=4.4.0,<5)", "sphinx-plausible (>=0.1.2,<0.2)", "sphinx-rtd-theme (>=1.2.0,<2)", "sphinxcontrib-napoleon (>=0.7)", "twine", "types-requests", "types-setuptools", "wheel"]
+doc = ["Sphinx (>=6.1.3,<7)", "myst-parser (>=1.0.0,<2)", "sphinx-click (>=4.4.0,<5)", "sphinx-plausible (>=0.1.2,<0.2)", "sphinx-rtd-theme (>=1.2.0,<2)", "sphinxcontrib-napoleon (>=0.7)"]
+lint = ["black (>=23.11.0,<24)", "flake8 (>=6.1.0,<7)", "isort (>=5.10.1,<6)", "mdformat (>=0.7.17)", "mdformat-frontmatter (>=0.4.1)", "mdformat-gfm (>=0.3.5)", "mypy (>=1.6.1,<2)", "types-requests", "types-setuptools"]
+release = ["setuptools", "setuptools-scm", "twine", "wheel"]
+test = ["hypothesis (>=6.2.0,<7.0)", "pytest (>=6.0)", "pytest-cov", "pytest-mock", "pytest-xdist"]
 
 [[package]]
 name = "pyarrow"
@@ -5890,6 +6570,25 @@ files = [
 
 [package.extras]
 dev = ["backports.zoneinfo ; python_version < \"3.9\"", "black", "build", "freezegun", "mdx_truly_sane_lists", "mike", "mkdocs", "mkdocs-awesome-pages-plugin", "mkdocs-gen-files", "mkdocs-literate-nav", "mkdocs-material (>=8.5)", "mkdocstrings[python]", "msgspec ; implementation_name != \"pypy\"", "mypy", "orjson ; implementation_name != \"pypy\"", "pylint", "pytest", "tzdata", "validate-pyproject[all]"]
+
+[[package]]
+name = "python-slugify"
+version = "8.0.4"
+description = "A Python slugify application that also handles Unicode"
+optional = false
+python-versions = ">=3.7"
+groups = ["main"]
+markers = "implementation_name == \"cpython\" or implementation_name == \"pypy\""
+files = [
+    {file = "python-slugify-8.0.4.tar.gz", hash = "sha256:59202371d1d05b54a9e7720c5e038f928f45daaffe41dd10822f3907b937c856"},
+    {file = "python_slugify-8.0.4-py2.py3-none-any.whl", hash = "sha256:276540b79961052b66b7d116620b36518847f52d5fd9e3a70164fc8c50faa6b8"},
+]
+
+[package.dependencies]
+text-unidecode = ">=1.3"
+
+[package.extras]
+unidecode = ["Unidecode (>=1.1.1)"]
 
 [[package]]
 name = "pytz"
@@ -6869,6 +7568,19 @@ test = ["pre-commit", "pytest (>=7.0)", "pytest-timeout"]
 typing = ["mypy (>=1.6,<2.0)", "traitlets (>=5.11.1)"]
 
 [[package]]
+name = "text-unidecode"
+version = "1.3"
+description = "The most basic Text::Unidecode port"
+optional = false
+python-versions = "*"
+groups = ["main"]
+markers = "implementation_name == \"cpython\" or implementation_name == \"pypy\""
+files = [
+    {file = "text-unidecode-1.3.tar.gz", hash = "sha256:bad6603bb14d279193107714b288be206cac565dfa49aa5b105294dd5c4aab93"},
+    {file = "text_unidecode-1.3-py2.py3-none-any.whl", hash = "sha256:1311f10e8b895935241623731c2ba64f4c455287888b18189350b67134a822e8"},
+]
+
+[[package]]
 name = "tiktoken"
 version = "0.9.0"
 description = "tiktoken is a fast BPE tokeniser for use with OpenAI's models"
@@ -6936,6 +7648,32 @@ webencodings = ">=0.4"
 [package.extras]
 doc = ["sphinx", "sphinx_rtd_theme"]
 test = ["pytest", "ruff"]
+
+[[package]]
+name = "tokenlists"
+version = "0.1.7"
+description = "Python implementation of Uniswaps' tokenlists"
+optional = false
+python-versions = ">=3.8,<4"
+groups = ["main"]
+markers = "implementation_name == \"cpython\" or implementation_name == \"pypy\""
+files = [
+    {file = "tokenlists-0.1.7-py3-none-any.whl", hash = "sha256:c228dd6e2568f8fb66d6a87c75a35c5c5e56c4585220f3c82ec0ff97a26c4c22"},
+    {file = "tokenlists-0.1.7.tar.gz", hash = "sha256:8453ab05332eecc5f75680f44ffd4237f0610481a3d6332e3c989d46917419af"},
+]
+
+[package.dependencies]
+click = ">=8.1.7,<9"
+pydantic = ">=2.5.2,<3"
+pyyaml = ">=6.0,<7"
+requests = ">=2.28.1,<3"
+
+[package.extras]
+dev = ["IPython", "PyGithub (>=1.54,<2)", "Sphinx (>=3.4.3,<4)", "black (>=23.11.0,<24)", "commitizen", "flake8 (>=6.1.0,<7)", "hypothesis (>=6.86.2,<7)", "hypothesis-jsonschema (==0.19.0)", "ipdb", "isort (>=5.10.1)", "mdformat (>=0.7.17)", "mdformat-frontmatter (>=0.4.1)", "mdformat-gfm (>=0.3.5)", "mypy (>=1.7.1,<2)", "pre-commit", "pytest (>=6.0)", "pytest-cov", "pytest-watch", "pytest-xdist", "setuptools", "sphinx-rtd-theme (>=0.1.9,<1)", "towncrier (>=19.2.0,<20)", "twine", "types-requests", "types-setuptools", "wheel"]
+doc = ["Sphinx (>=3.4.3,<4)", "sphinx-rtd-theme (>=0.1.9,<1)", "towncrier (>=19.2.0,<20)"]
+lint = ["black (>=23.11.0,<24)", "flake8 (>=6.1.0,<7)", "isort (>=5.10.1)", "mdformat (>=0.7.17)", "mdformat-frontmatter (>=0.4.1)", "mdformat-gfm (>=0.3.5)", "mypy (>=1.7.1,<2)", "types-requests", "types-setuptools"]
+release = ["setuptools", "twine", "wheel"]
+test = ["PyGithub (>=1.54,<2)", "hypothesis (>=6.86.2,<7)", "hypothesis-jsonschema (==0.19.0)", "pytest (>=6.0)", "pytest-cov", "pytest-xdist"]
 
 [[package]]
 name = "toolz"
@@ -7062,7 +7800,7 @@ version = "2.9.0.20241206"
 description = "Typing stubs for python-dateutil"
 optional = false
 python-versions = ">=3.8"
-groups = ["dev"]
+groups = ["main", "dev"]
 markers = "implementation_name == \"cpython\" or implementation_name == \"pypy\""
 files = [
     {file = "types_python_dateutil-2.9.0.20241206-py3-none-any.whl", hash = "sha256:e248a4bc70a486d3e3ec84d0dc30eec3a5f979d6e7ee4123ae043eedbb987f53"},
@@ -7253,6 +7991,50 @@ markers = "implementation_name == \"cpython\" or implementation_name == \"pypy\"
 files = [
     {file = "varint-1.0.2.tar.gz", hash = "sha256:a6ecc02377ac5ee9d65a6a8ad45c9ff1dac8ccee19400a5950fb51d594214ca5"},
 ]
+
+[[package]]
+name = "vvm"
+version = "0.3.2"
+description = "Vyper version management tool"
+optional = false
+python-versions = "<4,>=3.8"
+groups = ["main"]
+markers = "implementation_name == \"cpython\" or implementation_name == \"pypy\""
+files = [
+    {file = "vvm-0.3.2-py3-none-any.whl", hash = "sha256:f9f4ccad6c9a8ff6978285f005fbb086777baa160e6132d454c35d66bc94d017"},
+    {file = "vvm-0.3.2.tar.gz", hash = "sha256:939838e6417923ef20c48d1a5f9d9fcb39e963c7e0152aaf99c966a6c332e770"},
+]
+
+[package.dependencies]
+packaging = ">=23.1,<25"
+requests = ">=2.32.3,<3"
+
+[[package]]
+name = "vyper"
+version = "0.4.1"
+description = "Vyper: the Pythonic Programming Language for the EVM"
+optional = false
+python-versions = "<4,>=3.10"
+groups = ["main"]
+markers = "implementation_name == \"cpython\" or implementation_name == \"pypy\""
+files = [
+    {file = "vyper-0.4.1-py3-none-any.whl", hash = "sha256:b22e19e20557b3c13fa2721efabc4e926f624af9a3bd328e1da8fb6b727d908f"},
+    {file = "vyper-0.4.1.tar.gz", hash = "sha256:2a219b895c9b5ad6a71237a6fb7d03a6eccaa800faa30ba32418847e350a95e3"},
+]
+
+[package.dependencies]
+asttokens = ">=2.0.5,<3"
+cbor2 = ">=5.4.6,<6"
+importlib-metadata = "*"
+lark = ">=1.0.0,<2"
+packaging = ">=23.1,<24"
+pycryptodome = ">=3.5.1,<4"
+wheel = "*"
+
+[package.extras]
+dev = ["black (==23.12.0)", "eth-abi (>=5.0.0,<6.0.0)", "eth-account (==0.12.2)", "eth-stdlib (==0.2.7)", "flake8 (==6.1.0)", "flake8-bugbear (==23.12.2)", "flake8-use-fstring (==1.4)", "hexbytes (>=1.2)", "hypothesis[lark] (>=6.0,<7.0)", "ipython", "isort (==5.13.2)", "lark (==1.1.9)", "mypy (==1.5)", "pre-commit", "py-evm (>=0.10.1b1,<0.11)", "pyinstaller", "pyrevm (>=0.3.2)", "pytest (>=8.0,<9.0)", "pytest-cov (>=4.1,<5.0)", "pytest-instafail (>=0.4,<1.0)", "pytest-split (>=0.7.0,<1.0)", "pytest-xdist (>=3.0,<3.4)", "setuptools", "twine"]
+lint = ["black (==23.12.0)", "flake8 (==6.1.0)", "flake8-bugbear (==23.12.2)", "flake8-use-fstring (==1.4)", "isort (==5.13.2)", "mypy (==1.5)"]
+test = ["eth-abi (>=5.0.0,<6.0.0)", "eth-account (==0.12.2)", "eth-stdlib (==0.2.7)", "hexbytes (>=1.2)", "hypothesis[lark] (>=6.0,<7.0)", "lark (==1.1.9)", "py-evm (>=0.10.1b1,<0.11)", "pyrevm (>=0.3.2)", "pytest (>=8.0,<9.0)", "pytest-cov (>=4.1,<5.0)", "pytest-instafail (>=0.4,<1.0)", "pytest-split (>=0.7.0,<1.0)", "pytest-xdist (>=3.0,<3.4)", "setuptools"]
 
 [[package]]
 name = "watchdog"
@@ -7555,6 +8337,22 @@ files = [
 ]
 
 [[package]]
+name = "wheel"
+version = "0.45.1"
+description = "A built-package format for Python"
+optional = false
+python-versions = ">=3.8"
+groups = ["main"]
+markers = "implementation_name == \"cpython\" or implementation_name == \"pypy\""
+files = [
+    {file = "wheel-0.45.1-py3-none-any.whl", hash = "sha256:708e7481cc80179af0e556bbf0cc00b8444c7321e2700b8d8580231d13017248"},
+    {file = "wheel-0.45.1.tar.gz", hash = "sha256:661e1abd9198507b1409a20c02106d9670b2576e916d58f520316666abca6729"},
+]
+
+[package.extras]
+test = ["pytest (>=6.0.0)", "setuptools (>=65)"]
+
+[[package]]
 name = "widgetsnbextension"
 version = "4.0.14"
 description = "Jupyter interactive widgets for Jupyter Notebook"
@@ -7687,7 +8485,28 @@ idna = ">=2.0"
 multidict = ">=4.0"
 propcache = ">=0.2.1"
 
+[[package]]
+name = "zipp"
+version = "3.21.0"
+description = "Backport of pathlib-compatible object wrapper for zip files"
+optional = false
+python-versions = ">=3.9"
+groups = ["main"]
+markers = "implementation_name == \"cpython\" or implementation_name == \"pypy\""
+files = [
+    {file = "zipp-3.21.0-py3-none-any.whl", hash = "sha256:ac1bbe05fd2991f160ebce24ffbac5f6d11d83dc90891255885223d42b3cd931"},
+    {file = "zipp-3.21.0.tar.gz", hash = "sha256:2c9958f6430a2040341a52eb608ed6dd93ef4392e02ffe219417c1b28b5dd1f4"},
+]
+
+[package.extras]
+check = ["pytest-checkdocs (>=2.4)", "pytest-ruff (>=0.2.1) ; sys_platform != \"cygwin\""]
+cover = ["pytest-cov"]
+doc = ["furo", "jaraco.packaging (>=9.3)", "jaraco.tidelift (>=1.4)", "rst.linker (>=1.9)", "sphinx (>=3.5)", "sphinx-lint"]
+enabler = ["pytest-enabler (>=2.2)"]
+test = ["big-O", "importlib-resources ; python_version < \"3.9\"", "jaraco.functools", "jaraco.itertools", "jaraco.test", "more-itertools", "pytest (>=6,!=8.1.*)", "pytest-ignore-flaky"]
+type = ["pytest-mypy"]
+
 [metadata]
 lock-version = "2.1"
 python-versions = "^3.11"
-content-hash = "976dd93b3400e999f5daf76ca5e4fa3c2540f4e0d69f1eab1bff7dd0e22fd0cb"
+content-hash = "1d64e35af3469ad3c3f6bc1410ef100cdcd33471f32bb330282516f373fe81e6"

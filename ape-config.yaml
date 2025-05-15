@@ -1,0 +1,11 @@
+name: zoraCoin
+
+plugins:
+  - name: base
+
+node:
+  base:
+    mainnet:
+      uri: https://api.developer.coinbase.com/rpc/v1/base/xVQ152Em3ymbtm6XgCqz2EDHdpL3jSGi
+      etherscan:
+        api_key: ${BASESCAN_API_KEY}
