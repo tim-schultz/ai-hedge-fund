@@ -24,6 +24,7 @@ def _fetch_events(block_span: Sequence[str], start: int, stop: int) -> None:
         rpc=BASE_PROVIDER,
         requests_per_second=12,
         max_concurrent_chunks=1,
+        event_signature="CoinCreated(address indexed caller, address indexed payoutRecipient, address indexed platformReferrer, address currency, string uri, string name, string symbol, address coin, address pool, string version)"
     )
     logs.to_parquet(f"coins/coins_created_{start}_{stop}.parquet")
 
