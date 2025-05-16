@@ -8,7 +8,7 @@ from typing import Sequence
 import pyarrow.parquet as pq
 
 from utils import (
-    COIN_FACTORY_ADDRESS, BASE_RPC_URL, chunk_number,
+    BASE_ALCHEMY_RPC_URL, COIN_FACTORY_ADDRESS, BASE_RPC_URL, chunk_number,
     latest_synched_block,
 )
 
@@ -22,9 +22,8 @@ def _fetch_events(block_span: Sequence[str], start: int, stop: int) -> None:
         output_format="polars",           # keep as Arrow
         blocks=block_span,
         no_verbose=True,
-        rpc=BASE_PROVIDER,
+        rpc=BASE_RPC_URL,
         requests_per_second=12,
-        max_concurrent_chunks=1,
         event_signature=(
            "CoinCreated(address indexed caller, address indexed payoutRecipient, address indexed platformReferrer, address currency, string uri, string name, string symbol, address coin, address pool, string version)"
         ),
