@@ -45,6 +45,7 @@ def get_coin_events(chunk_size: int = 500, retries: int = 10) -> None:
     for span in chunk_number(missing, chunk_size):
         start, stop   = span.start + last_indexed, span.stop + last_indexed
         block_filters = [f"{start}:{stop}"]
+        print(f"→ Fetching {block_filters} …")
 
         for attempt in range(retries):
             if attempt:

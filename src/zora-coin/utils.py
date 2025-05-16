@@ -7,6 +7,8 @@ from pathlib import Path
 from typing import Iterable, Iterator, Sequence
 
 import pandas as pd
+import pyarrow.parquet as pq
+import pyarrow.compute as pc
 from web3 import Web3
 
 # ────────────────────────────────────────────────────────────
@@ -50,49 +52,68 @@ def chunk_number(n_blocks: int, chunk_size: int) -> Iterator[range]:
     for start in range(0, n_blocks, chunk_size):
         yield range(start, min(start + chunk_size, n_blocks))
 
-def df_from_dir(directory: str, prefix: str | None = None) -> pd.DataFrame:
+def df_from_dir(
+    directory: str,
+    prefix: str | None = None,
+    *,
+    batch_size: int = 50_000,
+) -> pd.DataFrame:
     """
-    Load every *.parquet file in ``directory`` into a single DataFrame.
+    Stream‑load all *.parquet files in *directory* into a single DataFrame.
+
+    Each Parquet shard is read in Arrow *record batches* of ``batch_size`` rows,
+    so we never materialise the entire dataset in RAM. Every batch is converted
+    to pandas and appended to a list, then concatenated once at the end.
 
     Parameters
     ----------
-    directory : str
+    directory
         Folder containing parquet shards.
-    prefix : str | None, optional
-        If provided, only parquet files whose **basename** starts with
-        this prefix will be included (e.g. prefix="coins_created_").
+    prefix
+        Optionally filter shards whose basename starts with this prefix.
+    batch_size
+        Arrow record‑batch size (higher → faster, lower → smaller peak RAM).
     """
-    # Collect *.parquet paths, then optionally filter by prefix.
     files = sorted(glob.glob(os.path.join(directory, "*.parquet")))
-    if prefix is not None:
+    if prefix:
         files = [fp for fp in files if Path(fp).name.startswith(prefix)]
 
     if not files:
         return pd.DataFrame()
 
-    # Use Arrow's unified-schema read; fall back to per‑file concat if needed.
-    try:
-        return pd.read_parquet(
-            files,
-            engine="pyarrow",
-            dataset={"unify_schemas": True},
-        )
-    except Exception:  # noqa: BLE001
-        dfs = []
-        for fp in files:
-            try:
-                shard = pd.read_parquet(fp)
-                if not shard.empty:
-                    dfs.append(shard)
-            except Exception:
-                # Skip unreadable shards silently; could log here if desired.
-                continue
-        return pd.concat(dfs, ignore_index=True) if dfs else pd.DataFrame()
+    dfs: list[pd.DataFrame] = []
+    for fp in files:
+        try:
+            pf = pq.ParquetFile(fp)
+            for batch in pf.iter_batches(batch_size=batch_size):
+                dfs.append(batch.to_pandas(types_mapper=pd.ArrowDtype))
+        except Exception:  # skip corrupt/unreadable shard
+            continue
+
+    return pd.concat(dfs, ignore_index=True) if dfs else pd.DataFrame()
 
 def latest_synched_block(directory: str) -> int:
-    df = df_from_dir(directory)
-    if df.empty:
+    """
+    Return the highest ``block_number`` seen in any shard within *directory*.
+
+    Scans the Parquet shards column‑wise via Arrow so memory use stays tiny.
+    """
+    files = sorted(glob.glob(os.path.join(directory, "*.parquet")))
+    if not files:
         return DEPLOYMENT_BLOCK
-    return int(df.sort_values("block_number", ascending=False).iloc[0]["block_number"])
+
+    max_block = DEPLOYMENT_BLOCK
+    for fp in files:
+        try:
+            pf = pq.ParquetFile(fp)
+            for batch in pf.iter_batches(columns=["block_number"], batch_size=100_000):
+                col = batch.column(0)
+                batch_max = pc.max(col).as_py()
+                if batch_max is not None and batch_max > max_block:
+                    max_block = batch_max
+        except Exception:
+            continue
+
+    return int(max_block)
 
 TRYAGGREGATE_4b = hexstr_to_bytes("0xbce38bd7")
