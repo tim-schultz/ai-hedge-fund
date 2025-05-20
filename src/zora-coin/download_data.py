@@ -37,8 +37,9 @@ def get_coin_events(chunk_size: int = 500, retries: int = 10) -> None:
     """Incrementally sync all CoinCreated events to disk."""
     from utils import web3  # local import avoids circular ref
 
-    last_indexed = latest_synched_block("coins")
-    latest_chain = web3.eth.get_block("latest").number
+    # last_indexed = latest_synched_block("coins")
+    last_indexed = 28999876
+    latest_chain = 29828876  #web3.eth.get_block("latest").number
     missing      = latest_chain - last_indexed
 
     for span in chunk_number(missing, chunk_size):

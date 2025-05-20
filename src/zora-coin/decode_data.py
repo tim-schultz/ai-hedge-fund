@@ -50,28 +50,35 @@ def main() -> None:
         print(f"→ processing {fpath.name}")
         pf = pq.ParquetFile(fpath)
 
-        for batch in pf.iter_batches(batch_size=_BATCH_SIZE,
-                                     columns=["topic0", "data"]):
-            df = batch.to_pandas(types_mapper=pd.ArrowDtype)
+        for batch in pf.iter_batches(batch_size=_BATCH_SIZE, columns=["topic0", "data"]):
+            try:
+                df = batch.to_pandas(types_mapper=pd.ArrowDtype)
 
-            filtered = df[df["topic0"] == _EVENT_SIG]
-            if filtered.empty:
+                filtered = df[df["topic0"] == _EVENT_SIG]
+                if filtered.empty:
+                    continue
+
+                decoded = filtered.apply(_decode_coin_event,
+                                        axis=1, result_type="expand")
+                decoded.columns = columns
+
+                table = pa.Table.from_pandas(decoded, preserve_index=False)
+
+                if table.num_rows == 0:
+                    print("⚠️  No matching CoinCreated events found.")
+                    continue
+
+                if writer is None:
+                    writer = pq.ParquetWriter(
+                        _OUT_PATH,
+                        table.schema,
+                        compression="zstd",
+                        write_statistics=True,
+                    )
+                writer.write_table(table)
+            except Exception as exc:
+                print(f"Error processing batch: {exc}")
                 continue
-
-            decoded = filtered.apply(_decode_coin_event,
-                                     axis=1, result_type="expand")
-            decoded.columns = columns
-
-            table = pa.Table.from_pandas(decoded, preserve_index=False)
-
-            if writer is None:
-                writer = pq.ParquetWriter(
-                    _OUT_PATH,
-                    table.schema,
-                    compression="zstd",
-                    write_statistics=True,
-                )
-            writer.write_table(table)
 
     if writer is None:
         print("⚠️  No matching CoinCreated events found.")

@@ -4,20 +4,21 @@ import pandas as pd
 import utils
 import cryo
 from eth_abi import encode, decode
-
 import logging
-
 from pathlib import Path
-
 import os
+import contextlib
 from web3 import Web3
+from typing import Optional, List, Dict, Any
 
 # --- configuration for chunked slot0 fetching ---
-BLOCK_STRIDE = 900      # ≈ 30 minutes (900 blocks × 2 s)
+BLOCK_STRIDE = 900      # ≈ 30 minutes (900 blocks × 2 s)
 CHUNK_SIZE   = 100_000  # fetch at most this many blocks per cryo query
 
 LIQ_CACHE = Path("coins_with_liquidity.parquet")
 SLOT0_CACHE = Path("slot0_timeseries.parquet")
+POOLS_DIR = Path("pools_w_liquidity")
+SLOT0_CHUNKS_DIR = Path("slot0_chunks")
 
 logging.basicConfig(
     level=logging.INFO,
@@ -25,10 +26,23 @@ logging.basicConfig(
 )
 logger = logging.getLogger(__name__)
 
+def safe_read_parquet(path: Path | str) -> pd.DataFrame:
+    """
+    Read a parquet file and return an empty DataFrame if the file is
+    missing or unreadable.  All exceptions are logged.
+    """
+    try:
+        return pd.read_parquet(path)
+    except FileNotFoundError:
+        logger.error("Parquet file not found: %s", path)
+    except Exception as err:  # broad catch for robustness
+        logger.exception("Failed to read parquet %s: %s", path, err)
+    return pd.DataFrame()
+
 # ABI type string for the Uniswap V3 slot0 return struct
 SLOT0_TYPES = "(uint160,int24,uint16,uint16,uint16,uint8,bool)"
 
-def _decode_slot0_outputs(output_bytes):
+def _decode_slot0_outputs(output_bytes: bytes, pools: pd.Series) -> List[Optional[tuple]]:
     """
     Decode the Multicall3 aggregated result for slot0() calls.
 
@@ -75,60 +89,123 @@ def _decode_slot0_outputs(output_bytes):
 
     return decoded_vals
 
+def setup_directories() -> None:
+    """Create necessary directories for data storage."""
+    for directory in [POOLS_DIR, SLOT0_CHUNKS_DIR]:
+        directory.mkdir(exist_ok=True)
+
+def validate_block_range(start_block: int, latest_block: int) -> bool:
+    """Validate that the block range is valid."""
+    if start_block >= latest_block:
+        logger.error("Invalid block range: start_block (%d) >= latest_block (%d)", start_block, latest_block)
+        return False
+    return True
+
 if __name__ == "__main__":
     logger.info("Starting data fetching process…")
-    all_coins = pd.read_parquet("coins/decoded_coins.parquet")
-    # Multicall liquidity() on each pool and filter out > 0 liquidity
+    
+    # Create necessary directories
+    setup_directories()
+    
+    all_coins = safe_read_parquet("coins/decoded_coins.parquet")
+    if all_coins.empty:
+        logger.error("No decoded coin data found – aborting.")
+        raise SystemExit(1)
+
+    # Multicall liquidity() on each pool and filter out > 0 liquidity
+    coins_with_liquidity: Optional[pd.DataFrame] = None
     if LIQ_CACHE.exists():
-        coins_with_liquidity = pd.read_parquet(LIQ_CACHE)
-        # liquidity was stored as string to avoid 128‑bit overflow; convert back to Python int
-        if coins_with_liquidity["liquidity"].dtype == "string":
-            coins_with_liquidity["liquidity"] = coins_with_liquidity["liquidity"].apply(int)
-        logger.info(
-            "Loaded cached liquidity dataframe (%d pools)", len(coins_with_liquidity)
-        )
-    else:
+        coins_with_liquidity = safe_read_parquet(LIQ_CACHE)
+        if coins_with_liquidity.empty:
+            logger.warning(
+                "Liquidity cache %s exists but could not be read – refetching.",
+                LIQ_CACHE,
+            )
+            coins_with_liquidity = None
+        elif coins_with_liquidity["liquidity"].dtype == "string":
+            try:
+                coins_with_liquidity["liquidity"] = coins_with_liquidity["liquidity"].apply(int)
+            except Exception as err:
+                logger.warning("Failed to convert cached liquidity to int: %s", err)
+                coins_with_liquidity = None
+        
+        if coins_with_liquidity is not None:
+            logger.info(
+                "Loaded cached liquidity dataframe (%d pools)", len(coins_with_liquidity)
+            )
+
+    if coins_with_liquidity is None:
         pools = all_coins["pool"]
         liquidity_sig = utils.hexstr_to_bytes("0x1a686502")
-        inner_calldata = [[pool, liquidity_sig] for pool in pools]
-        m3_calldata_bytes = encode(
-            ["bool", "(address,bytes)[]"], [False, inner_calldata]
-        )
-        m3_calldata = utils.bytes_to_hexstr(utils.TRYAGGREGATE_4b + m3_calldata_bytes)
+        for chunk in utils.chunk_number(len(pools), 1000):
+            selected_pools = pools.iloc[chunk]
+            inner_calldata = [[pool, liquidity_sig] for pool in selected_pools]
+            m3_calldata_bytes = encode(
+                ["bool", "(address,bytes)[]"], [False, inner_calldata]
+            )
+            m3_calldata = utils.bytes_to_hexstr(utils.TRYAGGREGATE_4b + m3_calldata_bytes) 
+            
+            liquidity = None
+            for attempt in range(3):
+                try:
+                    liquidity = cryo.collect(
+                        "eth_calls",
+                        include_columns=(["block_number", "output_data"]),
+                        to_address=[utils.MULTICALL3_ADDRESS],
+                        call_data=[m3_calldata],
+                        output_format="pandas",
+                        blocks=["-1:latest"],
+                        no_verbose=True,
+                        rpc=utils.BASE_ALCHEMY_RPC_URL,
+                        requests_per_second=12,
+                    )
+                    break
+                except Exception as err:
+                    logger.warning("Attempt %d: cryo.collect for liquidity failed: %s", attempt + 1, err)
+                    if attempt == 2:
+                        raise
 
-        liquidity = cryo.collect(
-            "eth_calls",
-            include_columns=(["block_number", "output_data"]),
-            to_address=[utils.MULTICALL3_ADDRESS],
-            call_data=[m3_calldata],
-            output_format="pandas",
-            blocks=["-1:latest"],
-            no_verbose=True,
-            rpc=utils.BASE_ALCHEMY_RPC_URL,
-            requests_per_second=12,
-        )
+            if liquidity is None or liquidity.empty:
+                logger.error("No output data for liquidity call")
+                continue
 
-        first_row = liquidity.iloc[-1]
-        output_data = first_row["output_data"]
+            first_row = liquidity.iloc[-1]
+            output_data = first_row["output_data"]
+            if output_data is None:
+                logger.error("No output data for liquidity call")
+                continue
 
-        [decoded_data] = decode(["(bool,bytes)[]"], output_data)
-        return_data = [decode(["(uint128)"], x[1])[0][0] for x in decoded_data]
-        all_coins["liquidity"] = return_data
-        coins_with_liquidity = all_coins[all_coins["liquidity"] > 0]
-        # Store liquidity as string so parquet won't overflow on 128‑bit ints
-        coins_with_liquidity["liquidity"] = coins_with_liquidity["liquidity"].astype("string")
-        coins_with_liquidity.to_parquet(LIQ_CACHE)
-        logger.info(
-            "Fetched liquidity for %d pools; %d have non‑zero liquidity. Cached to %s",
-            len(all_coins),
-            len(coins_with_liquidity),
-            LIQ_CACHE,
-        )
+            try:
+                [decoded_data] = decode(["(bool,bytes)[]"], output_data)
+                return_data = [decode(["(uint128)"], x[1])[0][0] for x in decoded_data]
 
-    
+                if len(return_data) != len(selected_pools):
+                    if len(return_data) > len(selected_pools):
+                        return_data = return_data[:len(selected_pools)]
+                    else:
+                        raise ValueError(
+                            f"Length mismatch decoding liquidity: expected {len(selected_pools)}, got {len(return_data)}"
+                        )
+
+                coin_subset = all_coins[all_coins['pool'].isin(selected_pools)]
+                coin_subset["liquidity"] = return_data
+                coins_with_liquidity = coin_subset[coin_subset["liquidity"] > 0]
+
+                # Store liquidity as string so parquet won't overflow on 128‑bit ints
+                coins_with_liquidity["liquidity"] = coins_with_liquidity["liquidity"].astype("string")
+                chunk_path = POOLS_DIR / f"{chunk[0]}_{chunk[-1]}.parquet"
+                coins_with_liquidity.to_parquet(chunk_path)
+                logger.info(
+                    "Fetched liquidity for %d pools; %d have non‑zero liquidity. Cached to %s",
+                    len(coin_subset),
+                    len(coins_with_liquidity),
+                    chunk_path,
+                )
+            except Exception as err:
+                logger.error("Could not ABI‑decode Multicall wrapper: %s", err)
 
     # --- slot0 time‑series (sqrtPriceX96) ---
-    if  SLOT0_CACHE.exists():
+    if SLOT0_CACHE.exists():
         slot0_timeseries = pd.read_parquet(SLOT0_CACHE)
         logger.info(
             "Loaded cached slot0 time‑series from %s (shape=%s)",
@@ -137,8 +214,15 @@ if __name__ == "__main__":
         )
     else:
         # --- fetch slot0 in manageable block chunks ---
-        w3 = Web3(Web3.HTTPProvider(utils.BASE_ALCHEMY_RPC_URL))
-        latest_block = w3.eth.block_number
+        try:
+            w3 = Web3(Web3.HTTPProvider(utils.BASE_ALCHEMY_RPC_URL))
+            latest_block = w3.eth.block_number
+        except Exception as err:
+            logger.error("Failed to connect to Web3 provider: %s", err)
+            raise
+
+        if not validate_block_range(utils.DEPLOYMENT_BLOCK, latest_block):
+            raise ValueError("Invalid block range")
 
         slot0_sig = utils.hexstr_to_bytes("0x3850c7bd")
         pools = coins_with_liquidity["pool"]
@@ -151,33 +235,44 @@ if __name__ == "__main__":
         )
 
         slot0_rows = []
-        os.makedirs("slot0_chunks", exist_ok=True)
-
         start_block = utils.DEPLOYMENT_BLOCK
         while start_block <= latest_block:
             end_block = min(start_block + CHUNK_SIZE - 1, latest_block)
             block_selector = f"{start_block}:{end_block}/{BLOCK_STRIDE}"
             logger.info("Fetching slot0 data for %s", block_selector)
 
-            data_chunk = cryo.collect(
-                "eth_calls",
-                include_columns=(["block_number", "output_data"]),
-                to_address=[utils.MULTICALL3_ADDRESS],
-                call_data=[m3_calldata],
-                output_format="pandas",
-                blocks=[block_selector],
-                no_verbose=True,
-                rpc=utils.BASE_ALCHEMY_RPC_URL,
-                requests_per_second=12,
-            )
+            data_chunk = None
+            for attempt in range(3):
+                try:
+                    data_chunk = cryo.collect(
+                        "eth_calls",
+                        include_columns=(["block_number", "output_data"]),
+                        to_address=[utils.MULTICALL3_ADDRESS],
+                        call_data=[m3_calldata],
+                        output_format="pandas",
+                        blocks=[block_selector],
+                        no_verbose=True,
+                        rpc=utils.BASE_ALCHEMY_RPC_URL,
+                        requests_per_second=12,
+                    )
+                    break
+                except Exception as err:
+                    logger.warning(
+                        "Attempt %d: cryo.collect for slot0 %s failed: %s",
+                        attempt + 1,
+                        block_selector,
+                        err,
+                    )
+                    if attempt == 2:
+                        raise
 
-            if data_chunk.empty:
+            if data_chunk is None or data_chunk.empty:
                 start_block = end_block + 1
                 continue
 
             # Decode and build rows for this chunk
             for _, row in data_chunk.iterrows():
-                per_pool_vals = _decode_slot0_outputs(row["output_data"])
+                per_pool_vals = _decode_slot0_outputs(row["output_data"], pools)
                 slot0_rows.append(
                     {
                         "block_number": row["block_number"],
@@ -196,7 +291,7 @@ if __name__ == "__main__":
             )
             # Cast large uint values (sqrtPriceX96) to string to avoid Arrow int overflow
             chunk_df = chunk_df.apply(lambda col: col.astype("string"))
-            chunk_path = Path("slot0_chunks") / f"slot0_{start_block}_{end_block}.parquet"
+            chunk_path = SLOT0_CHUNKS_DIR / f"slot0_{start_block}_{end_block}.parquet"
             chunk_df.to_parquet(chunk_path)
             logger.info("Wrote slot0 chunk %s (rows=%d)", chunk_path, len(chunk_df))
 
@@ -217,6 +312,6 @@ if __name__ == "__main__":
 
     logger.info(
         "Finished data fetching process.\nCoins with liquidity head:\n%s\nslot0_timeseries head:\n%s",
-        coins_with_liquidity.head(),
+        coins_with_liquidity.head() if coins_with_liquidity is not None else "No liquidity data",
         slot0_timeseries.head(),
     )

@@ -117,3 +117,12 @@ def latest_synched_block(directory: str) -> int:
     return int(max_block)
 
 TRYAGGREGATE_4b = hexstr_to_bytes("0xbce38bd7")
+
+def df_from_dir(dir: str) -> pd.DataFrame:
+    """
+    Get all indexed parquet files
+    """
+    pattern = os.path.join(dir, "*.parquet")
+    all_files = glob.glob(pattern)
+    coins = pd.read_parquet(all_files)
+    return coins

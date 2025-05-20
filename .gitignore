@@ -38,6 +38,8 @@ debug/
 .cursorindexingignore
 
 coins
+slot0_chunks
+pools_w_liquidity
 
 # OS
 .DS_Store
