@@ -44,12 +44,11 @@ def main():
     if not chunk_files:
         raise FileNotFoundError(f"No parquet files in {CHUNK_DIR}")
 
-    df = pd.concat([pd.read_parquet(f) for f in chunk_files])
-    # drop duplicated block rows that may appear if rerun
-    df = df[~df.index.duplicated(keep="last")].sort_index()
+    # df = pd.concat([pd.read_parquet(f) for f in chunk_files])
+    # # drop duplicated block rows that may appear if rerun
+    # df = df[~df.index.duplicated(keep="last")].sort_index()
     
-    all_slot_data = pd.read_parquet(SLOT0_CACHE) 
-    breakpoint()
+    df = pd.read_parquet(SLOT0_CACHE) 
 
     # Convert string/scientific‑notation values → big Python ints
     def to_big_int(val):
@@ -69,11 +68,10 @@ def main():
         .dropna(subset=["sqrtPriceX96"])
     )
 
-    breakpoint()
-
     # Compute tick and price
     long_df["price"] = long_df["sqrtPriceX96"].apply(sqrt_price_x96_to_price)
     long_df["tick"] = long_df["sqrtPriceX96"].apply(sqrt_price_x96_to_tick)
+    breakpoint()
 
     # --- interactive Plotly line chart ---
     fig = px.line(
@@ -89,6 +87,7 @@ def main():
         },
         template="plotly_white",
     )
+    breakpoint()
 
     out_path = OUT_DIR / "all_pools_price.html"
     fig.write_html(out_path, include_plotlyjs="cdn")
