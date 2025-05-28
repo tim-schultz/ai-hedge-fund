@@ -17,16 +17,14 @@ Requires:
               uri: ${ALCHEMY_BASE_MAINNET_RPC}
 """
 
-import os
-import pandas as pd
-from ape import chain, Contract, networks
-from pathlib import Path
-import cryo
 import binascii
-from eth_abi import decode, encode
 import glob
+import os
 import time
 
+import cryo
+import pandas as pd
+from eth_abi import decode
 from web3 import Web3
 
 web3 = Web3(Web3.HTTPProvider(os.getenv("BASE_RPC_URL")))
@@ -96,7 +94,7 @@ def decode_coin_event(row):
     except Exception as e:
         print(f"Error decoding event data: {e}")
         return None
-    
+
 
 def get_created_coins():
     """
@@ -130,7 +128,7 @@ def fetch_events(blocks: list[str], start: int, stop: int):
 
     print("coins_created", blocks)
     coins_created.to_parquet(f"coins/coins_created_{start}_{stop}.parquet")
-    
+
 
 def df_from_dir(dir: str) -> pd.DataFrame:
     """
@@ -178,10 +176,10 @@ def get_coin_events():
                 if attempt == max_attempts - 1:
                     print("Max attempts reached. Moving to next chunk.")
                     break
-    
+
 
 def main() -> None:
-    
+
     # get_coin_events()
     decoded_coins = get_created_coins()
     decoded_coins.to_parquet("coins/decoded_coins.parquet")

@@ -2,14 +2,16 @@
 Download raw CoinCreated logs in chunks and store them in coins/*.parquet
 """
 from __future__ import annotations
-import os, time
+
+import time
+from collections.abc import Sequence
+
 import cryo
-from typing import Sequence
-import pyarrow.parquet as pq
 
 from utils import (
-    BASE_ALCHEMY_RPC_URL, COIN_FACTORY_ADDRESS, BASE_RPC_URL, chunk_number,
-    latest_synched_block,
+    BASE_RPC_URL,
+    COIN_FACTORY_ADDRESS,
+    chunk_number,
 )
 
 # =============================================================================
@@ -35,7 +37,6 @@ def _fetch_events(block_span: Sequence[str], start: int, stop: int) -> None:
 
 def get_coin_events(chunk_size: int = 500, retries: int = 10) -> None:
     """Incrementally sync all CoinCreated events to disk."""
-    from utils import web3  # local import avoids circular ref
 
     # last_indexed = latest_synched_block("coins")
     last_indexed = 28999876
@@ -55,7 +56,7 @@ def get_coin_events(chunk_size: int = 500, retries: int = 10) -> None:
             try:
                 _fetch_events(block_filters, start, stop)
                 break
-            except Exception as exc:               # noqa: BLE001
+            except Exception as exc:
                 print(f"Error: {exc}")
                 if attempt == retries - 1:
                     print("Giving up on this span.")

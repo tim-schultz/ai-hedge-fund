@@ -1,0 +1,11 @@
+---
+description: 
+globs: 
+alwaysApply: true
+---
+After making changes to python files execute ruff linting and fix errors if you find them.
+
+Use these commands:
+
+ruff check -q
+ruff format -q

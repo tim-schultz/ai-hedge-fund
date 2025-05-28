@@ -6,12 +6,12 @@ from typing import Annotated, Any, Literal, TypedDict
 
 import numpy as np
 import pandas as pd
-from langchain.agents import AgentType
+from langchain.agents import AgentExecutor, create_openai_functions_agent
 from langchain_core.messages import BaseMessage, HumanMessage
 from langchain_core.prompts import ChatPromptTemplate
-from langchain_experimental.agents.agent_toolkits import create_pandas_dataframe_agent
 from langchain_openai import ChatOpenAI
 from pydantic import BaseModel, Field
+from swap_analyzer_tools import get_dataframe_tools
 
 
 class AgentState(TypedDict):
@@ -27,8 +27,9 @@ class SwapAnalysis(BaseModel):
 
     signal: Literal["bullish", "bearish", "neutral"]
     confidence: float = Field(description="Confidence in the analysis, between 0.0 and 100.0")
-    reasoning: str = Field(description="Detailed reasoning for the analysis")
+    reasoning: str = Field(descripchecktion="Detailed reasoning for the analysis")
     metrics: dict[str, Any] = Field(description="Key metrics and statistics from the analysis")
+
 
 
 def show_agent_reasoning(output: Any, agent_name: str) -> None:
@@ -39,7 +40,7 @@ def show_agent_reasoning(output: Any, agent_name: str) -> None:
         agent_name: Name of the agent
     """
     print(f"\n{'=' * 10} {agent_name.center(28)} {'=' * 10}")
-    if isinstance(output, (dict, list)):
+    if isinstance(output, dict | list):
         print(json.dumps(output, indent=2))
     else:
         try:
@@ -120,7 +121,7 @@ def get_data_summary(df: pd.DataFrame) -> dict[str, Any]:
 
 
 def swap_analyzer_agent(state: AgentState) -> dict[str, Any]:
-    """Analyze swap data using LangChain's pandas agent and generate trading signals.
+    """Analyze swap data using custom DataFrame tools and generate trading signals.
 
     Args:
         state: Current agent state containing swap data
@@ -150,33 +151,54 @@ def swap_analyzer_agent(state: AgentState) -> dict[str, Any]:
     if len(df) > 1000:
         df = df.iloc[::100].copy()
 
-    # Initialize the pandas agent with the sampled data
-    agent = create_pandas_dataframe_agent(
+    # Get our custom DataFrame tools
+    tools = get_dataframe_tools(df)
+
+    # Create the agent
+    agent = create_openai_functions_agent(
         ChatOpenAI(
             model="o4-mini-2025-04-16",
             # api_key=getenv("OPENROUTER_API_KEY"),
             # base_url=getenv("OPENROUTER_BASE_URL")
         ),
-        df,
-        verbose=True,
-        agent_type=AgentType.OPENAI_FUNCTIONS,
-        allow_dangerous_code=True,
+        tools,
+        ChatPromptTemplate.from_messages([
+            ("system", """You are a swap data analysis expert. Use the available tools to analyze the data and provide insights.
+            Focus on:
+            - Recent pool activity
+            - Price trends and volatility
+            - Liquidity patterns
+            - Time-based patterns
+            """),
+            ("human", "{input}"),
+            ("ai", "{agent_scratchpad}")
+        ])
     )
 
-
+    # Create the agent executor
+    agent_executor = AgentExecutor(
+        agent=agent,
+        tools=tools,
+        verbose=True
+    )
 
     # Print available tools
-    print("\nAvailable Agent Tools:")
+    print("\nAvailable Tools:")
     print("=" * 50)
-    for tool in agent.tools:
+    for tool in tools:
         print(f"\nTool: {tool.name}")
         print(f"Description: {tool.description}")
         print("-" * 50)
 
-    # Define analysis prompts with context about the data
+    # Define analysis prompts
     analysis_prompts: list[str] = [
         f"""Given this data summary: {json.dumps(data_summary, indent=2)}
-        Identify pools that have had recent activity. Return the pools in descending order by activity""",
+        Analyze the swap data and provide insights about:
+        1. Recent pool activity
+        2. Price trends and volatility
+        3. Liquidity patterns
+        4. Time-based patterns
+        """,
     ]
 
     # Initialize analysis results
@@ -185,8 +207,8 @@ def swap_analyzer_agent(state: AgentState) -> dict[str, Any]:
     # Run analysis for each prompt
     for prompt in analysis_prompts:
         try:
-            result = agent.run(prompt)
-            analysis_results[prompt] = result
+            result = agent_executor.invoke({"input": prompt})
+            analysis_results[prompt] = result["output"]
         except Exception as e:
             print(f"Error analyzing {prompt}: {e!s}")
             analysis_results[prompt] = f"Error: {e!s}"

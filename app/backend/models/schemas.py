@@ -1,6 +1,7 @@
 from datetime import datetime, timedelta
+
 from pydantic import BaseModel, Field
-from typing import List, Optional
+
 from src.llm.models import ModelProvider
 
 
@@ -15,12 +16,12 @@ class ErrorResponse(BaseModel):
 
 
 class HedgeFundRequest(BaseModel):
-    tickers: List[str]
-    selected_agents: List[str]
-    end_date: Optional[str] = Field(
+    tickers: list[str]
+    selected_agents: list[str]
+    end_date: str | None = Field(
         default_factory=lambda: datetime.now().strftime("%Y-%m-%d")
     )
-    start_date: Optional[str] = None
+    start_date: str | None = None
     model_name: str = "gpt-4o"
     model_provider: ModelProvider = ModelProvider.OPENAI
     initial_cash: float = 100000.0

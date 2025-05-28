@@ -1,19 +1,15 @@
-import pytest
-import pandas as pd
-import numpy as np
-from pathlib import Path
-from unittest.mock import Mock, patch, MagicMock
-from eth_abi.exceptions import InsufficientDataBytes
-from web3 import Web3
-from eth_abi import encode, decode
+from unittest.mock import Mock, patch
 
+import pandas as pd
+import pytest
+from eth_abi import encode
 from swap_data import (
-    safe_read_parquet,
     _decode_slot0_outputs,
+    safe_read_parquet,
     setup_directories,
     validate_block_range,
-    SLOT0_TYPES,
 )
+from web3 import Web3
 
 # Test data
 MOCK_POOLS = pd.Series([
@@ -63,7 +59,7 @@ def test_safe_read_parquet_corrupted(tmp_path):
     # Create a corrupted parquet file
     file_path = tmp_path / "corrupted.parquet"
     file_path.write_bytes(b"not a parquet file")
-    
+
     df = safe_read_parquet(file_path)
     assert isinstance(df, pd.DataFrame)
     assert df.empty
@@ -132,14 +128,14 @@ def test_liquidity_data_handling(tmp_path):
         'pool': ['0x123', '0x456', '0x789'],
         'liquidity': [1000, 2000, 3000]  # Start with integers
     })
-    
+
     # Test handling of large numbers - use a smaller number to avoid overflow
     test_data.loc[0, 'liquidity'] = 2**63 - 1  # Max int64
-    
+
     # Convert to string
     test_data['liquidity'] = test_data['liquidity'].astype(str)
     assert test_data['liquidity'].dtype == 'object'
-    
+
     # Convert back to numeric
     test_data['liquidity'] = pd.to_numeric(test_data['liquidity'], errors='coerce')
     assert test_data['liquidity'].dtype in ['int64', 'float64']
@@ -152,11 +148,11 @@ def test_slot0_data_handling():
         '0x123': ['1000', '2000'],
         '0x456': ['3000', '4000']
     })
-    
+
     # Test string conversion
     test_data = test_data.apply(lambda col: col.astype('string'))
     assert all(test_data.dtypes == 'string')
-    
+
     # Test index handling
     test_data.set_index('block_number', inplace=True)
     assert isinstance(test_data.index, pd.Index)
@@ -170,11 +166,11 @@ def test_block_chunking(block_stride, chunk_size):
     """Test block chunking logic with different parameters."""
     start_block = 1000000
     end_block = 1100000
-    
+
     # Calculate expected number of chunks
     total_blocks = end_block - start_block + 1
     expected_chunks = (total_blocks + chunk_size - 1) // chunk_size
-    
+
     # Generate chunks
     chunks = []
     current_block = start_block
@@ -182,10 +178,10 @@ def test_block_chunking(block_stride, chunk_size):
         chunk_end = min(current_block + chunk_size - 1, end_block)
         chunks.append((current_block, chunk_end))
         current_block = chunk_end + 1
-    
+
     assert len(chunks) == expected_chunks
     assert chunks[0][0] == start_block
-    assert chunks[-1][1] == end_block 
+    assert chunks[-1][1] == end_block
 
 @pytest.mark.integration
 def test_full_data_fetching_flow(tmp_path, mock_web3):
@@ -199,14 +195,14 @@ def test_full_data_fetching_flow(tmp_path, mock_web3):
          patch('swap_data.SLOT0_CACHE', tmp_path / "slot0.parquet"), \
          patch('swap_data.POOLS_DIR', tmp_path / "pools"), \
          patch('swap_data.SLOT0_CHUNKS_DIR', tmp_path / "chunks"):
-        
+
         # Create mock data
         mock_coins = pd.DataFrame({
             'pool': ['0x123', '0x456'],
             'liquidity': [1000, 2000]  # Use integers instead of strings
         })
         mock_coins.to_parquet(tmp_path / "decoded_coins.parquet")
-        
+
         # Mock cryo.collect responses
         mock_collect.return_value = pd.DataFrame({
             'block_number': [1000000],
@@ -215,14 +211,14 @@ def test_full_data_fetching_flow(tmp_path, mock_web3):
                 (True, MOCK_SLOT0_OUTPUT)
             ]])]
         })
-        
+
         # Import and run the main function directly
         import swap_data
         swap_data.setup_directories()  # Ensure directories exist
-        
+
         # Create the necessary files to simulate the main function's behavior
         mock_coins.to_parquet(tmp_path / "liquidity.parquet")
-        
+
         # Create a mock slot0 timeseries
         slot0_df = pd.DataFrame({
             'block_number': [1000000],
@@ -230,9 +226,9 @@ def test_full_data_fetching_flow(tmp_path, mock_web3):
             '0x456': ['2000']
         })
         slot0_df.to_parquet(tmp_path / "slot0.parquet")
-        
+
         # Verify the results
         assert (tmp_path / "liquidity.parquet").exists()
         assert (tmp_path / "slot0.parquet").exists()
         assert (tmp_path / "pools").exists()
-        assert (tmp_path / "chunks").exists() 
+        assert (tmp_path / "chunks").exists()

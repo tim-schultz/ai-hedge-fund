@@ -1,12 +1,13 @@
 import json
+from typing import Literal
+
 from langchain_core.messages import HumanMessage
 from langchain_core.prompts import ChatPromptTemplate
+from pydantic import BaseModel, Field
 
 from src.graph.state import AgentState, show_agent_reasoning
-from pydantic import BaseModel, Field
-from typing_extensions import Literal
-from src.utils.progress import progress
 from src.utils.llm import call_llm
+from src.utils.progress import progress
 
 
 class PortfolioDecision(BaseModel):

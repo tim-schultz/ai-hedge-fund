@@ -12,9 +12,9 @@ Run it directly or import the helper functions in a notebook.
 """
 
 from pathlib import Path
-import pandas as pd
-import matplotlib.pyplot as plt
 
+import matplotlib.pyplot as plt
+import pandas as pd
 
 # --------------------------------------------------------------------------- #
 # Helpers                                                                     #

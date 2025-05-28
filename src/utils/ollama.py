@@ -1,13 +1,14 @@
 """Utilities for working with Ollama models"""
 
+import os
 import platform
 import subprocess
-import requests
 import time
-from typing import List
+
 import questionary
+import requests
 from colorama import Fore, Style
-import os
+
 from . import docker
 
 # Constants
@@ -65,7 +66,7 @@ def is_ollama_server_running() -> bool:
         return False
 
 
-def get_locally_available_models() -> List[str]:
+def get_locally_available_models() -> list[str]:
     """Get a list of models that are already downloaded locally."""
     if not is_ollama_server_running():
         return []
@@ -502,8 +503,8 @@ def delete_model(model_name: str) -> bool:
 
 # Add this at the end of the file for command-line usage
 if __name__ == "__main__":
-    import sys
     import argparse
+    import sys
 
     parser = argparse.ArgumentParser(description="Ollama model manager")
     parser.add_argument(

@@ -2,13 +2,15 @@
 Shared helpers/constants for the Zora-Coin strategy.
 Put this file next to historical.py (…/src/zora-coin/utils.py)
 """
-import os, glob, time, binascii
+import binascii
+import glob
+import os
+from collections.abc import Iterator
 from pathlib import Path
-from typing import Iterable, Iterator, Sequence
 
 import pandas as pd
-import pyarrow.parquet as pq
 import pyarrow.compute as pc
+import pyarrow.parquet as pq
 from web3 import Web3
 
 # ────────────────────────────────────────────────────────────

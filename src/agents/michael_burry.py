@@ -1,14 +1,14 @@
 from __future__ import annotations
 
-from datetime import datetime, timedelta
 import json
-from typing_extensions import Literal
+from datetime import datetime, timedelta
+from typing import Literal
 
-from src.graph.state import AgentState, show_agent_reasoning
 from langchain_core.messages import HumanMessage
 from langchain_core.prompts import ChatPromptTemplate
 from pydantic import BaseModel
 
+from src.graph.state import AgentState, show_agent_reasoning
 from src.tools.api import (
     get_company_news,
     get_financial_metrics,
@@ -42,7 +42,7 @@ class MichaelBurrySignal(BaseModel):
 ###############################################################################
 
 
-def michael_burry_agent(state: AgentState):  # noqa: C901  (complexity is fine here)
+def michael_burry_agent(state: AgentState):
     """Analyse stocks using Michael Burry's deep‑value, contrarian framework."""
 
     data = state["data"]

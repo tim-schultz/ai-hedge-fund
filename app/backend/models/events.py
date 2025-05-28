@@ -1,4 +1,5 @@
-from typing import Dict, Optional, Any, Literal
+from typing import Any, Literal
+
 from pydantic import BaseModel
 
 
@@ -17,28 +18,28 @@ class StartEvent(BaseEvent):
     """Event indicating the start of processing"""
 
     type: Literal["start"] = "start"
-    timestamp: Optional[str] = None
+    timestamp: str | None = None
 
 class ProgressUpdateEvent(BaseEvent):
     """Event containing an agent's progress update"""
 
     type: Literal["progress"] = "progress"
     agent: str
-    ticker: Optional[str] = None
+    ticker: str | None = None
     status: str
-    timestamp: Optional[str] = None
+    timestamp: str | None = None
 
 class ErrorEvent(BaseEvent):
     """Event indicating an error occurred"""
 
     type: Literal["error"] = "error"
     message: str
-    timestamp: Optional[str] = None
+    timestamp: str | None = None
 
 
 class CompleteEvent(BaseEvent):
     """Event indicating successful completion with results"""
 
     type: Literal["complete"] = "complete"
-    data: Dict[str, Any]
-    timestamp: Optional[str] = None
+    data: dict[str, Any]
+    timestamp: str | None = None

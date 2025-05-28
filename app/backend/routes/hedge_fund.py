@@ -1,14 +1,15 @@
-from fastapi import APIRouter, HTTPException
-from fastapi.responses import StreamingResponse
 import asyncio
 
-from app.backend.models.schemas import ErrorResponse, HedgeFundRequest
+from fastapi import APIRouter, HTTPException
+from fastapi.responses import StreamingResponse
+
 from app.backend.models.events import (
-    StartEvent,
-    ProgressUpdateEvent,
-    ErrorEvent,
     CompleteEvent,
+    ErrorEvent,
+    ProgressUpdateEvent,
+    StartEvent,
 )
+from app.backend.models.schemas import ErrorResponse, HedgeFundRequest
 from app.backend.services.graphy import (
     create_graph,
     parse_hedge_fund_response,
@@ -89,7 +90,7 @@ async def run_hedge_fund(request: HedgeFundRequest):
                             progress_queue.get(), timeout=1.0
                         )
                         yield event.to_sse()
-                    except asyncio.TimeoutError:
+                    except TimeoutError:
                         # Just continue the loop
                         pass
 
@@ -129,5 +130,5 @@ async def run_hedge_fund(request: HedgeFundRequest):
     except Exception as e:
         raise HTTPException(
             status_code=500,
-            detail=f"An error occurred while processing the request: {str(e)}",
+            detail=f"An error occurred while processing the request: {e!s}",
         )

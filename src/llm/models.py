@@ -1,13 +1,13 @@
 import os
+from enum import Enum
+
 from langchain_anthropic import ChatAnthropic
 from langchain_deepseek import ChatDeepSeek
 from langchain_google_genai import ChatGoogleGenerativeAI
 from langchain_groq import ChatGroq
-from langchain_openai import ChatOpenAI
 from langchain_ollama import ChatOllama
-from enum import Enum
+from langchain_openai import ChatOpenAI
 from pydantic import BaseModel
-from typing import Tuple
 
 
 class ModelProvider(str, Enum):
@@ -28,7 +28,7 @@ class LLMModel(BaseModel):
     model_name: str
     provider: ModelProvider
 
-    def to_choice_tuple(self) -> Tuple[str, str, str]:
+    def to_choice_tuple(self) -> tuple[str, str, str]:
         """Convert to format needed for questionary choices"""
         return (self.display_name, self.model_name, self.provider.value)
 

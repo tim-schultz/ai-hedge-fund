@@ -1,18 +1,17 @@
 # This should be enough. sqrtPriceX96, liquidity, tick are after swap for the pool
 # emit Swap(msg.sender, recipient, amount0, amount1, state.sqrtPriceX96, state.liquidity, state.tick);
-import pandas as pd
-import utils
-import cryo
-from eth_abi import encode, decode
 import logging
 from pathlib import Path
-import os
-import contextlib
+
+import cryo
+import pandas as pd
+from eth_abi import decode, encode
 from web3 import Web3
-from typing import Optional, List, Dict, Any
+
+import utils
 
 # --- configuration for chunked slot0 fetching ---
-BLOCK_STRIDE = 900      # ≈ 30 minutes (900 blocks × 2 s)
+BLOCK_STRIDE = 900      # ≈ 30 minutes (900 blocks x 2 s)
 CHUNK_SIZE   = 100_000  # fetch at most this many blocks per cryo query
 
 LIQ_CACHE = Path("coins_with_liquidity.parquet")
@@ -42,12 +41,12 @@ def safe_read_parquet(path: Path | str) -> pd.DataFrame:
 # ABI type string for the Uniswap V3 slot0 return struct
 SLOT0_TYPES = "(uint160,int24,uint16,uint16,uint16,uint8,bool)"
 
-def _decode_slot0_outputs(output_bytes: bytes, pools: pd.Series) -> List[Optional[tuple]]:
+def _decode_slot0_outputs(output_bytes: bytes, pools: pd.Series) -> list[tuple | None]:
     """
     Decode the Multicall3 aggregated result for slot0() calls.
 
     Returns a list parallel to `pools`, where each element is either:
-    * the 7‑tuple `(sqrtPriceX96, tick, obsIndex, obsCardinality, obsCardinalityNext, feeProtocol, unlocked)`
+    * the 7-tuple `(sqrtPriceX96, tick, obsIndex, obsCardinality, obsCardinalityNext, feeProtocol, unlocked)`
     * None if the call reverted or returned an unexpected byte length.
     """
     from eth_abi.exceptions import InsufficientDataBytes
@@ -56,12 +55,12 @@ def _decode_slot0_outputs(output_bytes: bytes, pools: pd.Series) -> List[Optiona
         # Aggregate is an array of (bool success, bytes returnData)
         [aggregated] = decode(["(bool,bytes)[]"], output_bytes)
     except Exception as err:
-        logger.error("Could not ABI‑decode Multicall wrapper: %s", err)
+        logger.error("Could not ABI-decode Multicall wrapper: %s", err)
         return [None] * len(pools)
 
     decoded_vals = []
     for idx, (success, ret) in enumerate(aggregated):
-        if not success or len(ret) < 224:  # 7 static values × 32 bytes
+        if not success or len(ret) < 224:  # 7 static values x 32 bytes
             if success and len(ret) == 0:
                 logger.warning(
                     "slot0() for pool %s succeeded but returned 0 bytes (skipping)",
@@ -102,23 +101,23 @@ def validate_block_range(start_block: int, latest_block: int) -> bool:
     return True
 
 if __name__ == "__main__":
-    logger.info("Starting data fetching process…")
-    
+    logger.info("Starting data fetching process...")
+
     # Create necessary directories
     setup_directories()
-    
+
     all_coins = safe_read_parquet("coins/decoded_coins.parquet")
     if all_coins.empty:
-        logger.error("No decoded coin data found – aborting.")
+        logger.error("No decoded coin data found - aborting.")
         raise SystemExit(1)
 
     # Multicall liquidity() on each pool and filter out > 0 liquidity
-    coins_with_liquidity: Optional[pd.DataFrame] = None
+    coins_with_liquidity: pd.DataFrame | None = None
     if LIQ_CACHE.exists():
         coins_with_liquidity = safe_read_parquet(LIQ_CACHE)
         if coins_with_liquidity.empty:
             logger.warning(
-                "Liquidity cache %s exists but could not be read – refetching.",
+                "Liquidity cache %s exists but could not be read - refetching.",
                 LIQ_CACHE,
             )
             coins_with_liquidity = None
@@ -128,7 +127,7 @@ if __name__ == "__main__":
             except Exception as err:
                 logger.warning("Failed to convert cached liquidity to int: %s", err)
                 coins_with_liquidity = None
-        
+
         if coins_with_liquidity is not None:
             logger.info(
                 "Loaded cached liquidity dataframe (%d pools)", len(coins_with_liquidity)
@@ -143,14 +142,14 @@ if __name__ == "__main__":
             m3_calldata_bytes = encode(
                 ["bool", "(address,bytes)[]"], [False, inner_calldata]
             )
-            m3_calldata = utils.bytes_to_hexstr(utils.TRYAGGREGATE_4b + m3_calldata_bytes) 
-            
+            m3_calldata = utils.bytes_to_hexstr(utils.TRYAGGREGATE_4b + m3_calldata_bytes)
+
             liquidity = None
             for attempt in range(3):
                 try:
                     liquidity = cryo.collect(
                         "eth_calls",
-                        include_columns=(["block_number", "output_data"]),
+                        include_columns=("block_number", "output_data"),
                         to_address=[utils.MULTICALL3_ADDRESS],
                         call_data=[m3_calldata],
                         output_format="pandas",
@@ -191,24 +190,24 @@ if __name__ == "__main__":
                 coin_subset["liquidity"] = return_data
                 coins_with_liquidity = coin_subset[coin_subset["liquidity"] > 0]
 
-                # Store liquidity as string so parquet won't overflow on 128‑bit ints
+                # Store liquidity as string so parquet won't overflow on 128-bit ints
                 coins_with_liquidity["liquidity"] = coins_with_liquidity["liquidity"].astype("string")
                 chunk_path = POOLS_DIR / f"{chunk[0]}_{chunk[-1]}.parquet"
                 coins_with_liquidity.to_parquet(chunk_path)
                 logger.info(
-                    "Fetched liquidity for %d pools; %d have non‑zero liquidity. Cached to %s",
+                    "Fetched liquidity for %d pools; %d have non-zero liquidity. Cached to %s",
                     len(coin_subset),
                     len(coins_with_liquidity),
                     chunk_path,
                 )
             except Exception as err:
-                logger.error("Could not ABI‑decode Multicall wrapper: %s", err)
+                logger.error("Could not ABI-decode Multicall wrapper: %s", err)
 
-    # --- slot0 time‑series (sqrtPriceX96) ---
+    # --- slot0 time-series (sqrtPriceX96) ---
     if SLOT0_CACHE.exists():
         slot0_timeseries = pd.read_parquet(SLOT0_CACHE)
         logger.info(
-            "Loaded cached slot0 time‑series from %s (shape=%s)",
+            "Loaded cached slot0 time-series from %s (shape=%s)",
             SLOT0_CACHE,
             slot0_timeseries.shape,
         )
@@ -278,7 +277,7 @@ if __name__ == "__main__":
                         "block_number": row["block_number"],
                         **{
                             str(pool): vals[0] if vals is not None else None
-                            for pool, vals in zip(pools, per_pool_vals)
+                            for pool, vals in zip(pools, per_pool_vals, strict=False)
                         },
                     }
                 )
@@ -305,7 +304,7 @@ if __name__ == "__main__":
         slot0_timeseries = slot0_timeseries.apply(lambda col: col.astype("string"))
         slot0_timeseries.to_parquet(SLOT0_CACHE)
         logger.info(
-            "Saved consolidated slot0 time‑series to %s (shape=%s)",
+            "Saved consolidated slot0 time-series to %s (shape=%s)",
             SLOT0_CACHE,
             slot0_timeseries.shape,
         )

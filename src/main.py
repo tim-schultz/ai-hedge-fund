@@ -1,24 +1,24 @@
+import argparse
+import json
 import sys
+from datetime import datetime
 
+import questionary
+from colorama import Fore, Style, init
+from dateutil.relativedelta import relativedelta
 from dotenv import load_dotenv
 from langchain_core.messages import HumanMessage
 from langgraph.graph import END, StateGraph
-from colorama import Fore, Style, init
-import questionary
+
 from src.agents.portfolio_manager import portfolio_management_agent
 from src.agents.risk_manager import risk_management_agent
 from src.graph.state import AgentState
-from src.utils.display import print_trading_output
+from src.llm.models import LLM_ORDER, OLLAMA_LLM_ORDER, ModelProvider, get_model_info
 from src.utils.analysts import ANALYST_ORDER, get_analyst_nodes
-from src.utils.progress import progress
-from src.llm.models import LLM_ORDER, OLLAMA_LLM_ORDER, get_model_info, ModelProvider
+from src.utils.display import print_trading_output
 from src.utils.ollama import ensure_ollama_and_model
-
-import argparse
-from datetime import datetime
-from dateutil.relativedelta import relativedelta
+from src.utils.progress import progress
 from src.utils.visualize import save_graph_as_png
-import json
 
 # Load environment variables from .env file
 load_dotenv()
@@ -31,7 +31,7 @@ def parse_hedge_fund_response(response):
     try:
         return json.loads(response)
     except json.JSONDecodeError as e:
-        print(f"JSON decoding error: {e}\nResponse: {repr(response)}")
+        print(f"JSON decoding error: {e}\nResponse: {response!r}")
         return None
     except TypeError as e:
         print(
@@ -40,7 +40,7 @@ def parse_hedge_fund_response(response):
         return None
     except Exception as e:
         print(
-            f"Unexpected error while parsing response: {e}\nResponse: {repr(response)}"
+            f"Unexpected error while parsing response: {e}\nResponse: {response!r}"
         )
         return None
 

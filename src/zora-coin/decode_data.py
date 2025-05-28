@@ -5,10 +5,12 @@ Usage:
     poetry run python src/zora-coin/decode_data_streaming.py
 """
 from pathlib import Path
-import pyarrow.parquet as pq
-import pyarrow as pa
+
 import pandas as pd
+import pyarrow as pa
+import pyarrow.parquet as pq
 from eth_abi import decode
+
 from utils import hexstr_to_bytes
 
 # ────────────────────────────────────────────────────────────

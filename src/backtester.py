@@ -1,27 +1,26 @@
+import itertools
 import sys
-
+from collections.abc import Callable
 from datetime import datetime, timedelta
-from dateutil.relativedelta import relativedelta
-import questionary
 
 import matplotlib.pyplot as plt
-import pandas as pd
-from colorama import Fore, Style, init
 import numpy as np
-import itertools
+import pandas as pd
+import questionary
+from colorama import Fore, Style, init
+from dateutil.relativedelta import relativedelta
 
-from src.llm.models import LLM_ORDER, OLLAMA_LLM_ORDER, get_model_info, ModelProvider
-from src.utils.analysts import ANALYST_ORDER
+from src.llm.models import LLM_ORDER, OLLAMA_LLM_ORDER, ModelProvider, get_model_info
 from src.main import run_hedge_fund
 from src.tools.api import (
     get_company_news,
-    get_price_data,
-    get_prices,
     get_financial_metrics,
     get_insider_trades,
+    get_price_data,
+    get_prices,
 )
-from src.utils.display import print_backtest_results, format_backtest_row
-from typing_extensions import Callable
+from src.utils.analysts import ANALYST_ORDER
+from src.utils.display import format_backtest_row, print_backtest_results
 from src.utils.ollama import ensure_ollama_and_model
 
 init(autoreset=True)

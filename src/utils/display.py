@@ -1,8 +1,10 @@
+import json
+import os
+
 from colorama import Fore, Style
 from tabulate import tabulate
+
 from .analysts import ANALYST_ORDER
-import os
-import json
 
 
 def sort_agent_signals(signals):
@@ -58,7 +60,7 @@ def print_trading_output(result: dict) -> None:
 
             # Get reasoning if available
             reasoning_str = ""
-            if "reasoning" in signal and signal["reasoning"]:
+            if signal.get("reasoning"):
                 reasoning = signal["reasoning"]
 
                 # Handle different types of reasoning (string, dict, etc.)

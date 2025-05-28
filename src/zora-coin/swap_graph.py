@@ -1,17 +1,8 @@
 """Swap analysis graph implementation using LangGraph."""
-from typing import Any, Dict, List, Optional, Sequence, TypedDict, cast
-from typing_extensions import Annotated, Literal
-import operator
-import json
-from pathlib import Path
+from typing import Any
 
-from langchain_core.messages import BaseMessage, HumanMessage
-from langchain_core.prompts import ChatPromptTemplate
-from langchain_openai import ChatOpenAI
 from langgraph.graph import END, Graph
-from pydantic import BaseModel, Field
-
-from swap_analyzer import AgentState, SwapAnalysis, swap_analyzer_agent
+from swap_analyzer import AgentState, swap_analyzer_agent
 
 
 def create_swap_analysis_graph() -> Graph:
@@ -37,17 +28,17 @@ def create_swap_analysis_graph() -> Graph:
 
 
 def run_swap_analysis(
-    swap_data: List[Dict[str, Any]],
+    swap_data: list[dict[str, Any]],
     show_reasoning: bool = True,
-) -> Dict[str, Any]:
+) -> dict[str, Any]:
     """Run the swap analysis workflow.
 
     Args:
         swap_data: List of swap data dictionaries
-        show_reasoning: Whether to show the agent's reasoning
+        show_reasoning: Whether to show agent reasoning
 
     Returns:
-        Dictionary containing the analysis results
+        Dictionary containing swap analysis results
     """
     # Create the graph
     graph = create_swap_analysis_graph()
@@ -65,4 +56,4 @@ def run_swap_analysis(
     # Extract the analysis results
     analysis_results = result["data"].get("swap_analysis", {})
 
-    return analysis_results 
+    return analysis_results

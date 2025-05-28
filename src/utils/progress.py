@@ -1,10 +1,11 @@
-from datetime import datetime, timezone
+from collections.abc import Callable
+from datetime import UTC, datetime
+
 from rich.console import Console
 from rich.live import Live
-from rich.table import Table
 from rich.style import Style
+from rich.table import Table
 from rich.text import Text
-from typing import Dict, Optional, Callable, List
 
 console = Console()
 
@@ -13,18 +14,18 @@ class AgentProgress:
     """Manages progress tracking for multiple agents."""
 
     def __init__(self):
-        self.agent_status: Dict[str, Dict[str, str]] = {}
+        self.agent_status: dict[str, dict[str, str]] = {}
         self.table = Table(show_header=False, box=None, padding=(0, 1))
         self.live = Live(self.table, console=console, refresh_per_second=4)
         self.started = False
-        self.update_handlers: List[Callable[[str, Optional[str], str], None]] = []
+        self.update_handlers: list[Callable[[str, str | None, str], None]] = []
 
-    def register_handler(self, handler: Callable[[str, Optional[str], str], None]):
+    def register_handler(self, handler: Callable[[str, str | None, str], None]):
         """Register a handler to be called when agent status updates."""
         self.update_handlers.append(handler)
         return handler  # Return handler to support use as decorator
 
-    def unregister_handler(self, handler: Callable[[str, Optional[str], str], None]):
+    def unregister_handler(self, handler: Callable[[str, str | None, str], None]):
         """Unregister a previously registered handler."""
         if handler in self.update_handlers:
             self.update_handlers.remove(handler)
@@ -42,7 +43,7 @@ class AgentProgress:
             self.started = False
 
     def update_status(
-        self, agent_name: str, ticker: Optional[str] = None, status: str = ""
+        self, agent_name: str, ticker: str | None = None, status: str = ""
     ):
         """Update the status of an agent."""
         if agent_name not in self.agent_status:
@@ -54,7 +55,7 @@ class AgentProgress:
             self.agent_status[agent_name]["status"] = status
 
         # Set the timestamp as UTC datetime
-        timestamp = datetime.now(timezone.utc).isoformat()
+        timestamp = datetime.now(UTC).isoformat()
         self.agent_status[agent_name]["timestamp"] = timestamp
 
         # Notify all registered handlers

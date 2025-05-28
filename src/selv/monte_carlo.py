@@ -1,12 +1,14 @@
+import math
+
 import numpy as np
 import pandas as pd
-from src.selv.indicators import (
-    add_indicators,
-    long_short_strategy,
-    buy_sell_strategy,
-)  # strategy executors
 from mpmath import erfinv, sqrt
-import math
+
+from src.selv.indicators import (
+   add_indicators,
+   buy_sell_strategy,
+   long_short_strategy,
+)  # strategy executors
 
 # CSV_PATH = Path("btc_data.csv")
 # N_PATHS = 5_000  # simulations
@@ -47,25 +49,25 @@ def simulate_path(start_price: float, rng: np.random.Generator, original_df: pd.
    """
    # Step 1: Calculate log returns from the historical price data
    log_ret = np.log(original_df["close"]).diff()
-   
+
    # Step 2: Extract statistical parameters from the historical log returns
    mu = log_ret.mean()          # Mean of log returns (drift rate per time step)
    sig = log_ret.std(ddof=0)    # Standard deviation of log returns (volatility per time step)
    dt = 1                       # Time increment (1 minute in this case)
    horizon = len(original_df) - 1  # Number of future steps to simulate (match historical length)
-   
+
    # Step 3: Generate random normal shocks scaled by the drift and volatility
    # - mu * dt: Expected drift per time step
    # - sig * sqrt(dt): Volatility scaled by square root of time step (from Ito's lemma)
    # - This creates normally distributed random increments with the right statistical properties
    shocks = rng.normal(mu * dt, sig * np.sqrt(dt), horizon)
-   
+
    # Step 4: Convert to a price path using geometric Brownian motion formula
    # - Start with log of initial price
    # - Add cumulative sum of random shocks to create a random walk with drift
    # - Cumulative sum models the path dependency of prices over time
    log_prices = np.log(start_price) + np.cumsum(shocks)
-   
+
    # Step 5: Convert log prices back to actual prices using exponential function
    # - exp(log_prices) reverses the logarithm to get actual price levels
    # - This ensures prices remain positive, a key property of GBM
@@ -75,7 +77,7 @@ def simulate_path(start_price: float, rng: np.random.Generator, original_df: pd.
 # --- Strategy Entry Functions -------------------------------------------------
 
 
-# TODO: understand this function 
+# TODO: understand this function
 def min_track_record_length(sr_hat: float,
                             sr_bench: float = 0,
                             skew: float = 0,

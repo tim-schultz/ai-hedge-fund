@@ -1,21 +1,22 @@
 import datetime
 import os
+
 import pandas as pd
 import requests
 
 from src.data.cache import get_cache
 from src.data.models import (
+    CompanyFactsResponse,
     CompanyNews,
     CompanyNewsResponse,
     FinancialMetrics,
     FinancialMetricsResponse,
-    Price,
-    PriceResponse,
-    LineItem,
-    LineItemResponse,
     InsiderTrade,
     InsiderTradeResponse,
-    CompanyFactsResponse,
+    LineItem,
+    LineItemResponse,
+    Price,
+    PriceResponse,
 )
 
 # Global cache instance

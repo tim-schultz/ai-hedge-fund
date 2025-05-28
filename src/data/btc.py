@@ -3,7 +3,6 @@ import asyncio
 import logging
 from datetime import datetime, timedelta
 from pathlib import Path
-from typing import Optional
 
 import ccxt.async_support as ccxt
 import pandas as pd
@@ -39,7 +38,7 @@ def download_ohlcv(
     days: int = 365,
     *,
     exchange_id: str = "coinbase",
-    outfile: Optional[Path | str] = None,
+    outfile: Path | str | None = None,
 ) -> pd.DataFrame:
     """
     Fetch historical candles and return a DataFrame.

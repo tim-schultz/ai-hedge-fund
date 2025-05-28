@@ -1,13 +1,14 @@
 import asyncio
 import json
+
 from langchain_core.messages import HumanMessage
 from langgraph.graph import END, StateGraph
 
 from src.agents.portfolio_manager import portfolio_management_agent
 from src.agents.risk_manager import risk_management_agent
+from src.graph.state import AgentState
 from src.main import start
 from src.utils.analysts import ANALYST_CONFIG
-from src.graph.state import AgentState
 
 
 # Helper function to create the agent graph
@@ -109,7 +110,7 @@ def parse_hedge_fund_response(response):
     try:
         return json.loads(response)
     except json.JSONDecodeError as e:
-        print(f"JSON decoding error: {e}\nResponse: {repr(response)}")
+        print(f"JSON decoding error: {e}\nResponse: {response!r}")
         return None
     except TypeError as e:
         print(
@@ -118,6 +119,6 @@ def parse_hedge_fund_response(response):
         return None
     except Exception as e:
         print(
-            f"Unexpected error while parsing response: {e}\nResponse: {repr(response)}"
+            f"Unexpected error while parsing response: {e}\nResponse: {response!r}"
         )
         return None

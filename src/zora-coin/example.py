@@ -1,12 +1,12 @@
 """Example script demonstrating how to use the swap analysis components."""
-from typing import Any, Dict, List, Optional
 import json
 from pathlib import Path
+from typing import Any
 
 from .swap_graph import run_swap_analysis
 
 
-def load_swap_data(file_path: str) -> List[Dict[str, Any]]:
+def load_swap_data(file_path: str) -> list[dict[str, Any]]:
     """Load swap data from a JSON file.
 
     Args:
@@ -15,7 +15,7 @@ def load_swap_data(file_path: str) -> List[Dict[str, Any]]:
     Returns:
         List of swap data dictionaries
     """
-    with open(file_path, "r") as f:
+    with open(file_path) as f:
         return json.load(f)
 
 
@@ -34,4 +34,4 @@ def main() -> None:
 
 
 if __name__ == "__main__":
-    main() 
+    main()

@@ -1,7 +1,8 @@
+from collections.abc import Callable
+
+import numpy as np
 import pandas as pd
 import pandas_ta as ta  # noqa: F401
-from typing import Callable
-import numpy as np
 
 
 def add_indicators(df: pd.DataFrame) -> pd.DataFrame:
