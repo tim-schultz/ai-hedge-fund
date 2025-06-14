@@ -1,0 +1,6 @@
+---
+description: 
+globs: 
+alwaysApply: false
+---
+If the user's query includes langchain or langgraph you have the ability to use the query_docs mcp to query up to date langgraph and langchain documentation 
