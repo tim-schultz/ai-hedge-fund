@@ -14,7 +14,7 @@ def call_llm(
     agent_name: str | None = None,
     state: dict | None = None,
     max_retries: int = 3,
-    default_factory: callable | None = None,
+    default_factory=None,
 ) -> BaseModel:
     """
     Makes an LLM call with retry logic, handling both JSON supported and non-JSON supported models.
