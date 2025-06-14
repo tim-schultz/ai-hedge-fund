@@ -26,16 +26,16 @@ def show_agent_reasoning(output, agent_name):
             return obj.to_dict()
         elif hasattr(obj, "__dict__"):  # Handle custom objects
             return obj.__dict__
-        elif isinstance(obj, (int, float, bool, str)):
+        elif isinstance(obj, int | float | bool | str):
             return obj
-        elif isinstance(obj, (list, tuple)):
+        elif isinstance(obj, list | tuple):
             return [convert_to_serializable(item) for item in obj]
         elif isinstance(obj, dict):
             return {key: convert_to_serializable(value) for key, value in obj.items()}
         else:
             return str(obj)  # Fallback to string representation
 
-    if isinstance(output, (dict, list)):
+    if isinstance(output, dict | list):
         # Convert the output to JSON-serializable format
         serializable_output = convert_to_serializable(output)
         print(json.dumps(serializable_output, indent=2))

@@ -1,19 +1,20 @@
 """Helper functions for LLM"""
 
 import json
+
 from pydantic import BaseModel
 
+from src.llm.models import get_model, get_model_info
 from src.utils.progress import progress
-from src.graph.state import AgentState
 
 
 def call_llm(
     prompt: any,
     pydantic_model: type[BaseModel],
     agent_name: str | None = None,
-    state: AgentState | None = None,
+    state: dict | None = None,
     max_retries: int = 3,
-    default_factory=None,
+    default_factory: callable | None = None,
 ) -> BaseModel:
     """
     Makes an LLM call with retry logic, handling both JSON supported and non-JSON supported models.
@@ -29,11 +30,11 @@ def call_llm(
     Returns:
         An instance of the specified Pydantic model
     """
-    
+
     # Extract model configuration if state is provided and agent_name is available
     if state and agent_name:
         model_name, model_provider = get_agent_model_config(state, agent_name)
-    
+
     # Fallback to defaults if still not provided
     if not model_name:
         model_name = "gpt-4o"
@@ -66,9 +67,7 @@ def call_llm(
 
         except Exception as e:
             if agent_name:
-                progress.update_status(
-                    agent_name, None, f"Error - retry {attempt + 1}/{max_retries}"
-                )
+                progress.update_status(agent_name, None, f"Error - retry {attempt + 1}/{max_retries}")
 
             if attempt == max_retries - 1:
                 print(f"Error in LLM call after {max_retries} attempts: {e}")
@@ -91,10 +90,7 @@ def create_default_response(model_class: type[BaseModel]) -> BaseModel:
             default_values[field_name] = 0.0
         elif field.annotation is int:
             default_values[field_name] = 0
-        elif (
-            hasattr(field.annotation, "__origin__")
-            and field.annotation.__origin__ is dict
-        ):
+        elif hasattr(field.annotation, "__origin__") and field.annotation.__origin__ is dict:
             default_values[field_name] = {}
         else:
             # For other types (like Literal), try to use the first allowed value
@@ -128,23 +124,23 @@ def get_agent_model_config(state, agent_name):
     """
     request = state.get("metadata", {}).get("request")
 
-    if agent_name == 'portfolio_manager':
+    if agent_name == "portfolio_manager":
         # Get the model and provider from state metadata
         model_name = state.get("metadata", {}).get("model_name", "gpt-4o")
         model_provider = state.get("metadata", {}).get("model_provider", "OPENAI")
         return model_name, model_provider
-    
-    if request and hasattr(request, 'get_agent_model_config'):
+
+    if request and hasattr(request, "get_agent_model_config"):
         # Get agent-specific model configuration
         model_name, model_provider = request.get_agent_model_config(agent_name)
-        return model_name, model_provider.value if hasattr(model_provider, 'value') else str(model_provider)
-    
+        return model_name, model_provider.value if hasattr(model_provider, "value") else str(model_provider)
+
     # Fall back to global configuration
     model_name = state.get("metadata", {}).get("model_name", "gpt-4o")
     model_provider = state.get("metadata", {}).get("model_provider", "OPENAI")
-    
+
     # Convert enum to string if necessary
-    if hasattr(model_provider, 'value'):
+    if hasattr(model_provider, "value"):
         model_provider = model_provider.value
-    
+
     return model_name, model_provider

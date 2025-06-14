@@ -11,8 +11,8 @@ from web3 import Web3
 import utils
 
 # --- configuration for chunked slot0 fetching ---
-BLOCK_STRIDE = 900      # ≈ 30 minutes (900 blocks x 2 s)
-CHUNK_SIZE   = 100_000  # fetch at most this many blocks per cryo query
+BLOCK_STRIDE = 900  # ≈ 30 minutes (900 blocks x 2 s)
+CHUNK_SIZE = 100_000  # fetch at most this many blocks per cryo query
 
 LIQ_CACHE = Path("coins_with_liquidity.parquet")
 SLOT0_CACHE = Path("slot0_timeseries.parquet")
@@ -24,6 +24,7 @@ logging.basicConfig(
     format="%(asctime)s %(levelname)s [%(name)s] %(message)s",
 )
 logger = logging.getLogger(__name__)
+
 
 def safe_read_parquet(path: Path | str) -> pd.DataFrame:
     """
@@ -38,8 +39,10 @@ def safe_read_parquet(path: Path | str) -> pd.DataFrame:
         logger.exception("Failed to read parquet %s: %s", path, err)
     return pd.DataFrame()
 
+
 # ABI type string for the Uniswap V3 slot0 return struct
 SLOT0_TYPES = "(uint160,int24,uint16,uint16,uint16,uint8,bool)"
+
 
 def _decode_slot0_outputs(output_bytes: bytes, pools: pd.Series) -> list[tuple | None]:
     """
@@ -88,10 +91,12 @@ def _decode_slot0_outputs(output_bytes: bytes, pools: pd.Series) -> list[tuple |
 
     return decoded_vals
 
+
 def setup_directories() -> None:
     """Create necessary directories for data storage."""
     for directory in [POOLS_DIR, SLOT0_CHUNKS_DIR]:
         directory.mkdir(exist_ok=True)
+
 
 def validate_block_range(start_block: int, latest_block: int) -> bool:
     """Validate that the block range is valid."""
@@ -99,6 +104,7 @@ def validate_block_range(start_block: int, latest_block: int) -> bool:
         logger.error("Invalid block range: start_block (%d) >= latest_block (%d)", start_block, latest_block)
         return False
     return True
+
 
 if __name__ == "__main__":
     logger.info("Starting data fetching process...")
@@ -129,9 +135,7 @@ if __name__ == "__main__":
                 coins_with_liquidity = None
 
         if coins_with_liquidity is not None:
-            logger.info(
-                "Loaded cached liquidity dataframe (%d pools)", len(coins_with_liquidity)
-            )
+            logger.info("Loaded cached liquidity dataframe (%d pools)", len(coins_with_liquidity))
 
     if coins_with_liquidity is None:
         pools = all_coins["pool"]
@@ -139,9 +143,7 @@ if __name__ == "__main__":
         for chunk in utils.chunk_number(len(pools), 1000):
             selected_pools = pools.iloc[chunk]
             inner_calldata = [[pool, liquidity_sig] for pool in selected_pools]
-            m3_calldata_bytes = encode(
-                ["bool", "(address,bytes)[]"], [False, inner_calldata]
-            )
+            m3_calldata_bytes = encode(["bool", "(address,bytes)[]"], [False, inner_calldata])
             m3_calldata = utils.bytes_to_hexstr(utils.TRYAGGREGATE_4b + m3_calldata_bytes)
 
             liquidity = None
@@ -180,13 +182,11 @@ if __name__ == "__main__":
 
                 if len(return_data) != len(selected_pools):
                     if len(return_data) > len(selected_pools):
-                        return_data = return_data[:len(selected_pools)]
+                        return_data = return_data[: len(selected_pools)]
                     else:
-                        raise ValueError(
-                            f"Length mismatch decoding liquidity: expected {len(selected_pools)}, got {len(return_data)}"
-                        )
+                        raise ValueError(f"Length mismatch decoding liquidity: expected {len(selected_pools)}, got {len(return_data)}")
 
-                coin_subset = all_coins[all_coins['pool'].isin(selected_pools)]
+                coin_subset = all_coins[all_coins["pool"].isin(selected_pools)]
                 coin_subset["liquidity"] = return_data
                 coins_with_liquidity = coin_subset[coin_subset["liquidity"] > 0]
 
@@ -226,12 +226,8 @@ if __name__ == "__main__":
         slot0_sig = utils.hexstr_to_bytes("0x3850c7bd")
         pools = coins_with_liquidity["pool"]
         inner_calldata = [[pool, slot0_sig] for pool in pools]
-        m3_calldata_bytes = encode(
-            ["bool", "(address,bytes)[]"], [False, inner_calldata]
-        )
-        m3_calldata = utils.bytes_to_hexstr(
-            utils.TRYAGGREGATE_4b + m3_calldata_bytes
-        )
+        m3_calldata_bytes = encode(["bool", "(address,bytes)[]"], [False, inner_calldata])
+        m3_calldata = utils.bytes_to_hexstr(utils.TRYAGGREGATE_4b + m3_calldata_bytes)
 
         slot0_rows = []
         start_block = utils.DEPLOYMENT_BLOCK
@@ -275,19 +271,12 @@ if __name__ == "__main__":
                 slot0_rows.append(
                     {
                         "block_number": row["block_number"],
-                        **{
-                            str(pool): vals[0] if vals is not None else None
-                            for pool, vals in zip(pools, per_pool_vals, strict=False)
-                        },
+                        **{str(pool): vals[0] if vals is not None else None for pool, vals in zip(pools, per_pool_vals, strict=False)},
                     }
                 )
 
             # Persist the chunk for resumability
-            chunk_df = (
-                pd.DataFrame(slot0_rows[-len(data_chunk):])
-                .set_index("block_number")
-                .sort_index()
-            )
+            chunk_df = pd.DataFrame(slot0_rows[-len(data_chunk) :]).set_index("block_number").sort_index()
             # Cast large uint values (sqrtPriceX96) to string to avoid Arrow int overflow
             chunk_df = chunk_df.apply(lambda col: col.astype("string"))
             chunk_path = SLOT0_CHUNKS_DIR / f"slot0_{start_block}_{end_block}.parquet"
@@ -297,9 +286,7 @@ if __name__ == "__main__":
             start_block = end_block + 1  # move to next window
 
         # Consolidate all rows into final DataFrame
-        slot0_timeseries = (
-            pd.DataFrame(slot0_rows).set_index("block_number").sort_index()
-        )
+        slot0_timeseries = pd.DataFrame(slot0_rows).set_index("block_number").sort_index()
         # Convert bigint columns to string so pyarrow can write without overflow
         slot0_timeseries = slot0_timeseries.apply(lambda col: col.astype("string"))
         slot0_timeseries.to_parquet(SLOT0_CACHE)

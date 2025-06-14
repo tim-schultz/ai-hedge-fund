@@ -1,4 +1,5 @@
 """Example script demonstrating how to use the swap analysis components."""
+
 import json
 from pathlib import Path
 from typing import Any

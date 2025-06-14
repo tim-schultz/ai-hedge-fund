@@ -1,12 +1,12 @@
 """
-Analyze Monte‑Carlo back‑test results saved in ``mc_results.csv``.
+Analyze Monte-Carlo back-test results saved in ``mc_results.csv``.
 
 This script:
 1. Loads the CSV.
 2. Separates each *strategy_name* into its own DataFrame.
 3. Produces a summary table of key statistics.
 4. Saves the summary to ``mc_summary.csv``.
-5. Saves a Sharpe‑ratio box‑plot as ``sharpe_boxplot.png``.
+5. Saves a Sharpe-ratio box-plot as ``sharpe_boxplot.png``.
 
 Run it directly or import the helper functions in a notebook.
 """
@@ -20,19 +20,20 @@ import pandas as pd
 # Helpers                                                                     #
 # --------------------------------------------------------------------------- #
 
+
 def load_results(path: str | Path = "mc_results.csv") -> pd.DataFrame:
-    """Load the Monte‑Carlo results CSV."""
+    """Load the Monte-Carlo results CSV."""
     return pd.read_csv(path)
 
 
 def split_by_strategy(df: pd.DataFrame) -> dict[str, pd.DataFrame]:
-    """Return a dict mapping strategy_name → DataFrame of that strategy’s runs."""
+    """Return a dict mapping strategy_name -> DataFrame of that strategy's runs."""
     return {name: grp.copy() for name, grp in df.groupby("strategy_name")}
 
 
 def summarize(df: pd.DataFrame) -> pd.DataFrame:
     """
-    Aggregate per‑strategy performance metrics.
+    Aggregate per-strategy performance metrics.
 
     Returns a DataFrame sorted by mean Sharpe ratio.
     """
@@ -53,11 +54,11 @@ def summarize(df: pd.DataFrame) -> pd.DataFrame:
     return summary
 
 
-def plot_sharpe_distribution(
+def save_sharpe_boxplot(
     df: pd.DataFrame,
     save_path: str | Path = "sharpe_boxplot.png",
 ) -> None:
-    """Save a box‑plot of Sharpe ratios by strategy."""
+    """Save a box-plot of Sharpe ratios by strategy."""
     strategies = df["strategy_name"].unique()
     data = [df.loc[df["strategy_name"] == s, "sharpe"].values for s in strategies]
 
@@ -75,11 +76,12 @@ def plot_sharpe_distribution(
 # Main runnable                                                               #
 # --------------------------------------------------------------------------- #
 
+
 def main() -> None:
     df = load_results()
     summary = summarize(df)
     summary.to_csv("mc_summary.csv", index=False)
-    plot_sharpe_distribution(df)
+    save_sharpe_boxplot(df)
     print(summary.to_string(index=False))
 
 

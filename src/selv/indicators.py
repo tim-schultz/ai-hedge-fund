@@ -29,22 +29,23 @@ def add_indicators(df: pd.DataFrame) -> pd.DataFrame:
     # Bollinger Bands (20, 2)
     df.ta.bbands(close="close", length=20, std=2, append=True)
 
-    # EMA 21 for Golden‑/Death‑Cross with SMA 50
-    df.ta.ema(close="close", length=21, append=True)   # EMA_21
+    # EMA 21 for Golden-/Death-Cross with SMA 50
+    df.ta.ema(close="close", length=21, append=True)  # EMA_21
 
     # Triple EMA (TEMA) 50
     df.ta.tema(close="close", length=50, append=True)  # TEMA_50
 
-    # Stochastic RSI (14,14,3,3) – appends %K and %D
+    # Stochastic RSI (14,14,3,3) - appends %K and %D
     df.ta.stochrsi(close="close", append=True)
 
-    # VWAP – intraday but still useful on 1‑min data
-    # pandas‑ta v0.3.14 appends column 'VWAP_D'
+    # VWAP - intraday but still useful on 1-min data
+    # pandas-ta v0.3.14 appends column 'VWAP_D'
     df.ta.vwap(append=True)
 
     # Ensure no NA rows remain
     df.dropna(inplace=True)
     return df
+
 
 def long_short_strategy(
     df: pd.DataFrame,
@@ -55,7 +56,7 @@ def long_short_strategy(
     sl: float = 0.01,
     max_minutes: int = 1440,
 ) -> dict:
-    """Back‑test a long/short strategy on an OHLCV‑plus‑indicators DataFrame.
+    """Back-test a long/short strategy on an OHLCV-plus-indicators DataFrame.
 
     Parameters
     ----------
@@ -63,13 +64,13 @@ def long_short_strategy(
         Must already contain all columns referenced by the entry lambdas.
     long_entry_fun / short_entry_fun : Callable[[df], pd.Series], optional
         Functions that return Boolean Series indicating entry bars.  If either
-        is omitted, a default MACD‑RSI crossover rule is used.
+        is omitted, a default MACD-RSI crossover rule is used.
     tp : float
-        Take‑profit expressed as fractional return (e.g. 0.02 → +2 %).
+        Take-profit expressed as fractional return (e.g. 0.02 -> +2%).
     sl : float
-        Stop‑loss expressed as fractional return (e.g. 0.01 → −1 % for longs).
+        Stop-loss expressed as fractional return (e.g. 0.01 -> -1% for longs).
     max_minutes : int
-        Maximum holding period before a position is force‑closed.
+        Maximum holding period before a position is force-closed.
 
     Returns
     -------
@@ -94,7 +95,7 @@ def long_short_strategy(
     long_entry = long_entry_fun(df)
     short_entry = short_entry_fun(df)
 
-    position = 0  # +1 long, −1 short, 0 flat
+    position = 0  # +1 long, -1 short, 0 flat
     equity = 1.0
     peak = 1.0
     dds = []
@@ -135,9 +136,7 @@ def long_short_strategy(
 
     if len(returns) > 1:
         std_dev = returns.std()
-        sharpe = (
-            0.0 if std_dev == 0 else returns.mean() / std_dev * np.sqrt(365 * 24 * 60)
-        )
+        sharpe = 0.0 if std_dev == 0 else returns.mean() / std_dev * np.sqrt(365 * 24 * 60)
     else:
         sharpe = 0.0
 
@@ -146,7 +145,6 @@ def long_short_strategy(
         "sharpe": sharpe,
         "max_dd": max(dds) if dds else 0,
     }
-
 
 
 def buy_sell_strategy(
@@ -158,7 +156,7 @@ def buy_sell_strategy(
     sl: float = 0.01,
     max_minutes: int = 1440,
 ) -> dict:
-    """Back‑test a long/short strategy on an OHLCV‑plus‑indicators DataFrame.
+    """Back-test a long/short strategy on an OHLCV-plus-indicators DataFrame.
 
     Parameters
     ----------
@@ -166,13 +164,13 @@ def buy_sell_strategy(
         Must already contain all columns referenced by the entry lambdas.
     long_entry_fun / sell_entry_fun : Callable[[df], pd.Series], optional
         Functions that return Boolean Series indicating entry bars.  If either
-        is omitted, a default MACD‑RSI crossover rule is used.
+        is omitted, a default MACD-RSI crossover rule is used.
     tp : float
-        Take‑profit expressed as fractional return (e.g. 0.02 → +2 %).
+        Take-profit expressed as fractional return (e.g. 0.02 -> +2%).
     sl : float
-        Stop‑loss expressed as fractional return (e.g. 0.01 → −1 % for longs).
+        Stop-loss expressed as fractional return (e.g. 0.01 -> -1% for longs).
     max_minutes : int
-        Maximum holding period before a position is force‑closed.
+        Maximum holding period before a position is force-closed.
 
     Returns
     -------
@@ -214,14 +212,14 @@ def buy_sell_strategy(
             if long_entry.loc[ts]:
                 position, entry_price, entry_time = 1, price, ts
         else:
-            # Currently LONG ➜ check for take‑profit / stop‑loss / timeout / explicit exit signal
+            # Currently LONG ➜ check for take-profit / stop-loss / timeout / explicit exit signal
             move = (price - entry_price) / entry_price
             minutes_held = (ts - entry_time).total_seconds() / 60
 
-            hit_tp   = move >= tp
-            hit_sl   = move <= -sl
+            hit_tp = move >= tp
+            hit_sl = move <= -sl
             timed_out = minutes_held >= max_minutes
-            hit_exit = exit_signal.loc[ts]  # MACD‑RSI bearish crossover
+            hit_exit = exit_signal.loc[ts]  # MACD-RSI bearish crossover
 
             if hit_tp or hit_sl or timed_out or hit_exit:
                 equity *= 1 + move  # position is +1
@@ -236,9 +234,7 @@ def buy_sell_strategy(
 
     if len(returns) > 1:
         std_dev = returns.std()
-        sharpe = (
-            0.0 if std_dev == 0 else returns.mean() / std_dev * np.sqrt(365 * 24 * 60)
-        )
+        sharpe = 0.0 if std_dev == 0 else returns.mean() / std_dev * np.sqrt(365 * 24 * 60)
     else:
         sharpe = 0.0
 

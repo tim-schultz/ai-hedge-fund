@@ -30,7 +30,7 @@ def main() -> None:
     print(f"Loaded {len(swap_data)} rows of swap data")
 
     # Convert the DataFrame to a dictionary format
-    swap_data_dict: dict[str, Any] = swap_data.to_dict(orient='records')
+    swap_data_dict: dict[str, Any] = swap_data.to_dict(orient="records")
 
     # Run the analysis
     print("\nRunning swap analysis...")
@@ -54,6 +54,7 @@ def main() -> None:
     except Exception as e:
         print(f"Error during analysis: {e!s}")
         return
+
 
 if __name__ == "__main__":
     main()

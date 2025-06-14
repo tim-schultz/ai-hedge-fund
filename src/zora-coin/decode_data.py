@@ -4,6 +4,7 @@ Stream-decode CoinCreated events without blowing up memory.
 Usage:
     poetry run python src/zora-coin/decode_data_streaming.py
 """
+
 from pathlib import Path
 
 import pandas as pd
@@ -14,29 +15,26 @@ from eth_abi import decode
 from utils import hexstr_to_bytes
 
 # ────────────────────────────────────────────────────────────
-_EVENT_SIG = hexstr_to_bytes(
-    "0x3d1462491f7fa8396808c230d95c3fa60fd09ef59506d0b9bd1cf072d2a03f56"
-)
+_EVENT_SIG = hexstr_to_bytes("0x3d1462491f7fa8396808c230d95c3fa60fd09ef59506d0b9bd1cf072d2a03f56")
 _PARAM_TYPES = [
     "address",  # currency
-    "string",   # ipfs / URI
-    "string",   # name
-    "string",   # symbol
+    "string",  # ipfs / URI
+    "string",  # name
+    "string",  # symbol
     "address",  # coin
     "address",  # pool
-    "string",   # version
+    "string",  # version
 ]
 _OUT_PATH = Path("coins/decoded_coins.parquet")
-_BATCH_SIZE = 50_000          # rows per Arrow record-batch
+_BATCH_SIZE = 50_000  # rows per Arrow record-batch
 
-columns = ["currency", "ipfs_hash", "name", "symbol",
-           "coin", "pool", "version"]
+columns = ["currency", "ipfs_hash", "name", "symbol", "coin", "pool", "version"]
 
 
 def _decode_coin_event(row) -> tuple:
     try:
         return decode(_PARAM_TYPES, row["data"])
-    except Exception as exc:           # bad decode → all-None row
+    except Exception as exc:  # bad decode → all-None row
         print(f"Decoding error: {exc}")
         return (None,) * len(_PARAM_TYPES)
 
@@ -60,8 +58,7 @@ def main() -> None:
                 if filtered.empty:
                     continue
 
-                decoded = filtered.apply(_decode_coin_event,
-                                        axis=1, result_type="expand")
+                decoded = filtered.apply(_decode_coin_event, axis=1, result_type="expand")
                 decoded.columns = columns
 
                 table = pa.Table.from_pandas(decoded, preserve_index=False)

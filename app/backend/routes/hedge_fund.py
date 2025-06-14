@@ -32,9 +32,7 @@ router = APIRouter(prefix="/hedge-fund")
 async def run_hedge_fund(request: HedgeFundRequest):
     try:
         # Create the portfolio
-        portfolio = create_portfolio(
-            request.initial_cash, request.margin_requirement, request.tickers
-        )
+        portfolio = create_portfolio(request.initial_cash, request.margin_requirement, request.tickers)
 
         # Construct agent graph
         graph = create_graph(request.selected_agents)
@@ -82,9 +80,7 @@ async def run_hedge_fund(request: HedgeFundRequest):
                 while not run_task.done():
                     # Either get a progress update or wait a bit
                     try:
-                        event = await asyncio.wait_for(
-                            progress_queue.get(), timeout=1.0
-                        )
+                        event = await asyncio.wait_for(progress_queue.get(), timeout=1.0)
                         yield event.to_sse()
                     except TimeoutError:
                         # Just continue the loop
@@ -94,20 +90,14 @@ async def run_hedge_fund(request: HedgeFundRequest):
                 result = run_task.result()
 
                 if not result or not result.get("messages"):
-                    yield ErrorEvent(
-                        message="Failed to generate hedge fund decisions"
-                    ).to_sse()
+                    yield ErrorEvent(message="Failed to generate hedge fund decisions").to_sse()
                     return
 
                 # Send the final result
                 final_data = CompleteEvent(
                     data={
-                        "decisions": parse_hedge_fund_response(
-                            result.get("messages", [])[-1].content
-                        ),
-                        "analyst_signals": result.get("data", {}).get(
-                            "analyst_signals", {}
-                        ),
+                        "decisions": parse_hedge_fund_response(result.get("messages", [])[-1].content),
+                        "analyst_signals": result.get("data", {}).get("analyst_signals", {}),
                     }
                 )
                 yield final_data.to_sse()
@@ -127,4 +117,4 @@ async def run_hedge_fund(request: HedgeFundRequest):
         raise HTTPException(
             status_code=500,
             detail=f"An error occurred while processing the request: {e!s}",
-        )
+        ) from e

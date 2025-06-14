@@ -33,7 +33,7 @@ class MichaelBurrySignal(BaseModel):
     """Schema returned by the LLM."""
 
     signal: Literal["bullish", "bearish", "neutral"]
-    confidence: float  # 0–100
+    confidence: float  # 0-100
     reasoning: str
 
 
@@ -43,16 +43,14 @@ class MichaelBurrySignal(BaseModel):
 
 
 def michael_burry_agent(state: AgentState):
-    """Analyse stocks using Michael Burry's deep‑value, contrarian framework."""
+    """Analyse stocks using Michael Burry's deep-value, contrarian framework."""
 
     data = state["data"]
-    end_date: str = data["end_date"]  # YYYY‑MM‑DD
+    end_date: str = data["end_date"]  # YYYY-MM-DD
     tickers: list[str] = data["tickers"]
 
     # We look one year back for insider trades / news flow
-    start_date = (
-        (datetime.fromisoformat(end_date) - timedelta(days=365)).date().isoformat()
-    )
+    start_date = (datetime.fromisoformat(end_date) - timedelta(days=365)).date().isoformat()
 
     analysis_data: dict[str, dict] = {}
     burry_analysis: dict[str, dict] = {}
@@ -61,9 +59,7 @@ def michael_burry_agent(state: AgentState):
         # ------------------------------------------------------------------
         # Fetch raw data
         # ------------------------------------------------------------------
-        progress.update_status(
-            "michael_burry_agent", ticker, "Fetching financial metrics"
-        )
+        progress.update_status("michael_burry_agent", ticker, "Fetching financial metrics")
         metrics = get_financial_metrics(ticker, end_date, period="ttm", limit=5)
 
         progress.update_status("michael_burry_agent", ticker, "Fetching line items")
@@ -83,20 +79,16 @@ def michael_burry_agent(state: AgentState):
         )
 
         progress.update_status("michael_burry_agent", ticker, "Fetching insider trades")
-        insider_trades = get_insider_trades(
-            ticker, end_date=end_date, start_date=start_date
-        )
+        insider_trades = get_insider_trades(ticker, end_date=end_date, start_date=start_date)
 
         progress.update_status("michael_burry_agent", ticker, "Fetching company news")
-        news = get_company_news(
-            ticker, end_date=end_date, start_date=start_date, limit=250
-        )
+        news = get_company_news(ticker, end_date=end_date, start_date=start_date, limit=250)
 
         progress.update_status("michael_burry_agent", ticker, "Fetching market cap")
         market_cap = get_market_cap(ticker, end_date)
 
         # ------------------------------------------------------------------
-        # Run sub‑analyses
+        # Run sub-analyses
         # ------------------------------------------------------------------
         progress.update_status("michael_burry_agent", ticker, "Analyzing value")
         value_analysis = _analyze_value(metrics, line_items, market_cap)
@@ -104,31 +96,17 @@ def michael_burry_agent(state: AgentState):
         progress.update_status("michael_burry_agent", ticker, "Analyzing balance sheet")
         balance_sheet_analysis = _analyze_balance_sheet(metrics, line_items)
 
-        progress.update_status(
-            "michael_burry_agent", ticker, "Analyzing insider activity"
-        )
+        progress.update_status("michael_burry_agent", ticker, "Analyzing insider activity")
         insider_analysis = _analyze_insider_activity(insider_trades)
 
-        progress.update_status(
-            "michael_burry_agent", ticker, "Analyzing contrarian sentiment"
-        )
+        progress.update_status("michael_burry_agent", ticker, "Analyzing contrarian sentiment")
         contrarian_analysis = _analyze_contrarian_sentiment(news)
 
         # ------------------------------------------------------------------
         # Aggregate score & derive preliminary signal
         # ------------------------------------------------------------------
-        total_score = (
-            value_analysis["score"]
-            + balance_sheet_analysis["score"]
-            + insider_analysis["score"]
-            + contrarian_analysis["score"]
-        )
-        max_score = (
-            value_analysis["max_score"]
-            + balance_sheet_analysis["max_score"]
-            + insider_analysis["max_score"]
-            + contrarian_analysis["max_score"]
-        )
+        total_score = value_analysis["score"] + balance_sheet_analysis["score"] + insider_analysis["score"] + contrarian_analysis["score"]
+        max_score = value_analysis["max_score"] + balance_sheet_analysis["max_score"] + insider_analysis["max_score"] + contrarian_analysis["max_score"]
 
         if total_score >= 0.7 * max_score:
             signal = "bullish"
@@ -169,9 +147,7 @@ def michael_burry_agent(state: AgentState):
     # ----------------------------------------------------------------------
     # Return to the graph
     # ----------------------------------------------------------------------
-    message = HumanMessage(
-        content=json.dumps(burry_analysis), name="michael_burry_agent"
-    )
+    message = HumanMessage(content=json.dumps(burry_analysis), name="michael_burry_agent")
 
     if state["metadata"].get("show_reasoning"):
         show_agent_reasoning(burry_analysis, "Michael Burry Agent")
@@ -184,12 +160,12 @@ def michael_burry_agent(state: AgentState):
 
 
 ###############################################################################
-# Sub‑analysis helpers
+# Sub-analysis helpers
 ###############################################################################
 
 
 def _latest_line_item(line_items: list):
-    """Return the most recent line‑item object or *None*."""
+    """Return the most recent line-item object or *None*."""
     return line_items[0] if line_items else None
 
 
@@ -197,13 +173,13 @@ def _latest_line_item(line_items: list):
 
 
 def _analyze_value(metrics, line_items, market_cap):
-    """Free cash‑flow yield, EV/EBIT, other classic deep‑value metrics."""
+    """Free cash-flow yield, EV/EBIT, other classic deep-value metrics."""
 
-    max_score = 6  # 4 pts for FCF‑yield, 2 pts for EV/EBIT
+    max_score = 6  # 4 pts for FCF-yield, 2 pts for EV/EBIT
     score = 0
     details: list[str] = []
 
-    # Free‑cash‑flow yield
+    # Free-cash-flow yield
     latest_item = _latest_line_item(line_items)
     fcf = getattr(latest_item, "free_cash_flow", None) if latest_item else None
     if fcf is not None and market_cap:
@@ -255,9 +231,7 @@ def _analyze_balance_sheet(metrics, line_items):
     latest_metrics = metrics[0] if metrics else None
     latest_item = _latest_line_item(line_items)
 
-    debt_to_equity = (
-        getattr(latest_metrics, "debt_to_equity", None) if latest_metrics else None
-    )
+    debt_to_equity = getattr(latest_metrics, "debt_to_equity", None) if latest_metrics else None
     if debt_to_equity is not None:
         if debt_to_equity < 0.5:
             score += 2
@@ -268,7 +242,7 @@ def _analyze_balance_sheet(metrics, line_items):
         else:
             details.append(f"High leverage D/E {debt_to_equity:.2f}")
     else:
-        details.append("Debt‑to‑equity data unavailable")
+        details.append("Debt-to-equity data unavailable")
 
     # Quick liquidity sanity check (cash vs total debt)
     if latest_item is not None:
@@ -300,18 +274,8 @@ def _analyze_insider_activity(insider_trades):
         details.append("No insider trade data")
         return {"score": score, "max_score": max_score, "details": "; ".join(details)}
 
-    shares_bought = sum(
-        t.transaction_shares or 0
-        for t in insider_trades
-        if (t.transaction_shares or 0) > 0
-    )
-    shares_sold = abs(
-        sum(
-            t.transaction_shares or 0
-            for t in insider_trades
-            if (t.transaction_shares or 0) < 0
-        )
-    )
+    shares_bought = sum(t.transaction_shares or 0 for t in insider_trades if (t.transaction_shares or 0) > 0)
+    shares_sold = abs(sum(t.transaction_shares or 0 for t in insider_trades if (t.transaction_shares or 0) < 0))
     net = shares_bought - shares_sold
     if net > 0:
         score += 2 if net / max(shares_sold, 1) > 1 else 1
@@ -337,17 +301,11 @@ def _analyze_contrarian_sentiment(news):
         return {"score": score, "max_score": max_score, "details": "; ".join(details)}
 
     # Count negative sentiment articles
-    sentiment_negative_count = sum(
-        1
-        for n in news
-        if n.sentiment and n.sentiment.lower() in ["negative", "bearish"]
-    )
+    sentiment_negative_count = sum(1 for n in news if n.sentiment and n.sentiment.lower() in ["negative", "bearish"])
 
     if sentiment_negative_count >= 5:
         score += 1  # The more hated, the better (assuming fundamentals hold up)
-        details.append(
-            f"{sentiment_negative_count} negative headlines (contrarian opportunity)"
-        )
+        details.append(f"{sentiment_negative_count} negative headlines (contrarian opportunity)")
     else:
         details.append("Limited negative press")
 
@@ -373,9 +331,9 @@ def _generate_burry_output(
                 """You are an AI agent emulating Dr. Michael J. Burry. Your mandate:
                 - Hunt for deep value in US equities using hard numbers (free cash flow, EV/EBIT, balance sheet)
                 - Be contrarian: hatred in the press can be your friend if fundamentals are solid
-                - Focus on downside first – avoid leveraged balance sheets
+                - Focus on downside first - avoid leveraged balance sheets
                 - Look for hard catalysts such as insider buying, buybacks, or asset sales
-                - Communicate in Burry's terse, data‑driven style
+                - Communicate in Burry's terse, data-driven style
 
                 When providing your reasoning, be thorough and specific by:
                 1. Start with the key metric(s) that drove your decision
@@ -383,7 +341,7 @@ def _generate_burry_output(
                 3. Highlight risk factors and why they are acceptable (or not)
                 4. Mention relevant insider activity or contrarian opportunities
                 5. Use Burry's direct, number-focused communication style with minimal words
-                
+
                 For example, if bullish: "FCF yield 12.8%. EV/EBIT 6.2. Debt-to-equity 0.4. Net insider buying 25k shares. Market missing value due to overreaction to recent litigation. Strong buy."
                 For example, if bearish: "FCF yield only 2.1%. Debt-to-equity concerning at 2.3. Management diluting shareholders. Pass."
                 """,
@@ -406,16 +364,14 @@ def _generate_burry_output(
         ]
     )
 
-    prompt = template.invoke(
-        {"analysis_data": json.dumps(analysis_data, indent=2), "ticker": ticker}
-    )
+    prompt = template.invoke({"analysis_data": json.dumps(analysis_data, indent=2), "ticker": ticker})
 
     # Default fallback signal in case parsing fails
     def create_default_michael_burry_signal():
         return MichaelBurrySignal(
             signal="neutral",
             confidence=0.0,
-            reasoning="Parsing error – defaulting to neutral",
+            reasoning="Parsing error - defaulting to neutral",
         )
 
     return call_llm(

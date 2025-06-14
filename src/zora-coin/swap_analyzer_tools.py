@@ -1,4 +1,5 @@
 """Custom tools for DataFrame manipulation in swap analysis."""
+
 from typing import Any
 
 import pandas as pd
@@ -33,17 +34,13 @@ class GetRecentActivityTool(DataFrameTool):
             Dictionary containing pool activity information
         """
         # Group by pool and calculate activity metrics
-        pool_activity = self.df.groupby('pool').agg({
-            'price': ['count', 'mean', 'std'],
-            'liquidity': ['mean', 'std'],
-            'volatility': 'mean'
-        }).round(4)
+        pool_activity = self.df.groupby("pool").agg({"price": ["count", "mean", "std"], "liquidity": ["mean", "std"], "volatility": "mean"}).round(4)
 
         # Flatten column names
-        pool_activity.columns = ['_'.join(col).strip() for col in pool_activity.columns.values]
+        pool_activity.columns = ["_".join(col).strip() for col in pool_activity.columns.values]
 
         # Sort by transaction count (activity)
-        pool_activity = pool_activity.sort_values('price_count', ascending=False)
+        pool_activity = pool_activity.sort_values("price_count", ascending=False)
 
         return pool_activity.to_dict()
 
@@ -61,14 +58,10 @@ class AnalyzePriceTrendsTool(DataFrameTool):
             Dictionary containing price trend analysis
         """
         # Calculate price trends
-        price_trends = self.df.groupby('pool').agg({
-            'price': ['mean', 'std', 'min', 'max'],
-            'price_change': ['mean', 'std'],
-            'volatility': 'mean'
-        }).round(4)
+        price_trends = self.df.groupby("pool").agg({"price": ["mean", "std", "min", "max"], "price_change": ["mean", "std"], "volatility": "mean"}).round(4)
 
         # Flatten column names
-        price_trends.columns = ['_'.join(col).strip() for col in price_trends.columns.values]
+        price_trends.columns = ["_".join(col).strip() for col in price_trends.columns.values]
 
         return price_trends.to_dict()
 
@@ -86,13 +79,10 @@ class AnalyzeLiquidityTool(DataFrameTool):
             Dictionary containing liquidity analysis
         """
         # Calculate liquidity metrics
-        liquidity_analysis = self.df.groupby('pool').agg({
-            'liquidity': ['mean', 'std', 'min', 'max'],
-            'liquidity_change': ['mean', 'std']
-        }).round(4)
+        liquidity_analysis = self.df.groupby("pool").agg({"liquidity": ["mean", "std", "min", "max"], "liquidity_change": ["mean", "std"]}).round(4)
 
         # Flatten column names
-        liquidity_analysis.columns = ['_'.join(col).strip() for col in liquidity_analysis.columns.values]
+        liquidity_analysis.columns = ["_".join(col).strip() for col in liquidity_analysis.columns.values]
 
         return liquidity_analysis.to_dict()
 
@@ -110,21 +100,12 @@ class GetTimeBasedMetricsTool(DataFrameTool):
             Dictionary containing time-based metrics
         """
         # Calculate hourly patterns
-        hourly_patterns = self.df.groupby(['pool', 'hour']).agg({
-            'price': ['count', 'mean'],
-            'liquidity': 'mean'
-        }).round(4)
+        hourly_patterns = self.df.groupby(["pool", "hour"]).agg({"price": ["count", "mean"], "liquidity": "mean"}).round(4)
 
         # Calculate daily patterns
-        daily_patterns = self.df.groupby(['pool', 'day_of_week']).agg({
-            'price': ['count', 'mean'],
-            'liquidity': 'mean'
-        }).round(4)
+        daily_patterns = self.df.groupby(["pool", "day_of_week"]).agg({"price": ["count", "mean"], "liquidity": "mean"}).round(4)
 
-        return {
-            'hourly_patterns': hourly_patterns.to_dict(),
-            'daily_patterns': daily_patterns.to_dict()
-        }
+        return {"hourly_patterns": hourly_patterns.to_dict(), "daily_patterns": daily_patterns.to_dict()}
 
 
 def get_dataframe_tools(df: pd.DataFrame) -> list[DataFrameTool]:
@@ -136,9 +117,4 @@ def get_dataframe_tools(df: pd.DataFrame) -> list[DataFrameTool]:
     Returns:
         List of DataFrame tools
     """
-    return [
-        GetRecentActivityTool(df=df),
-        AnalyzePriceTrendsTool(df=df),
-        AnalyzeLiquidityTool(df=df),
-        GetTimeBasedMetricsTool(df=df)
-    ]
+    return [GetRecentActivityTool(df=df), AnalyzePriceTrendsTool(df=df), AnalyzeLiquidityTool(df=df), GetTimeBasedMetricsTool(df=df)]

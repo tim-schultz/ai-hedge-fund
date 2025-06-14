@@ -40,7 +40,7 @@ def peter_lynch_agent(state: AgentState):
       - If fundamentals strongly align with GARP, be more aggressive.
 
     The result is a bullish/bearish/neutral signal, along with a
-    confidence (0–100) and a textual reasoning explanation.
+    confidence (0-100) and a textual reasoning explanation.
     """
 
     data = state["data"]
@@ -52,14 +52,10 @@ def peter_lynch_agent(state: AgentState):
     lynch_analysis = {}
 
     for ticker in tickers:
-        progress.update_status(
-            "peter_lynch_agent", ticker, "Fetching financial metrics"
-        )
+        progress.update_status("peter_lynch_agent", ticker, "Fetching financial metrics")
         get_financial_metrics(ticker, end_date, period="annual", limit=5)
 
-        progress.update_status(
-            "peter_lynch_agent", ticker, "Gathering financial line items"
-        )
+        progress.update_status("peter_lynch_agent", ticker, "Gathering financial line items")
         # Relevant line items for Peter Lynch's approach
         financial_line_items = search_line_items(
             ticker,
@@ -91,9 +87,7 @@ def peter_lynch_agent(state: AgentState):
         progress.update_status("peter_lynch_agent", ticker, "Fetching company news")
         company_news = get_company_news(ticker, end_date, start_date=None, limit=50)
 
-        progress.update_status(
-            "peter_lynch_agent", ticker, "Fetching recent price data for reference"
-        )
+        progress.update_status("peter_lynch_agent", ticker, "Fetching recent price data for reference")
         get_prices(ticker, start_date=start_date, end_date=end_date)
 
         # Perform sub-analyses:
@@ -103,29 +97,19 @@ def peter_lynch_agent(state: AgentState):
         progress.update_status("peter_lynch_agent", ticker, "Analyzing fundamentals")
         fundamentals_analysis = analyze_lynch_fundamentals(financial_line_items)
 
-        progress.update_status(
-            "peter_lynch_agent", ticker, "Analyzing valuation (focus on PEG)"
-        )
+        progress.update_status("peter_lynch_agent", ticker, "Analyzing valuation (focus on PEG)")
         valuation_analysis = analyze_lynch_valuation(financial_line_items, market_cap)
 
         progress.update_status("peter_lynch_agent", ticker, "Analyzing sentiment")
         sentiment_analysis = analyze_sentiment(company_news)
 
-        progress.update_status(
-            "peter_lynch_agent", ticker, "Analyzing insider activity"
-        )
+        progress.update_status("peter_lynch_agent", ticker, "Analyzing insider activity")
         insider_activity = analyze_insider_activity(insider_trades)
 
         # Combine partial scores with weights typical for Peter Lynch:
         #   30% Growth, 25% Valuation, 20% Fundamentals,
         #   15% Sentiment, 10% Insider Activity = 100%
-        total_score = (
-            growth_analysis["score"] * 0.30
-            + valuation_analysis["score"] * 0.25
-            + fundamentals_analysis["score"] * 0.20
-            + sentiment_analysis["score"] * 0.15
-            + insider_activity["score"] * 0.10
-        )
+        total_score = growth_analysis["score"] * 0.30 + valuation_analysis["score"] * 0.25 + fundamentals_analysis["score"] * 0.20 + sentiment_analysis["score"] * 0.15 + insider_activity["score"] * 0.10
 
         max_possible_score = 10.0
 
@@ -148,9 +132,7 @@ def peter_lynch_agent(state: AgentState):
             "insider_activity": insider_activity,
         }
 
-        progress.update_status(
-            "peter_lynch_agent", ticker, "Generating Peter Lynch analysis"
-        )
+        progress.update_status("peter_lynch_agent", ticker, "Generating Peter Lynch analysis")
         lynch_output = generate_lynch_output(
             ticker=ticker,
             analysis_data=analysis_data[ticker],
@@ -194,7 +176,7 @@ def analyze_lynch_growth(financial_line_items: list) -> dict:
         }
 
     details = []
-    raw_score = 0  # We'll sum up points, then scale to 0–10 eventually
+    raw_score = 0  # We'll sum up points, then scale to 0-10 eventually
 
     # 1) Revenue Growth
     revenues = [fi.revenue for fi in financial_line_items if fi.revenue is not None]
@@ -215,18 +197,12 @@ def analyze_lynch_growth(financial_line_items: list) -> dict:
             else:
                 details.append(f"Flat or negative revenue growth: {rev_growth:.1%}")
         else:
-            details.append(
-                "Older revenue is zero/negative; can't compute revenue growth."
-            )
+            details.append("Older revenue is zero/negative; can't compute revenue growth.")
     else:
         details.append("Not enough revenue data to assess growth.")
 
     # 2) EPS Growth
-    eps_values = [
-        fi.earnings_per_share
-        for fi in financial_line_items
-        if fi.earnings_per_share is not None
-    ]
+    eps_values = [fi.earnings_per_share for fi in financial_line_items if fi.earnings_per_share is not None]
     if len(eps_values) >= 2:
         latest_eps = eps_values[0]
         older_eps = eps_values[-1]
@@ -248,7 +224,7 @@ def analyze_lynch_growth(financial_line_items: list) -> dict:
     else:
         details.append("Not enough EPS data for growth calculation.")
 
-    # raw_score can be up to 6 => scale to 0–10
+    # raw_score can be up to 6 => scale to 0-10
     final_score = min(10, (raw_score / 6) * 10)
     return {"score": final_score, "details": "; ".join(details)}
 
@@ -265,23 +241,12 @@ def analyze_lynch_fundamentals(financial_line_items: list) -> dict:
         return {"score": 0, "details": "Insufficient fundamentals data"}
 
     details = []
-    raw_score = 0  # We'll accumulate up to 6 points, then scale to 0–10
+    raw_score = 0  # We'll accumulate up to 6 points, then scale to 0-10
 
     # 1) Debt-to-Equity
-    debt_values = [
-        fi.total_debt for fi in financial_line_items if fi.total_debt is not None
-    ]
-    eq_values = [
-        fi.shareholders_equity
-        for fi in financial_line_items
-        if fi.shareholders_equity is not None
-    ]
-    if (
-        debt_values
-        and eq_values
-        and len(debt_values) == len(eq_values)
-        and len(debt_values) > 0
-    ):
+    debt_values = [fi.total_debt for fi in financial_line_items if fi.total_debt is not None]
+    eq_values = [fi.shareholders_equity for fi in financial_line_items if fi.shareholders_equity is not None]
+    if debt_values and eq_values and len(debt_values) == len(eq_values) and len(debt_values) > 0:
         recent_debt = debt_values[0]
         recent_equity = eq_values[0] if eq_values[0] else 1e-9
         de_ratio = recent_debt / recent_equity
@@ -297,11 +262,7 @@ def analyze_lynch_fundamentals(financial_line_items: list) -> dict:
         details.append("No consistent debt/equity data available.")
 
     # 2) Operating Margin
-    om_values = [
-        fi.operating_margin
-        for fi in financial_line_items
-        if fi.operating_margin is not None
-    ]
+    om_values = [fi.operating_margin for fi in financial_line_items if fi.operating_margin is not None]
     if om_values:
         om_recent = om_values[0]
         if om_recent > 0.20:
@@ -316,11 +277,7 @@ def analyze_lynch_fundamentals(financial_line_items: list) -> dict:
         details.append("No operating margin data available.")
 
     # 3) Positive Free Cash Flow
-    fcf_values = [
-        fi.free_cash_flow
-        for fi in financial_line_items
-        if fi.free_cash_flow is not None
-    ]
+    fcf_values = [fi.free_cash_flow for fi in financial_line_items if fi.free_cash_flow is not None]
     if fcf_values and fcf_values[0] is not None:
         if fcf_values[0] > 0:
             raw_score += 2
@@ -330,14 +287,12 @@ def analyze_lynch_fundamentals(financial_line_items: list) -> dict:
     else:
         details.append("No free cash flow data available.")
 
-    # raw_score up to 6 => scale to 0–10
+    # raw_score up to 6 => scale to 0-10
     final_score = min(10, (raw_score / 6) * 10)
     return {"score": final_score, "details": "; ".join(details)}
 
 
-def analyze_lynch_valuation(
-    financial_line_items: list, market_cap: float | None
-) -> dict:
+def analyze_lynch_valuation(financial_line_items: list, market_cap: float | None) -> dict:
     """
     Peter Lynch's approach to 'Growth at a Reasonable Price' (GARP):
       - Emphasize the PEG ratio: (P/E) / Growth Rate
@@ -351,14 +306,8 @@ def analyze_lynch_valuation(
     raw_score = 0
 
     # Gather data for P/E
-    net_incomes = [
-        fi.net_income for fi in financial_line_items if fi.net_income is not None
-    ]
-    eps_values = [
-        fi.earnings_per_share
-        for fi in financial_line_items
-        if fi.earnings_per_share is not None
-    ]
+    net_incomes = [fi.net_income for fi in financial_line_items if fi.net_income is not None]
+    eps_values = [fi.earnings_per_share for fi in financial_line_items if fi.earnings_per_share is not None]
 
     # Approximate P/E via (market cap / net income) if net income is positive
     pe_ratio = None
@@ -397,8 +346,6 @@ def analyze_lynch_valuation(
     if pe_ratio is not None:
         if pe_ratio < 15:
             raw_score += 2
-        elif pe_ratio < 25:
-            raw_score += 1
 
     if peg_ratio is not None:
         if peg_ratio < 1:
@@ -438,9 +385,7 @@ def analyze_sentiment(news_items: list) -> dict:
     if negative_count > len(news_items) * 0.3:
         # More than 30% negative => somewhat bearish => 3/10
         score = 3
-        details.append(
-            f"High proportion of negative headlines: {negative_count}/{len(news_items)}"
-        )
+        details.append(f"High proportion of negative headlines: {negative_count}/{len(news_items)}")
     elif negative_count > 0:
         # Some negativity => 6/10
         score = 6
@@ -511,14 +456,14 @@ def generate_lynch_output(
             (
                 "system",
                 """You are a Peter Lynch AI agent. You make investment decisions based on Peter Lynch's well-known principles:
-                
+
                 1. Invest in What You Know: Emphasize understandable businesses, possibly discovered in everyday life.
                 2. Growth at a Reasonable Price (GARP): Rely on the PEG ratio as a prime metric.
                 3. Look for 'Ten-Baggers': Companies capable of growing earnings and share price substantially.
                 4. Steady Growth: Prefer consistent revenue/earnings expansion, less concern about short-term noise.
                 5. Avoid High Debt: Watch for dangerous leverage.
                 6. Management & Story: A good 'story' behind the stock, but not overhyped or too complex.
-                
+
                 When you provide your reasoning, do it in Peter Lynch's voice:
                 - Cite the PEG ratio
                 - Mention 'ten-bagger' potential if applicable
@@ -526,7 +471,7 @@ def generate_lynch_output(
                 - Use practical, folksy language
                 - Provide key positives and negatives
                 - Conclude with a clear stance (bullish, bearish, or neutral)
-                
+
                 Return your final output strictly in JSON with the fields:
                 {{
                   "signal": "bullish" | "bearish" | "neutral",
@@ -537,7 +482,7 @@ def generate_lynch_output(
             ),
             (
                 "human",
-                """Based on the following analysis data for {ticker}, produce your Peter Lynch–style investment signal.
+                """Based on the following analysis data for {ticker}, produce your Peter Lynch-style investment signal.
 
                 Analysis Data:
                 {analysis_data}
@@ -548,9 +493,7 @@ def generate_lynch_output(
         ]
     )
 
-    prompt = template.invoke(
-        {"analysis_data": json.dumps(analysis_data, indent=2), "ticker": ticker}
-    )
+    prompt = template.invoke({"analysis_data": json.dumps(analysis_data, indent=2), "ticker": ticker})
 
     def create_default_signal():
         return PeterLynchSignal(

@@ -1,4 +1,5 @@
 """Swap analyzer agent for analyzing swap data using LangChain."""
+
 import json
 import operator
 from collections.abc import Sequence
@@ -29,7 +30,6 @@ class SwapAnalysis(BaseModel):
     confidence: float = Field(description="Confidence in the analysis, between 0.0 and 100.0")
     reasoning: str = Field(descripchecktion="Detailed reasoning for the analysis")
     metrics: dict[str, Any] = Field(description="Key metrics and statistics from the analysis")
-
 
 
 def show_agent_reasoning(output: Any, agent_name: str) -> None:
@@ -162,25 +162,26 @@ def swap_analyzer_agent(state: AgentState) -> dict[str, Any]:
             # base_url=getenv("OPENROUTER_BASE_URL")
         ),
         tools,
-        ChatPromptTemplate.from_messages([
-            ("system", """You are a swap data analysis expert. Use the available tools to analyze the data and provide insights.
+        ChatPromptTemplate.from_messages(
+            [
+                (
+                    "system",
+                    """You are a swap data analysis expert. Use the available tools to analyze the data and provide insights.
             Focus on:
             - Recent pool activity
             - Price trends and volatility
             - Liquidity patterns
             - Time-based patterns
-            """),
-            ("human", "{input}"),
-            ("ai", "{agent_scratchpad}")
-        ])
+            """,
+                ),
+                ("human", "{input}"),
+                ("ai", "{agent_scratchpad}"),
+            ]
+        ),
     )
 
     # Create the agent executor
-    agent_executor = AgentExecutor(
-        agent=agent,
-        tools=tools,
-        verbose=True
-    )
+    agent_executor = AgentExecutor(agent=agent, tools=tools, verbose=True)
 
     # Print available tools
     print("\nAvailable Tools:")

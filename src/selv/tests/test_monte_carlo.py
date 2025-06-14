@@ -1,7 +1,7 @@
 # """
 # tests/test_monte_carlo.py
 
-# Unit tests for the Monte‑Carlo driver.  Highlights:
+# Unit tests for the Monte-Carlo driver.  Highlights:
 
 # * We run a *tiny* simulation (N_PATHS=3) so tests remain fast.
 # * Every synthetic path must be reproducible when the same
@@ -15,7 +15,7 @@
 #     simulate_path,
 #     horizon,
 #     SEED,
-# )  # re‑use objects from the module
+# )  # re-use objects from the module
 
 
 # def test_simulate_path_reproducible():
@@ -32,13 +32,13 @@
 #     rng = np.random.default_rng(SEED + 99)
 #     path = simulate_path(100.0, rng)
 #     assert len(path) == horizon, "Path length mismatch"
-#     assert (path > 0).all(), "GBM generated non‑positive prices"
+#     assert (path > 0).all(), "GBM generated non-positive prices"
 
 
 # def test_small_monte_carlo_run_returns_non_empty_stats():
 #     """
 #     Run the main pipeline with three paths for a single strategy
-#     to ensure it returns metrics with expected keys – acts as a smoke test
+#     to ensure it returns metrics with expected keys - acts as a smoke test
 #     without heavy runtime.
 #     """
 #     from src.selv.monte_carlo import simulate_and_run_strategy, STRATEGIES

@@ -31,14 +31,10 @@ def bill_ackman_agent(state: AgentState):
     ackman_analysis = {}
 
     for ticker in tickers:
-        progress.update_status(
-            "bill_ackman_agent", ticker, "Fetching financial metrics"
-        )
+        progress.update_status("bill_ackman_agent", ticker, "Fetching financial metrics")
         metrics = get_financial_metrics(ticker, end_date, period="annual", limit=5)
 
-        progress.update_status(
-            "bill_ackman_agent", ticker, "Gathering financial line items"
-        )
+        progress.update_status("bill_ackman_agent", ticker, "Gathering financial line items")
         # Request multiple periods of data (annual or TTM) for a more robust long-term view.
         financial_line_items = search_line_items(
             ticker,
@@ -62,21 +58,13 @@ def bill_ackman_agent(state: AgentState):
         progress.update_status("bill_ackman_agent", ticker, "Getting market cap")
         market_cap = get_market_cap(ticker, end_date)
 
-        progress.update_status(
-            "bill_ackman_agent", ticker, "Analyzing business quality"
-        )
+        progress.update_status("bill_ackman_agent", ticker, "Analyzing business quality")
         quality_analysis = analyze_business_quality(metrics, financial_line_items)
 
-        progress.update_status(
-            "bill_ackman_agent", ticker, "Analyzing balance sheet and capital structure"
-        )
-        balance_sheet_analysis = analyze_financial_discipline(
-            metrics, financial_line_items
-        )
+        progress.update_status("bill_ackman_agent", ticker, "Analyzing balance sheet and capital structure")
+        balance_sheet_analysis = analyze_financial_discipline(metrics, financial_line_items)
 
-        progress.update_status(
-            "bill_ackman_agent", ticker, "Analyzing activism potential"
-        )
+        progress.update_status("bill_ackman_agent", ticker, "Analyzing activism potential")
         activism_analysis = analyze_activism_potential(financial_line_items)
 
         progress.update_status(
@@ -87,15 +75,8 @@ def bill_ackman_agent(state: AgentState):
         valuation_analysis = analyze_valuation(financial_line_items, market_cap)
 
         # Combine partial scores or signals
-        total_score = (
-            quality_analysis["score"]
-            + balance_sheet_analysis["score"]
-            + activism_analysis["score"]
-            + valuation_analysis["score"]
-        )
-        max_possible_score = (
-            20  # Adjust weighting as desired (5 from each sub-analysis, for instance)
-        )
+        total_score = quality_analysis["score"] + balance_sheet_analysis["score"] + activism_analysis["score"] + valuation_analysis["score"]
+        max_possible_score = 20  # Adjust weighting as desired (5 from each sub-analysis, for instance)
 
         # Generate a simple buy/hold/sell (bullish/neutral/bearish) signal
         if total_score >= 0.7 * max_possible_score:
@@ -115,9 +96,7 @@ def bill_ackman_agent(state: AgentState):
             "valuation_analysis": valuation_analysis,
         }
 
-        progress.update_status(
-            "bill_ackman_agent", ticker, "Generating Bill Ackman analysis"
-        )
+        progress.update_status("bill_ackman_agent", ticker, "Generating Bill Ackman analysis")
         ackman_output = generate_ackman_output(
             ticker=ticker,
             analysis_data=analysis_data,
@@ -129,13 +108,11 @@ def bill_ackman_agent(state: AgentState):
             "confidence": ackman_output.confidence,
             "reasoning": ackman_output.reasoning,
         }
-        
+
         progress.update_status("bill_ackman_agent", ticker, "Done", analysis=ackman_output.reasoning)
-    
+
     # Wrap results in a single message for the chain
-    message = HumanMessage(
-        content=json.dumps(ackman_analysis), name="bill_ackman_agent"
-    )
+    message = HumanMessage(content=json.dumps(ackman_analysis), name="bill_ackman_agent")
 
     # Show reasoning if requested
     if state["metadata"]["show_reasoning"]:
@@ -146,10 +123,7 @@ def bill_ackman_agent(state: AgentState):
 
     progress.update_status("bill_ackman_agent", None, "Done")
 
-    return {
-        "messages": [message],
-        "data": state["data"]
-    }
+    return {"messages": [message], "data": state["data"]}
 
 
 def analyze_business_quality(metrics: list, financial_line_items: list) -> dict:
@@ -165,47 +139,31 @@ def analyze_business_quality(metrics: list, financial_line_items: list) -> dict:
         return {"score": 0, "details": "Insufficient data to analyze business quality"}
 
     # 1. Multi-period revenue growth analysis
-    revenues = [
-        item.revenue for item in financial_line_items if item.revenue is not None
-    ]
+    revenues = [item.revenue for item in financial_line_items if item.revenue is not None]
     if len(revenues) >= 2:
         initial, final = revenues[-1], revenues[0]
         if initial and final and final > initial:
             growth_rate = (final - initial) / abs(initial)
             if growth_rate > 0.5:  # e.g., 50% cumulative growth
                 score += 2
-                details.append(
-                    f"Revenue grew by {(growth_rate*100):.1f}% over the full period (strong growth)."
-                )
+                details.append(f"Revenue grew by {(growth_rate*100):.1f}% over the full period (strong growth).")
             else:
                 score += 1
-                details.append(
-                    f"Revenue growth is positive but under 50% cumulatively ({(growth_rate*100):.1f}%)."
-                )
+                details.append(f"Revenue growth is positive but under 50% cumulatively ({(growth_rate*100):.1f}%).")
         else:
             details.append("Revenue did not grow significantly or data insufficient.")
     else:
         details.append("Not enough revenue data for multi-period trend.")
 
     # 2. Operating margin and free cash flow consistency
-    fcf_vals = [
-        item.free_cash_flow
-        for item in financial_line_items
-        if item.free_cash_flow is not None
-    ]
-    op_margin_vals = [
-        item.operating_margin
-        for item in financial_line_items
-        if item.operating_margin is not None
-    ]
+    fcf_vals = [item.free_cash_flow for item in financial_line_items if item.free_cash_flow is not None]
+    op_margin_vals = [item.operating_margin for item in financial_line_items if item.operating_margin is not None]
 
     if op_margin_vals:
         above_15 = sum(1 for m in op_margin_vals if m > 0.15)
         if above_15 >= (len(op_margin_vals) // 2 + 1):
             score += 2
-            details.append(
-                "Operating margins have often exceeded 15% (indicates good profitability)."
-            )
+            details.append("Operating margins have often exceeded 15% (indicates good profitability).")
         else:
             details.append("Operating margin not consistently above 15%.")
     else:
@@ -225,9 +183,7 @@ def analyze_business_quality(metrics: list, financial_line_items: list) -> dict:
     latest_metrics = metrics[0]
     if latest_metrics.return_on_equity and latest_metrics.return_on_equity > 0.15:
         score += 2
-        details.append(
-            f"High ROE of {latest_metrics.return_on_equity:.1%}, indicating a competitive advantage."
-        )
+        details.append(f"High ROE of {latest_metrics.return_on_equity:.1%}, indicating a competitive advantage.")
     elif latest_metrics.return_on_equity:
         details.append(f"ROE of {latest_metrics.return_on_equity:.1%} is moderate.")
     else:
@@ -258,22 +214,14 @@ def analyze_financial_discipline(metrics: list, financial_line_items: list) -> d
         }
 
     # 1. Multi-period debt ratio or debt_to_equity
-    debt_to_equity_vals = [
-        item.debt_to_equity
-        for item in financial_line_items
-        if item.debt_to_equity is not None
-    ]
+    debt_to_equity_vals = [item.debt_to_equity for item in financial_line_items if item.debt_to_equity is not None]
     if debt_to_equity_vals:
         below_one_count = sum(1 for d in debt_to_equity_vals if d < 1.0)
         if below_one_count >= (len(debt_to_equity_vals) // 2 + 1):
             score += 2
-            details.append(
-                "Debt-to-equity < 1.0 for the majority of periods (reasonable leverage)."
-            )
+            details.append("Debt-to-equity < 1.0 for the majority of periods (reasonable leverage).")
         else:
-            details.append(
-                "Debt-to-equity >= 1.0 in many periods (could be high leverage)."
-            )
+            details.append("Debt-to-equity >= 1.0 in many periods (could be high leverage).")
     else:
         # Fallback to total_liabilities / total_assets
         liab_to_assets = []
@@ -292,42 +240,26 @@ def analyze_financial_discipline(metrics: list, financial_line_items: list) -> d
             details.append("No consistent leverage ratio data available.")
 
     # 2. Capital allocation approach (dividends + share counts)
-    dividends_list = [
-        item.dividends_and_other_cash_distributions
-        for item in financial_line_items
-        if item.dividends_and_other_cash_distributions is not None
-    ]
+    dividends_list = [item.dividends_and_other_cash_distributions for item in financial_line_items if item.dividends_and_other_cash_distributions is not None]
     if dividends_list:
         paying_dividends_count = sum(1 for d in dividends_list if d < 0)
         if paying_dividends_count >= (len(dividends_list) // 2 + 1):
             score += 1
-            details.append(
-                "Company has a history of returning capital to shareholders (dividends)."
-            )
+            details.append("Company has a history of returning capital to shareholders (dividends).")
         else:
-            details.append(
-                "Dividends not consistently paid or no data on distributions."
-            )
+            details.append("Dividends not consistently paid or no data on distributions.")
     else:
         details.append("No dividend data found across periods.")
 
     # Check for decreasing share count (simple approach)
-    shares = [
-        item.outstanding_shares
-        for item in financial_line_items
-        if item.outstanding_shares is not None
-    ]
+    shares = [item.outstanding_shares for item in financial_line_items if item.outstanding_shares is not None]
     if len(shares) >= 2:
         # For buybacks, the newest count should be less than the oldest count
         if shares[0] < shares[-1]:
             score += 1
-            details.append(
-                "Outstanding shares have decreased over time (possible buybacks)."
-            )
+            details.append("Outstanding shares have decreased over time (possible buybacks).")
         else:
-            details.append(
-                "Outstanding shares have not decreased over the available periods."
-            )
+            details.append("Outstanding shares have not decreased over the available periods.")
     else:
         details.append("No multi-period share count data to assess buybacks.")
 
@@ -347,14 +279,8 @@ def analyze_activism_potential(financial_line_items: list) -> dict:
         return {"score": 0, "details": "Insufficient data for activism potential"}
 
     # Check revenue growth vs. operating margin
-    revenues = [
-        item.revenue for item in financial_line_items if item.revenue is not None
-    ]
-    op_margins = [
-        item.operating_margin
-        for item in financial_line_items
-        if item.operating_margin is not None
-    ]
+    revenues = [item.revenue for item in financial_line_items if item.revenue is not None]
+    op_margins = [item.operating_margin for item in financial_line_items if item.operating_margin is not None]
 
     if len(revenues) < 2 or not op_margins:
         return {
@@ -372,14 +298,9 @@ def analyze_activism_potential(financial_line_items: list) -> dict:
     # Suppose if there's decent revenue growth but margins are below 10%, Ackman might see activism potential.
     if revenue_growth > 0.15 and avg_margin < 0.10:
         score += 2
-        details.append(
-            f"Revenue growth is healthy (~{revenue_growth*100:.1f}%), but margins are low (avg {avg_margin*100:.1f}%). "
-            "Activism could unlock margin improvements."
-        )
+        details.append(f"Revenue growth is healthy (~{revenue_growth*100:.1f}%), but margins are low (avg {avg_margin*100:.1f}%). " "Activism could unlock margin improvements.")
     else:
-        details.append(
-            "No clear sign of activism opportunity (either margins are already decent or growth is weak)."
-        )
+        details.append("No clear sign of activism opportunity (either margins are already decent or growth is weak).")
 
     return {"score": score, "details": "; ".join(details)}
 
@@ -417,9 +338,7 @@ def analyze_valuation(financial_line_items: list, market_cap: float) -> dict:
         present_value += pv
 
     # Terminal Value
-    terminal_value = (
-        fcf * (1 + growth_rate) ** projection_years * terminal_multiple
-    ) / ((1 + discount_rate) ** projection_years)
+    terminal_value = (fcf * (1 + growth_rate) ** projection_years * terminal_multiple) / ((1 + discount_rate) ** projection_years)
 
     intrinsic_value = present_value + terminal_value
     margin_of_safety = (intrinsic_value - market_cap) / market_cap
@@ -497,9 +416,7 @@ def generate_ackman_output(
         ]
     )
 
-    prompt = template.invoke(
-        {"analysis_data": json.dumps(analysis_data, indent=2), "ticker": ticker}
-    )
+    prompt = template.invoke({"analysis_data": json.dumps(analysis_data, indent=2), "ticker": ticker})
 
     def create_default_bill_ackman_signal():
         return BillAckmanSignal(
@@ -509,9 +426,9 @@ def generate_ackman_output(
         )
 
     return call_llm(
-        prompt=prompt, 
-        pydantic_model=BillAckmanSignal, 
-        agent_name="bill_ackman_agent", 
+        prompt=prompt,
+        pydantic_model=BillAckmanSignal,
+        agent_name="bill_ackman_agent",
         state=state,
         default_factory=create_default_bill_ackman_signal,
     )

@@ -4,12 +4,11 @@ from pydantic import BaseModel, Field
 
 from src.llm.models import ModelProvider
 
-from typing import Optional, List
 
 class AgentModelConfig(BaseModel):
     agent_id: str
-    model_name: Optional[str] = None
-    model_provider: Optional[ModelProvider] = None
+    model_name: str | None = None
+    model_provider: ModelProvider | None = None
 
 
 class HedgeFundResponse(BaseModel):
@@ -23,11 +22,11 @@ class ErrorResponse(BaseModel):
 
 
 class HedgeFundRequest(BaseModel):
-    tickers: List[str]
-    selected_agents: List[str]
-    agent_models: Optional[List[AgentModelConfig]] = None
-    end_date: Optional[str] = Field(default_factory=lambda: datetime.now().strftime("%Y-%m-%d"))
-    start_date: Optional[str] = None
+    tickers: list[str]
+    selected_agents: list[str]
+    agent_models: list[AgentModelConfig] | None = None
+    end_date: str | None = Field(default_factory=lambda: datetime.now().strftime("%Y-%m-%d"))
+    start_date: str | None = None
     model_name: str = "gpt-4o"
     model_provider: ModelProvider = ModelProvider.OPENAI
     initial_cash: float = 100000.0
@@ -44,9 +43,6 @@ class HedgeFundRequest(BaseModel):
         if self.agent_models:
             for config in self.agent_models:
                 if config.agent_id == agent_id:
-                    return (
-                        config.model_name or self.model_name,
-                        config.model_provider or self.model_provider
-                    )
+                    return (config.model_name or self.model_name, config.model_provider or self.model_provider)
         # Fallback to global model settings
         return self.model_name, self.model_provider

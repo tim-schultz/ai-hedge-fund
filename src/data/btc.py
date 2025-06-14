@@ -7,8 +7,8 @@ from pathlib import Path
 import ccxt.async_support as ccxt
 import pandas as pd
 
-logging.basicConfig(level=logging.INFO,
-                    format="%(asctime)s  %(levelname)s  %(message)s")
+logging.basicConfig(level=logging.INFO, format="%(asctime)s  %(levelname)s  %(message)s")
+
 
 async def _fetch_candles_parallel(
     exchange: ccxt.Exchange,
@@ -17,7 +17,7 @@ async def _fetch_candles_parallel(
     since_ms: int,
     limit: int = 1_000,
 ) -> list[list]:
-    """Download all OHLCV candles from `since_ms` up to *now* (async, rate‑limit‑aware)."""
+    """Download all OHLCV candles from `since_ms` up to *now* (async, rate-limit-aware)."""
     tf_ms = exchange.parse_timeframe(timeframe) * 1_000
     windows = list(range(since_ms, exchange.milliseconds(), limit * tf_ms))
 
@@ -49,20 +49,19 @@ def download_ohlcv(
     timeframe    e.g. "1m", "5m", "1h"
     days         how many days back from now
     exchange_id  any ccxt exchange id that supports the symbol
-    outfile      optional CSV path – if given, data is saved to disk
+    outfile      optional CSV path - if given, data is saved to disk
     """
+
     async def _worker():
         ex = getattr(ccxt, exchange_id)()
         since_ms = int((datetime.utcnow() - timedelta(days=days)).timestamp() * 1_000)
-        logging.info("Downloading %s %s for %s days via %s",
-                     symbol, timeframe, days, exchange_id)
+        logging.info("Downloading %s %s for %s days via %s", symbol, timeframe, days, exchange_id)
         candles = await _fetch_candles_parallel(ex, symbol, timeframe, since_ms)
         await ex.close()
         return candles
 
     candles = asyncio.run(_worker())
-    df = pd.DataFrame(candles, columns=["timestamp", "open", "high", "low",
-                                        "close", "volume"])
+    df = pd.DataFrame(candles, columns=["timestamp", "open", "high", "low", "close", "volume"])
     df["datetime"] = pd.to_datetime(df["timestamp"], unit="ms")
     df.set_index("datetime", inplace=True)
 
@@ -73,6 +72,7 @@ def download_ohlcv(
         logging.info("Saved %d rows ➜ %s", len(df), outfile)
 
     return df
+
 
 # Download Five years of data
 # download_ohlcv("BTC/USDT", timeframe="1m", days=1825, exchange_id="coinbase", outfile="btc_1m_5yr.csv")

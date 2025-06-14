@@ -5,7 +5,7 @@
 
 # 1. Produces a positive Sharpe ratio on a simple bullish trend.
 # 2. Produces a *negative* Sharpe ratio on a simple bearish trend.
-# 3. Produces zero Sharpe on a flat series – sanity check.
+# 3. Produces zero Sharpe on a flat series - sanity check.
 # Each test doubles as documentation of what we expect from the
 # strategy under textbook price paths.
 # """
@@ -23,7 +23,7 @@
 
 # def test_sharpe_positive_on_uptrend():
 #     """
-#     Equity should grow on an up‑trend → Sharpe > 0.
+#     Equity should grow on an up-trend -> Sharpe > 0.
 #     """
 #     df = _trend_df(100, 120)
 #     df["MACD_12_26_9"] = df["close"]
@@ -35,7 +35,7 @@
 
 # def test_sharpe_negative_on_downtrend():
 #     """
-#     Equity should fall on a down‑trend (shorts lose) → Sharpe < 0.
+#     Equity should fall on a down-trend (shorts lose) -> Sharpe < 0.
 #     """
 #     df = _trend_df(120, 100)
 #     # Setup for a losing (long) trade on a downtrend
@@ -48,7 +48,7 @@
 
 # def test_sharpe_zero_on_flat_series():
 #     """
-#     If price never moves, equity stays flat → Sharpe = 0.
+#     If price never moves, equity stays flat -> Sharpe = 0.
 #     """
 #     df = _trend_df(100, 100)
 #     df["MACD_12_26_9"] = 0

@@ -21,10 +21,7 @@ def create_graph(selected_agents: list[str]) -> StateGraph:
     selected_agents = [agent for agent in selected_agents if agent in ANALYST_CONFIG]
 
     # Get analyst nodes from the configuration
-    analyst_nodes = {
-        key: (f"{key}_agent", config["agent_func"])
-        for key, config in ANALYST_CONFIG.items()
-    }
+    analyst_nodes = {key: (f"{key}_agent", config["agent_func"]) for key, config in ANALYST_CONFIG.items()}
 
     # Add selected analyst nodes
     for agent_name in selected_agents:
@@ -108,12 +105,8 @@ def parse_hedge_fund_response(response):
         print(f"JSON decoding error: {e}\nResponse: {response!r}")
         return None
     except TypeError as e:
-        print(
-            f"Invalid response type (expected string, got {type(response).__name__}): {e}"
-        )
+        print(f"Invalid response type (expected string, got {type(response).__name__}): {e}")
         return None
     except Exception as e:
-        print(
-            f"Unexpected error while parsing response: {e}\nResponse: {response!r}"
-        )
+        print(f"Unexpected error while parsing response: {e}\nResponse: {response!r}")
         return None

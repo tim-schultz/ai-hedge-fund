@@ -13,16 +13,12 @@ from src.utils.progress import progress
 class PortfolioDecision(BaseModel):
     action: Literal["buy", "sell", "short", "cover", "hold"]
     quantity: int = Field(description="Number of shares to trade")
-    confidence: float = Field(
-        description="Confidence in the decision, between 0.0 and 100.0"
-    )
+    confidence: float = Field(description="Confidence in the decision, between 0.0 and 100.0")
     reasoning: str = Field(description="Reasoning for the decision")
 
 
 class PortfolioManagerOutput(BaseModel):
-    decisions: dict[str, PortfolioDecision] = Field(
-        description="Dictionary of ticker to trading decisions"
-    )
+    decisions: dict[str, PortfolioDecision] = Field(description="Dictionary of ticker to trading decisions")
 
 
 ##### Portfolio Management Agent #####
@@ -40,9 +36,7 @@ def portfolio_management_agent(state: AgentState):
     max_shares = {}
     signals_by_ticker = {}
     for ticker in tickers:
-        progress.update_status(
-            "portfolio_management_agent", ticker, "Processing analyst signals"
-        )
+        progress.update_status("portfolio_management_agent", ticker, "Processing analyst signals")
 
         # Get position limits and current prices for the ticker
         risk_data = analyst_signals.get("risk_management_agent", {}).get(ticker, {})
@@ -65,9 +59,7 @@ def portfolio_management_agent(state: AgentState):
                 }
         signals_by_ticker[ticker] = ticker_signals
 
-    progress.update_status(
-        "portfolio_management_agent", None, "Generating trading decisions"
-    )
+    progress.update_status("portfolio_management_agent", None, "Generating trading decisions")
 
     # Generate the trading decision
     result = generate_trading_decision(
@@ -81,22 +73,14 @@ def portfolio_management_agent(state: AgentState):
 
     # Create the portfolio management message
     message = HumanMessage(
-        content=json.dumps(
-            {
-                ticker: decision.model_dump()
-                for ticker, decision in result.decisions.items()
-            }
-        ),
+        content=json.dumps({ticker: decision.model_dump() for ticker, decision in result.decisions.items()}),
         name="portfolio_management",
     )
 
     # Print the decision if the flag is set
     if state["metadata"]["show_reasoning"]:
         show_agent_reasoning(
-            {
-                ticker: decision.model_dump()
-                for ticker, decision in result.decisions.items()
-            },
+            {ticker: decision.model_dump() for ticker, decision in result.decisions.items()},
             "Portfolio Management Agent",
         )
 
@@ -128,13 +112,13 @@ def generate_trading_decision(
                 * Only sell if you currently hold long shares of that ticker
                 * Sell quantity must be ≤ current long position shares
                 * Buy quantity must be ≤ max_shares for that ticker
-              
+
               - For short positions:
-                * Only short if you have available margin (position value × margin requirement)
+                * Only short if you have available margin (position value x margin requirement)
                 * Only cover if you currently have short shares of that ticker
                 * Cover quantity must be ≤ current short position shares
                 * Short quantity must respect margin requirements
-              
+
               - The max_shares values are pre-calculated to respect position limits
               - Consider both long and short opportunities based on signals
               - Maintain appropriate risk management with both long and short exposure

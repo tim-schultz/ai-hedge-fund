@@ -63,18 +63,18 @@ def short_macd_rsi_confirm(df: pd.DataFrame) -> pd.Series:
 
 
 # ---------------------------------------------------------------------
-# 6. Bollinger Band Mean‑Reversion
+# 6. Bollinger Band Mean-Reversion
 def long_bband_meanrev(df: pd.DataFrame) -> pd.Series:
     """Long when price closes below lower Bollinger Band."""
     return df["close"] < df["BBL_20_2.0"]
 
 
 def exit_bband_meanrev(df: pd.DataFrame) -> pd.Series:
-    """Exit when price re‑touches middle band."""
+    """Exit when price re-touches middle band."""
     return df["close"] >= df["BBM_20_2.0"]
 
 
-# 7. Golden‑Cross EMA‑21 / SMA‑50
+# 7. Golden-Cross EMA-21 / SMA-50
 def long_golden_cross(df: pd.DataFrame) -> pd.Series:
     return df["EMA_21"] > df["SMA_50"]
 
@@ -85,18 +85,14 @@ def exit_golden_cross(df: pd.DataFrame) -> pd.Series:
 
 # 8. Stochastic RSI oversold bounce
 def long_stochrsi(df: pd.DataFrame) -> pd.Series:
-    return (df["STOCHRSIk_14_14_3_3"] > df["STOCHRSId_14_14_3_3"]) & (
-        df["STOCHRSIk_14_14_3_3"] < 20
-    )
+    return (df["STOCHRSIk_14_14_3_3"] > df["STOCHRSId_14_14_3_3"]) & (df["STOCHRSIk_14_14_3_3"] < 20)
 
 
 def exit_stochrsi(df: pd.DataFrame) -> pd.Series:
-    return (df["STOCHRSIk_14_14_3_3"] < df["STOCHRSId_14_14_3_3"]) & (
-        df["STOCHRSIk_14_14_3_3"] > 80
-    )
+    return (df["STOCHRSIk_14_14_3_3"] < df["STOCHRSId_14_14_3_3"]) & (df["STOCHRSIk_14_14_3_3"] > 80)
 
 
-# 9. TEMA trend–following
+# 9. TEMA trend-following
 def long_tema_trend(df: pd.DataFrame) -> pd.Series:
     return df["close"] > df["TEMA_50"]
 

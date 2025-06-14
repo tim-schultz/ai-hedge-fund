@@ -34,14 +34,10 @@ def parse_hedge_fund_response(response):
         print(f"JSON decoding error: {e}\nResponse: {response!r}")
         return None
     except TypeError as e:
-        print(
-            f"Invalid response type (expected string, got {type(response).__name__}): {e}"
-        )
+        print(f"Invalid response type (expected string, got {type(response).__name__}): {e}")
         return None
     except Exception as e:
-        print(
-            f"Unexpected error while parsing response: {e}\nResponse: {response!r}"
-        )
+        print(f"Unexpected error while parsing response: {e}\nResponse: {response!r}")
         return None
 
 
@@ -52,10 +48,12 @@ def run_hedge_fund(
     end_date: str,
     portfolio: dict,
     show_reasoning: bool = False,
-    selected_analysts: list[str] = [],
+    selected_analysts: list[str] | None = None,
     model_name: str = "gpt-4o",
     model_provider: str = "OpenAI",
 ):
+    if selected_analysts is None:
+        selected_analysts = []
     # Start progress tracking
     progress.start()
 
@@ -161,18 +159,10 @@ if __name__ == "__main__":
         type=str,
         help="Start date (YYYY-MM-DD). Defaults to 3 months before end date",
     )
-    parser.add_argument(
-        "--end-date", type=str, help="End date (YYYY-MM-DD). Defaults to today"
-    )
-    parser.add_argument(
-        "--show-reasoning", action="store_true", help="Show reasoning from each agent"
-    )
-    parser.add_argument(
-        "--show-agent-graph", action="store_true", help="Show the agent graph"
-    )
-    parser.add_argument(
-        "--ollama", action="store_true", help="Use Ollama for local LLM inference"
-    )
+    parser.add_argument("--end-date", type=str, help="End date (YYYY-MM-DD). Defaults to today")
+    parser.add_argument("--show-reasoning", action="store_true", help="Show reasoning from each agent")
+    parser.add_argument("--show-agent-graph", action="store_true", help="Show the agent graph")
+    parser.add_argument("--ollama", action="store_true", help="Use Ollama for local LLM inference")
 
     args = parser.parse_args()
 
@@ -183,9 +173,7 @@ if __name__ == "__main__":
     selected_analysts = None
     choices = questionary.checkbox(
         "Select your AI analysts.",
-        choices=[
-            questionary.Choice(display, value=value) for display, value in ANALYST_ORDER
-        ],
+        choices=[questionary.Choice(display, value=value) for display, value in ANALYST_ORDER],
         instruction="\n\nInstructions: \n1. Press Space to select/unselect analysts.\n2. Press 'a' to select/unselect all.\n3. Press Enter when done to run the hedge fund.\n",
         validate=lambda x: len(x) > 0 or "You must select at least one analyst.",
         style=questionary.Style(
@@ -203,9 +191,7 @@ if __name__ == "__main__":
         sys.exit(0)
     else:
         selected_analysts = choices
-        print(
-            f"\nSelected analysts: {', '.join(Fore.GREEN + choice.title().replace('_', ' ') + Style.RESET_ALL for choice in choices)}\n"
-        )
+        print(f"\nSelected analysts: {', '.join(Fore.GREEN + choice.title().replace('_', ' ') + Style.RESET_ALL for choice in choices)}\n")
 
     # Select LLM model based on whether Ollama is being used
     model_name = ""
@@ -217,10 +203,7 @@ if __name__ == "__main__":
         # Select from Ollama-specific models
         model_name: str = questionary.select(
             "Select your Ollama model:",
-            choices=[
-                questionary.Choice(display, value=value)
-                for display, value, _ in OLLAMA_LLM_ORDER
-            ],
+            choices=[questionary.Choice(display, value=value) for display, value, _ in OLLAMA_LLM_ORDER],
             style=questionary.Style(
                 [
                     ("selected", "fg:green bold"),
@@ -299,14 +282,14 @@ if __name__ == "__main__":
     if args.start_date:
         try:
             datetime.strptime(args.start_date, "%Y-%m-%d")
-        except ValueError:
-            raise ValueError("Start date must be in YYYY-MM-DD format")
+        except ValueError as err:
+            raise ValueError("Start date must be in YYYY-MM-DD format") from err
 
     if args.end_date:
         try:
             datetime.strptime(args.end_date, "%Y-%m-%d")
-        except ValueError:
-            raise ValueError("End date must be in YYYY-MM-DD format")
+        except ValueError as err:
+            raise ValueError("End date must be in YYYY-MM-DD format") from err
 
     # Set the start and end dates
     end_date = args.end_date or datetime.now().strftime("%Y-%m-%d")

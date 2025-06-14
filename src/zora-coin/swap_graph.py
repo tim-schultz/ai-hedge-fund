@@ -1,4 +1,5 @@
 """Swap analysis graph implementation using LangGraph."""
+
 from typing import Any
 
 from langgraph.graph import END, Graph

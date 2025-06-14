@@ -5,16 +5,16 @@ import pandas as pd
 from mpmath import erfinv, sqrt
 
 from src.selv.indicators import (
-   add_indicators,
-   buy_sell_strategy,
-   long_short_strategy,
+    add_indicators,
+    buy_sell_strategy,
+    long_short_strategy,
 )  # strategy executors
 
 # CSV_PATH = Path("btc_data.csv")
 # N_PATHS = 5_000  # simulations
 # SEED = 42
 
-# --- 1. fit simple GBM to 1‑minute log‑returns ------------------------------
+# --- 1. fit simple GBM to 1-minute log-returns ------------------------------
 # raw_df = pd.read_csv(CSV_PATH, parse_dates=["datetime"], index_col="datetime")
 # log_ret = np.log(raw_df["close"]).diff().dropna()
 # mu = log_ret.mean()  # drift per minute
@@ -22,67 +22,58 @@ from src.selv.indicators import (
 # dt = 1  # 1 minute
 
 
-
-
 def simulate_path(start_price: float, rng: np.random.Generator, original_df: pd.DataFrame) -> pd.Series:
-   """
-   Generate a synthetic price path using Geometric Brownian Motion (GBM).
-   
-   This function creates a simulated price series that follows a GBM model,
-   calibrated to the statistical properties of the input price data. The
-   simulation uses the historical mean and volatility to generate a path
-   with similar characteristics but different random variations.
-   
-   Parameters:
-   -----------
-   start_price : float
-       The initial price from which to begin the simulated path
-   rng : np.random.Generator
-       Random number generator for reproducible randomness
-   original_df : pd.DataFrame
-       DataFrame containing historical price data with a 'close' column
-       
-   Returns:
-   --------
-   pd.Series
-       A series of simulated prices following a GBM process
-   """
-   # Step 1: Calculate log returns from the historical price data
-   log_ret = np.log(original_df["close"]).diff()
+    """
+    Generate a synthetic price path using Geometric Brownian Motion (GBM).
+    This function creates a simulated price series that follows a GBM model,
+    calibrated to the statistical properties of the input price data. The
+    simulation uses the historical mean and volatility to generate a path
+    with similar characteristics but different random variations.
+    Parameters:
+    -----------
+    start_price : float
+        The initial price from which to begin the simulated path
+    rng : np.random.Generator
+        Random number generator for reproducible randomness
+    original_df : pd.DataFrame
+        DataFrame containing historical price data with a 'close' column
+    Returns:
+    --------
+    pd.Series
+        A series of simulated prices following a GBM process
+    """
+    # Step 1: Calculate log returns from the historical price data
+    log_ret = np.log(original_df["close"]).diff()
 
-   # Step 2: Extract statistical parameters from the historical log returns
-   mu = log_ret.mean()          # Mean of log returns (drift rate per time step)
-   sig = log_ret.std(ddof=0)    # Standard deviation of log returns (volatility per time step)
-   dt = 1                       # Time increment (1 minute in this case)
-   horizon = len(original_df) - 1  # Number of future steps to simulate (match historical length)
+    # Step 2: Extract statistical parameters from the historical log returns
+    mu = log_ret.mean()  # Mean of log returns (drift rate per time step)
+    sig = log_ret.std(ddof=0)  # Standard deviation of log returns (volatility per time step)
+    dt = 1  # Time increment (1 minute in this case)
+    horizon = len(original_df) - 1  # Number of future steps to simulate (match historical length)
 
-   # Step 3: Generate random normal shocks scaled by the drift and volatility
-   # - mu * dt: Expected drift per time step
-   # - sig * sqrt(dt): Volatility scaled by square root of time step (from Ito's lemma)
-   # - This creates normally distributed random increments with the right statistical properties
-   shocks = rng.normal(mu * dt, sig * np.sqrt(dt), horizon)
+    # Step 3: Generate random normal shocks scaled by the drift and volatility
+    # - mu * dt: Expected drift per time step
+    # - sig * sqrt(dt): Volatility scaled by square root of time step (from Ito's lemma)
+    # - This creates normally distributed random increments with the right statistical properties
+    shocks = rng.normal(mu * dt, sig * np.sqrt(dt), horizon)
 
-   # Step 4: Convert to a price path using geometric Brownian motion formula
-   # - Start with log of initial price
-   # - Add cumulative sum of random shocks to create a random walk with drift
-   # - Cumulative sum models the path dependency of prices over time
-   log_prices = np.log(start_price) + np.cumsum(shocks)
+    # Step 4: Convert to a price path using geometric Brownian motion formula
+    # - Start with log of initial price
+    # - Add cumulative sum of random shocks to create a random walk with drift
+    # - Cumulative sum models the path dependency of prices over time
+    log_prices = np.log(start_price) + np.cumsum(shocks)
 
-   # Step 5: Convert log prices back to actual prices using exponential function
-   # - exp(log_prices) reverses the logarithm to get actual price levels
-   # - This ensures prices remain positive, a key property of GBM
-   return np.exp(log_prices)
+    # Step 5: Convert log prices back to actual prices using exponential function
+    # - exp(log_prices) reverses the logarithm to get actual price levels
+    # - This ensures prices remain positive, a key property of GBM
+    return np.exp(log_prices)
 
 
 # --- Strategy Entry Functions -------------------------------------------------
 
 
 # TODO: understand this function
-def min_track_record_length(sr_hat: float,
-                            sr_bench: float = 0,
-                            skew: float = 0,
-                            kurt: float = 0,
-                            alpha: float = 0.05) -> int:
+def min_track_record_length(sr_hat: float, sr_bench: float = 0, skew: float = 0, kurt: float = 0, alpha: float = 0.05) -> int:
     """
     Return n_min for given Sharpe at (1-alpha) confidence.
 
@@ -90,38 +81,35 @@ def min_track_record_length(sr_hat: float,
     Note: kurtosis should be the raw kurtosis (not excess; i.e., Fisher + 3).
     """
     from math import isnan
+
     if sr_hat == sr_bench or isnan(sr_hat):
         return float("inf")
-    z = sqrt(2) * erfinv(1 - 2*alpha)        # normal quantile
+    z = sqrt(2) * erfinv(1 - 2 * alpha)  # normal quantile
     # numerator and denominator per Bailey & López de Prado (2012)
-    num = (1 - skew*sr_hat*sr_bench + (kurt-3)/4 * sr_hat**2) * z**2
-    den = (sr_hat - sr_bench)**2
-    return int(num/den + 1)
+    num = (1 - skew * sr_hat * sr_bench + (kurt - 3) / 4 * sr_hat**2) * z**2
+    den = (sr_hat - sr_bench) ** 2
+    return int(num / den + 1)
 
 
 # --------------------------------------------------------------------------
-# Probabilistic Sharpe Ratio (Bailey & López de Prado, 2012)
+# Probabilistic Sharpe Ratio (Bailey & Lopez de Prado, 2012)
 # --------------------------------------------------------------------------
-def probabilistic_sharpe_ratio(sr_hat: float,
-                               sr_bench: float,
-                               n: int,
-                               skew: float = 0,
-                               kurt: float = 0) -> float:
+def probabilistic_sharpe_ratio(sr_hat: float, sr_bench: float, n: int, skew: float = 0, kurt: float = 0) -> float:
     """
     Compute the Probabilistic Sharpe Ratio (PSR), i.e. the probability
     that the true Sharpe ratio exceeds `sr_bench`.
 
-    PSR = Φ( (SR_hat - SR_bench) * sqrt(n-1)
-             / sqrt(1 - γ SR_hat SR_bench + ((κ-3)/4) SR_hat²) )
+    PSR = Phi( (SR_hat - SR_bench) * sqrt(n-1)
+             / sqrt(1 - gamma SR_hat SR_bench + ((kappa-3)/4) SR_hat^2) )
 
-    where   γ = skewness, κ = kurtosis, Φ = standard normal CDF.
+    where   gamma = skewness, kappa = kurtosis, Phi = standard normal CDF.
 
     Parameters
     ----------
     sr_hat : float
         Observed (sample) Sharpe ratio.
     sr_bench : float
-        Benchmark Sharpe ratio to beat (often 0).
+        Benchmark Sharpe ratio to beat (often 0).
     n : int
         Number of independent return observations.
     skew, kurt : float
@@ -130,13 +118,11 @@ def probabilistic_sharpe_ratio(sr_hat: float,
     if n <= 1:
         return 0.0
     # denominator per Bailey & LdP (2012)
-    denom = math.sqrt(
-        1 - skew * sr_hat * sr_bench + ((kurt - 3) / 4.0) * sr_hat ** 2
-    )
+    denom = math.sqrt(1 - skew * sr_hat * sr_bench + ((kurt - 3) / 4.0) * sr_hat**2)
     if denom == 0:
         return 0.0
     z = (sr_hat - sr_bench) * math.sqrt(n - 1) / denom
-    # Φ(z)
+    # Phi(z)
     return 0.5 * (1 + math.erf(z / math.sqrt(2)))
 
 
@@ -145,7 +131,7 @@ def simulate_and_run_strategy(args):
     (
         worker_id,
         strategy_name,
-        exec_type,           # 'LS' for long_short_strategy, 'BS' for buy_sell_strategy
+        exec_type,  # 'LS' for long_short_strategy, 'BS' for buy_sell_strategy
         long_entry_fun,
         short_entry_fun,
         tp,
@@ -156,9 +142,7 @@ def simulate_and_run_strategy(args):
     ) = args
 
     # Generate one synthetic price path
-    rng = np.random.default_rng(
-        seed + worker_id
-    )  # Ensure different paths for same strategy if worker_id is unique per path
+    rng = np.random.default_rng(seed + worker_id)  # Ensure different paths for same strategy if worker_id is unique per path
     prices = simulate_path(original_df["close"].iloc[0], rng, original_df)
     synthetic = original_df.copy()
     synthetic["close"] = np.r_[original_df["close"].iloc[0], prices]
@@ -188,11 +172,11 @@ def simulate_and_run_strategy(args):
             sl=sl,
             max_minutes=max_minutes,
         )
-    else:  # 'BS' → buy/sell (long‑only)
+    else:  # 'BS' -> buy/sell (long-only)
         result = buy_sell_strategy(
             synthetic,
             long_entry_fun=long_entry_fun,
-            sell_entry_fun=short_entry_fun,   # exit function reused
+            sell_entry_fun=short_entry_fun,  # exit function reused
             tp=tp,
             sl=sl,
             max_minutes=max_minutes,
@@ -200,16 +184,16 @@ def simulate_and_run_strategy(args):
     result["path_id"] = worker_id
     result["strategy_name"] = strategy_name
     result["exec_type"] = exec_type
-    sr  = result["sharpe"]
-    sk  = synthetic["close"].pct_change().skew()
-    ku  = synthetic["close"].pct_change().kurt() + 3  # convert excess to regular
+    sr = result["sharpe"]
+    sk = synthetic["close"].pct_change().skew()
+    ku = synthetic["close"].pct_change().kurt() + 3  # convert excess to regular
     n_obs = synthetic.shape[0]
     result["psr"] = probabilistic_sharpe_ratio(sr, 0.0, n_obs, sk, ku)
     result["MinTRL"] = min_track_record_length(sr, skew=sk, kurt=ku)
     return result
 
 
-# --- 2. Monte‑Carlo loop (parallel) ----------------------------------------
+# --- 2. Monte-Carlo loop (parallel) ----------------------------------------
 
 # if __name__ == "__main__":
 #     np.random.seed(SEED)

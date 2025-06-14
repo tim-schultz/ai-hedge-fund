@@ -27,7 +27,7 @@ def get_prices(ticker: str, start_date: str, end_date: str) -> list[Price]:
     """Fetch price data from cache or API."""
     # Create a cache key that includes all parameters to ensure exact matches
     cache_key = f"{ticker}_{start_date}_{end_date}"
-    
+
     # Check cache first - simple exact match
     if cached_data := _cache.get_prices(cache_key):
         return [Price(**price) for price in cached_data]
@@ -40,9 +40,7 @@ def get_prices(ticker: str, start_date: str, end_date: str) -> list[Price]:
     url = f"https://api.financialdatasets.ai/prices/?ticker={ticker}&interval=day&interval_multiplier=1&start_date={start_date}&end_date={end_date}"
     response = requests.get(url, headers=headers)
     if response.status_code != 200:
-        raise Exception(
-            f"Error fetching data: {ticker} - {response.status_code} - {response.text}"
-        )
+        raise Exception(f"Error fetching data: {ticker} - {response.status_code} - {response.text}")
 
     # Parse response with Pydantic model
     price_response = PriceResponse(**response.json())
@@ -65,7 +63,7 @@ def get_financial_metrics(
     """Fetch financial metrics from cache or API."""
     # Create a cache key that includes all parameters to ensure exact matches
     cache_key = f"{ticker}_{period}_{end_date}_{limit}"
-    
+
     # Check cache first - simple exact match
     if cached_data := _cache.get_financial_metrics(cache_key):
         return [FinancialMetrics(**metric) for metric in cached_data]
@@ -78,9 +76,7 @@ def get_financial_metrics(
     url = f"https://api.financialdatasets.ai/financial-metrics/?ticker={ticker}&report_period_lte={end_date}&limit={limit}&period={period}"
     response = requests.get(url, headers=headers)
     if response.status_code != 200:
-        raise Exception(
-            f"Error fetching data: {ticker} - {response.status_code} - {response.text}"
-        )
+        raise Exception(f"Error fetching data: {ticker} - {response.status_code} - {response.text}")
 
     # Parse response with Pydantic model
     metrics_response = FinancialMetricsResponse(**response.json())
@@ -118,9 +114,7 @@ def search_line_items(
     }
     response = requests.post(url, headers=headers, json=body)
     if response.status_code != 200:
-        raise Exception(
-            f"Error fetching data: {ticker} - {response.status_code} - {response.text}"
-        )
+        raise Exception(f"Error fetching data: {ticker} - {response.status_code} - {response.text}")
     data = response.json()
     response_model = LineItemResponse(**data)
     search_results = response_model.search_results
@@ -140,7 +134,7 @@ def get_insider_trades(
     """Fetch insider trades from cache or API."""
     # Create a cache key that includes all parameters to ensure exact matches
     cache_key = f"{ticker}_{start_date or 'none'}_{end_date}_{limit}"
-    
+
     # Check cache first - simple exact match
     if cached_data := _cache.get_insider_trades(cache_key):
         return [InsiderTrade(**trade) for trade in cached_data]
@@ -161,9 +155,7 @@ def get_insider_trades(
 
         response = requests.get(url, headers=headers)
         if response.status_code != 200:
-            raise Exception(
-                f"Error fetching data: {ticker} - {response.status_code} - {response.text}"
-            )
+            raise Exception(f"Error fetching data: {ticker} - {response.status_code} - {response.text}")
 
         data = response.json()
         response_model = InsiderTradeResponse(**data)
@@ -179,9 +171,7 @@ def get_insider_trades(
             break
 
         # Update end_date to the oldest filing date from current batch for next iteration
-        current_end_date = min(trade.filing_date for trade in insider_trades).split(
-            "T"
-        )[0]
+        current_end_date = min(trade.filing_date for trade in insider_trades).split("T")[0]
 
         # If we've reached or passed the start_date, we can stop
         if current_end_date <= start_date:
@@ -204,7 +194,7 @@ def get_company_news(
     """Fetch company news from cache or API."""
     # Create a cache key that includes all parameters to ensure exact matches
     cache_key = f"{ticker}_{start_date or 'none'}_{end_date}_{limit}"
-    
+
     # Check cache first - simple exact match
     if cached_data := _cache.get_company_news(cache_key):
         return [CompanyNews(**news) for news in cached_data]
@@ -225,9 +215,7 @@ def get_company_news(
 
         response = requests.get(url, headers=headers)
         if response.status_code != 200:
-            raise Exception(
-                f"Error fetching data: {ticker} - {response.status_code} - {response.text}"
-            )
+            raise Exception(f"Error fetching data: {ticker} - {response.status_code} - {response.text}")
 
         data = response.json()
         response_model = CompanyNewsResponse(**data)

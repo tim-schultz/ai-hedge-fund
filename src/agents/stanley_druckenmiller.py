@@ -44,14 +44,10 @@ def stanley_druckenmiller_agent(state: AgentState):
     druck_analysis = {}
 
     for ticker in tickers:
-        progress.update_status(
-            "stanley_druckenmiller_agent", ticker, "Fetching financial metrics"
-        )
+        progress.update_status("stanley_druckenmiller_agent", ticker, "Fetching financial metrics")
         get_financial_metrics(ticker, end_date, period="annual", limit=5)
 
-        progress.update_status(
-            "stanley_druckenmiller_agent", ticker, "Gathering financial line items"
-        )
+        progress.update_status("stanley_druckenmiller_agent", ticker, "Gathering financial line items")
         # Include relevant line items for Stan Druckenmiller's approach:
         #   - Growth & momentum: revenue, EPS, operating_income, ...
         #   - Valuation: net_income, free_cash_flow, ebit, ebitda
@@ -80,19 +76,13 @@ def stanley_druckenmiller_agent(state: AgentState):
             limit=5,
         )
 
-        progress.update_status(
-            "stanley_druckenmiller_agent", ticker, "Getting market cap"
-        )
+        progress.update_status("stanley_druckenmiller_agent", ticker, "Getting market cap")
         market_cap = get_market_cap(ticker, end_date)
 
-        progress.update_status(
-            "stanley_druckenmiller_agent", ticker, "Fetching insider trades"
-        )
+        progress.update_status("stanley_druckenmiller_agent", ticker, "Fetching insider trades")
         insider_trades = get_insider_trades(ticker, end_date, start_date=None, limit=50)
 
-        progress.update_status(
-            "stanley_druckenmiller_agent", ticker, "Fetching company news"
-        )
+        progress.update_status("stanley_druckenmiller_agent", ticker, "Fetching company news")
         company_news = get_company_news(ticker, end_date, start_date=None, limit=50)
 
         progress.update_status(
@@ -102,26 +92,16 @@ def stanley_druckenmiller_agent(state: AgentState):
         )
         prices = get_prices(ticker, start_date=start_date, end_date=end_date)
 
-        progress.update_status(
-            "stanley_druckenmiller_agent", ticker, "Analyzing growth & momentum"
-        )
-        growth_momentum_analysis = analyze_growth_and_momentum(
-            financial_line_items, prices
-        )
+        progress.update_status("stanley_druckenmiller_agent", ticker, "Analyzing growth & momentum")
+        growth_momentum_analysis = analyze_growth_and_momentum(financial_line_items, prices)
 
-        progress.update_status(
-            "stanley_druckenmiller_agent", ticker, "Analyzing sentiment"
-        )
+        progress.update_status("stanley_druckenmiller_agent", ticker, "Analyzing sentiment")
         sentiment_analysis = analyze_sentiment(company_news)
 
-        progress.update_status(
-            "stanley_druckenmiller_agent", ticker, "Analyzing insider activity"
-        )
+        progress.update_status("stanley_druckenmiller_agent", ticker, "Analyzing insider activity")
         insider_activity = analyze_insider_activity(insider_trades)
 
-        progress.update_status(
-            "stanley_druckenmiller_agent", ticker, "Analyzing risk-reward"
-        )
+        progress.update_status("stanley_druckenmiller_agent", ticker, "Analyzing risk-reward")
         risk_reward_analysis = analyze_risk_reward(financial_line_items, prices)
 
         progress.update_status(
@@ -129,20 +109,12 @@ def stanley_druckenmiller_agent(state: AgentState):
             ticker,
             "Performing Druckenmiller-style valuation",
         )
-        valuation_analysis = analyze_druckenmiller_valuation(
-            financial_line_items, market_cap
-        )
+        valuation_analysis = analyze_druckenmiller_valuation(financial_line_items, market_cap)
 
         # Combine partial scores with weights typical for Druckenmiller:
         #   35% Growth/Momentum, 20% Risk/Reward, 20% Valuation,
         #   15% Sentiment, 10% Insider Activity = 100%
-        total_score = (
-            growth_momentum_analysis["score"] * 0.35
-            + risk_reward_analysis["score"] * 0.20
-            + valuation_analysis["score"] * 0.20
-            + sentiment_analysis["score"] * 0.15
-            + insider_activity["score"] * 0.10
-        )
+        total_score = growth_momentum_analysis["score"] * 0.35 + risk_reward_analysis["score"] * 0.20 + valuation_analysis["score"] * 0.20 + sentiment_analysis["score"] * 0.15 + insider_activity["score"] * 0.10
 
         max_possible_score = 10
 
@@ -185,9 +157,7 @@ def stanley_druckenmiller_agent(state: AgentState):
         progress.update_status("stanley_druckenmiller_agent", ticker, "Done", analysis=druck_output.reasoning)
 
     # Wrap results in a single message
-    message = HumanMessage(
-        content=json.dumps(druck_analysis), name="stanley_druckenmiller_agent"
-    )
+    message = HumanMessage(content=json.dumps(druck_analysis), name="stanley_druckenmiller_agent")
 
     if state["metadata"].get("show_reasoning"):
         show_agent_reasoning(druck_analysis, "Stanley Druckenmiller Agent")
@@ -195,7 +165,7 @@ def stanley_druckenmiller_agent(state: AgentState):
     state["data"]["analyst_signals"]["stanley_druckenmiller_agent"] = druck_analysis
 
     progress.update_status("stanley_druckenmiller_agent", None, "Done")
-    
+
     return {"messages": [message], "data": state["data"]}
 
 
@@ -213,7 +183,7 @@ def analyze_growth_and_momentum(financial_line_items: list, prices: list) -> dic
         }
 
     details = []
-    raw_score = 0  # We'll sum up a maximum of 9 raw points, then scale to 0–10
+    raw_score = 0  # We'll sum up a maximum of 9 raw points, then scale to 0-10
 
     #
     # 1. Revenue Growth
@@ -236,20 +206,14 @@ def analyze_growth_and_momentum(financial_line_items: list, prices: list) -> dic
             else:
                 details.append(f"Minimal/negative revenue growth: {rev_growth:.1%}")
         else:
-            details.append(
-                "Older revenue is zero/negative; can't compute revenue growth."
-            )
+            details.append("Older revenue is zero/negative; can't compute revenue growth.")
     else:
         details.append("Not enough revenue data points for growth calculation.")
 
     #
     # 2. EPS Growth
     #
-    eps_values = [
-        fi.earnings_per_share
-        for fi in financial_line_items
-        if fi.earnings_per_share is not None
-    ]
+    eps_values = [fi.earnings_per_share for fi in financial_line_items if fi.earnings_per_share is not None]
     if len(eps_values) >= 2:
         latest_eps = eps_values[0]
         older_eps = eps_values[-1]
@@ -305,7 +269,7 @@ def analyze_growth_and_momentum(financial_line_items: list, prices: list) -> dic
     # We assigned up to 3 points each for:
     #   revenue growth, eps growth, momentum
     # => max raw_score = 9
-    # Scale to 0–10
+    # Scale to 0-10
     final_score = min(10, (raw_score / 9) * 10)
 
     return {"score": final_score, "details": "; ".join(details)}
@@ -384,9 +348,7 @@ def analyze_sentiment(news_items: list) -> dict:
     if negative_count > len(news_items) * 0.3:
         # More than 30% negative => somewhat bearish => 3/10
         score = 3
-        details.append(
-            f"High proportion of negative headlines: {negative_count}/{len(news_items)}"
-        )
+        details.append(f"High proportion of negative headlines: {negative_count}/{len(news_items)}")
     elif negative_count > 0:
         # Some negativity => 6/10
         score = 6
@@ -415,21 +377,10 @@ def analyze_risk_reward(financial_line_items: list, prices: list) -> dict:
     #
     # 1. Debt-to-Equity
     #
-    debt_values = [
-        fi.total_debt for fi in financial_line_items if fi.total_debt is not None
-    ]
-    equity_values = [
-        fi.shareholders_equity
-        for fi in financial_line_items
-        if fi.shareholders_equity is not None
-    ]
+    debt_values = [fi.total_debt for fi in financial_line_items if fi.total_debt is not None]
+    equity_values = [fi.shareholders_equity for fi in financial_line_items if fi.shareholders_equity is not None]
 
-    if (
-        debt_values
-        and equity_values
-        and len(debt_values) == len(equity_values)
-        and len(debt_values) > 0
-    ):
+    if debt_values and equity_values and len(debt_values) == len(equity_values) and len(debt_values) > 0:
         recent_debt = debt_values[0]
         recent_equity = equity_values[0] if equity_values[0] else 1e-9
         de_ratio = recent_debt / recent_equity
@@ -466,40 +417,32 @@ def analyze_risk_reward(financial_line_items: list, prices: list) -> dict:
                     details.append(f"Low volatility: daily returns stdev {stdev:.2%}")
                 elif stdev < 0.02:
                     raw_score += 2
-                    details.append(
-                        f"Moderate volatility: daily returns stdev {stdev:.2%}"
-                    )
+                    details.append(f"Moderate volatility: daily returns stdev {stdev:.2%}")
                 elif stdev < 0.04:
                     raw_score += 1
                     details.append(f"High volatility: daily returns stdev {stdev:.2%}")
                 else:
-                    details.append(
-                        f"Very high volatility: daily returns stdev {stdev:.2%}"
-                    )
+                    details.append(f"Very high volatility: daily returns stdev {stdev:.2%}")
             else:
                 details.append("Insufficient daily returns data for volatility calc.")
         else:
-            details.append(
-                "Not enough close-price data points for volatility analysis."
-            )
+            details.append("Not enough close-price data points for volatility analysis.")
     else:
         details.append("Not enough price data for volatility analysis.")
 
-    # raw_score out of 6 => scale to 0–10
+    # raw_score out of 6 => scale to 0-10
     final_score = min(10, (raw_score / 6) * 10)
     return {"score": final_score, "details": "; ".join(details)}
 
 
-def analyze_druckenmiller_valuation(
-    financial_line_items: list, market_cap: float | None
-) -> dict:
+def analyze_druckenmiller_valuation(financial_line_items: list, market_cap: float | None) -> dict:
     """
     Druckenmiller is willing to pay up for growth, but still checks:
       - P/E
       - P/FCF
       - EV/EBIT
       - EV/EBITDA
-    Each can yield up to 2 points => max 8 raw points => scale to 0–10.
+    Each can yield up to 2 points => max 8 raw points => scale to 0-10.
     """
     if not financial_line_items or market_cap is None:
         return {"score": 0, "details": "Insufficient data to perform valuation"}
@@ -508,26 +451,14 @@ def analyze_druckenmiller_valuation(
     raw_score = 0
 
     # Gather needed data
-    net_incomes = [
-        fi.net_income for fi in financial_line_items if fi.net_income is not None
-    ]
-    fcf_values = [
-        fi.free_cash_flow
-        for fi in financial_line_items
-        if fi.free_cash_flow is not None
-    ]
+    net_incomes = [fi.net_income for fi in financial_line_items if fi.net_income is not None]
+    fcf_values = [fi.free_cash_flow for fi in financial_line_items if fi.free_cash_flow is not None]
     ebit_values = [fi.ebit for fi in financial_line_items if fi.ebit is not None]
     ebitda_values = [fi.ebitda for fi in financial_line_items if fi.ebitda is not None]
 
     # For EV calculation, let's get the most recent total_debt & cash
-    debt_values = [
-        fi.total_debt for fi in financial_line_items if fi.total_debt is not None
-    ]
-    cash_values = [
-        fi.cash_and_equivalents
-        for fi in financial_line_items
-        if fi.cash_and_equivalents is not None
-    ]
+    debt_values = [fi.total_debt for fi in financial_line_items if fi.total_debt is not None]
+    cash_values = [fi.cash_and_equivalents for fi in financial_line_items if fi.cash_and_equivalents is not None]
     recent_debt = debt_values[0] if debt_values else 0
     recent_cash = cash_values[0] if cash_values else 0
 
@@ -602,7 +533,7 @@ def analyze_druckenmiller_valuation(
         details.append("No valid EV/EBITDA because EV <= 0 or EBITDA <= 0")
 
     # We have up to 2 points for each of the 4 metrics => 8 raw points max
-    # Scale raw_score to 0–10
+    # Scale raw_score to 0-10
     final_score = min(10, (raw_score / 8) * 10)
 
     return {"score": final_score, "details": "; ".join(details)}
@@ -621,20 +552,20 @@ def generate_druckenmiller_output(
             (
                 "system",
                 """You are a Stanley Druckenmiller AI agent, making investment decisions using his principles:
-            
+
               1. Seek asymmetric risk-reward opportunities (large upside, limited downside).
               2. Emphasize growth, momentum, and market sentiment.
               3. Preserve capital by avoiding major drawdowns.
               4. Willing to pay higher valuations for true growth leaders.
               5. Be aggressive when conviction is high.
               6. Cut losses quickly if the thesis changes.
-                            
+
               Rules:
               - Reward companies showing strong revenue/earnings growth and positive stock momentum.
               - Evaluate sentiment and insider activity as supportive or contradictory signals.
               - Watch out for high leverage or extreme volatility that threatens capital.
               - Output a JSON object with signal, confidence, and a reasoning string.
-              
+
               When providing your reasoning, be thorough and specific by:
               1. Explaining the growth and momentum metrics that most influenced your decision
               2. Highlighting the risk-reward profile with specific numerical evidence
@@ -642,9 +573,14 @@ def generate_druckenmiller_output(
               4. Addressing both upside potential and downside risks
               5. Providing specific valuation context relative to growth prospects
               6. Using Stanley Druckenmiller's decisive, momentum-focused, and conviction-driven voice
-              
-              For example, if bullish: "The company shows exceptional momentum with revenue accelerating from 22% to 35% YoY and the stock up 28% over the past three months. Risk-reward is highly asymmetric with 70% upside potential based on FCF multiple expansion and only 15% downside risk given the strong balance sheet with 3x cash-to-debt. Insider buying and positive market sentiment provide additional tailwinds..."
-              For example, if bearish: "Despite recent stock momentum, revenue growth has decelerated from 30% to 12% YoY, and operating margins are contracting. The risk-reward proposition is unfavorable with limited 10% upside potential against 40% downside risk. The competitive landscape is intensifying, and insider selling suggests waning confidence. I'm seeing better opportunities elsewhere with more favorable setups..."
+
+              For example, if bullish: ("The company shows exceptional momentum with revenue accelerating from 22% to 35% YoY and the stock up 28% over the past three months. "
+                  "Risk-reward is highly asymmetric with 70% upside potential based on FCF multiple expansion and only 15% downside risk given the strong balance sheet with 3x cash-to-debt. "
+                  "Insider buying and positive market sentiment provide additional tailwinds...")
+              For example, if bearish: ("Despite recent stock momentum, revenue growth has decelerated from 30% to 12% YoY, and operating margins are contracting. "
+                  "The risk-reward proposition is unfavorable with limited 10% upside potential against 40% downside risk. "
+                  "The competitive landscape is intensifying, and insider selling suggests waning confidence. "
+                  "I'm seeing better opportunities elsewhere with more favorable setups...")
               """,
             ),
             (
@@ -665,9 +601,7 @@ def generate_druckenmiller_output(
         ]
     )
 
-    prompt = template.invoke(
-        {"analysis_data": json.dumps(analysis_data, indent=2), "ticker": ticker}
-    )
+    prompt = template.invoke({"analysis_data": json.dumps(analysis_data, indent=2), "ticker": ticker})
 
     def create_default_signal():
         return StanleyDruckenmillerSignal(
