@@ -154,8 +154,7 @@ def peter_lynch_agent(state: AgentState):
         lynch_output = generate_lynch_output(
             ticker=ticker,
             analysis_data=analysis_data[ticker],
-            model_name=state["metadata"]["model_name"],
-            model_provider=state["metadata"]["model_provider"],
+            state=state,
         )
 
         lynch_analysis[ticker] = {
@@ -164,7 +163,7 @@ def peter_lynch_agent(state: AgentState):
             "reasoning": lynch_output.reasoning,
         }
 
-        progress.update_status("peter_lynch_agent", ticker, "Done")
+        progress.update_status("peter_lynch_agent", ticker, "Done", analysis=lynch_output.reasoning)
 
     # Wrap up results
     message = HumanMessage(content=json.dumps(lynch_analysis), name="peter_lynch_agent")
@@ -174,6 +173,8 @@ def peter_lynch_agent(state: AgentState):
 
     # Save signals to state
     state["data"]["analyst_signals"]["peter_lynch_agent"] = lynch_analysis
+
+    progress.update_status("peter_lynch_agent", None, "Done")
 
     return {"messages": [message], "data": state["data"]}
 
@@ -500,8 +501,7 @@ def analyze_insider_activity(insider_trades: list) -> dict:
 def generate_lynch_output(
     ticker: str,
     analysis_data: dict[str, any],
-    model_name: str,
-    model_provider: str,
+    state: AgentState,
 ) -> PeterLynchSignal:
     """
     Generates a final JSON signal in Peter Lynch's voice & style.
@@ -561,9 +561,8 @@ def generate_lynch_output(
 
     return call_llm(
         prompt=prompt,
-        model_name=model_name,
-        model_provider=model_provider,
         pydantic_model=PeterLynchSignal,
         agent_name="peter_lynch_agent",
+        state=state,
         default_factory=create_default_signal,
     )

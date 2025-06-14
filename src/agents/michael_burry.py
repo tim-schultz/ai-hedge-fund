@@ -155,8 +155,7 @@ def michael_burry_agent(state: AgentState):
         burry_output = _generate_burry_output(
             ticker=ticker,
             analysis_data=analysis_data,
-            model_name=state["metadata"]["model_name"],
-            model_provider=state["metadata"]["model_provider"],
+            state=state,
         )
 
         burry_analysis[ticker] = {
@@ -165,7 +164,7 @@ def michael_burry_agent(state: AgentState):
             "reasoning": burry_output.reasoning,
         }
 
-        progress.update_status("michael_burry_agent", ticker, "Done")
+        progress.update_status("michael_burry_agent", ticker, "Done", analysis=burry_output.reasoning)
 
     # ----------------------------------------------------------------------
     # Return to the graph
@@ -178,6 +177,8 @@ def michael_burry_agent(state: AgentState):
         show_agent_reasoning(burry_analysis, "Michael Burry Agent")
 
     state["data"]["analyst_signals"]["michael_burry_agent"] = burry_analysis
+
+    progress.update_status("michael_burry_agent", None, "Done")
 
     return {"messages": [message], "data": state["data"]}
 
@@ -361,9 +362,7 @@ def _analyze_contrarian_sentiment(news):
 def _generate_burry_output(
     ticker: str,
     analysis_data: dict,
-    *,
-    model_name: str,
-    model_provider: str,
+    state: AgentState,
 ) -> MichaelBurrySignal:
     """Call the LLM to craft the final trading signal in Burry's voice."""
 
@@ -421,9 +420,8 @@ def _generate_burry_output(
 
     return call_llm(
         prompt=prompt,
-        model_name=model_name,
-        model_provider=model_provider,
         pydantic_model=MichaelBurrySignal,
         agent_name="michael_burry_agent",
+        state=state,
         default_factory=create_default_michael_burry_signal,
     )

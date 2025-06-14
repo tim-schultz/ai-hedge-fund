@@ -173,8 +173,7 @@ def stanley_druckenmiller_agent(state: AgentState):
         druck_output = generate_druckenmiller_output(
             ticker=ticker,
             analysis_data=analysis_data,
-            model_name=state["metadata"]["model_name"],
-            model_provider=state["metadata"]["model_provider"],
+            state=state,
         )
 
         druck_analysis[ticker] = {
@@ -183,7 +182,7 @@ def stanley_druckenmiller_agent(state: AgentState):
             "reasoning": druck_output.reasoning,
         }
 
-        progress.update_status("stanley_druckenmiller_agent", ticker, "Done")
+        progress.update_status("stanley_druckenmiller_agent", ticker, "Done", analysis=druck_output.reasoning)
 
     # Wrap results in a single message
     message = HumanMessage(
@@ -194,6 +193,9 @@ def stanley_druckenmiller_agent(state: AgentState):
         show_agent_reasoning(druck_analysis, "Stanley Druckenmiller Agent")
 
     state["data"]["analyst_signals"]["stanley_druckenmiller_agent"] = druck_analysis
+
+    progress.update_status("stanley_druckenmiller_agent", None, "Done")
+    
     return {"messages": [message], "data": state["data"]}
 
 
@@ -609,8 +611,7 @@ def analyze_druckenmiller_valuation(
 def generate_druckenmiller_output(
     ticker: str,
     analysis_data: dict[str, any],
-    model_name: str,
-    model_provider: str,
+    state: AgentState,
 ) -> StanleyDruckenmillerSignal:
     """
     Generates a JSON signal in the style of Stanley Druckenmiller.
@@ -677,9 +678,8 @@ def generate_druckenmiller_output(
 
     return call_llm(
         prompt=prompt,
-        model_name=model_name,
-        model_provider=model_provider,
         pydantic_model=StanleyDruckenmillerSignal,
         agent_name="stanley_druckenmiller_agent",
+        state=state,
         default_factory=create_default_signal,
     )

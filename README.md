@@ -4,23 +4,25 @@ This is a proof of concept for an AI-powered hedge fund.  The goal of this proje
 
 This system employs several agents working together:
 
-1. Ben Graham Agent - The godfather of value investing, only buys hidden gems with a margin of safety
-2. Bill Ackman Agent - An activist investors, takes bold positions and pushes for change
-3. Cathie Wood Agent - The queen of growth investing, believes in the power of innovation and disruption
-4. Charlie Munger Agent - Warren Buffett's partner, only buys wonderful businesses at fair prices
-5. Michael Burry Agent - The Big Short contrarian who hunts for deep value
-6. Peter Lynch Agent - Practical investor who seeks "ten-baggers" in everyday businesses
-7. Phil Fisher Agent - Meticulous growth investor who uses deep "scuttlebutt" research 
-8. Stanley Druckenmiller Agent - Macro legend who hunts for asymmetric opportunities with growth potential
-9. Warren Buffett Agent - The oracle of Omaha, seeks wonderful companies at a fair price
-10. Valuation Agent - Calculates the intrinsic value of a stock and generates trading signals
-11. Sentiment Agent - Analyzes market sentiment and generates trading signals
-12. Fundamentals Agent - Analyzes fundamental data and generates trading signals
-13. Technicals Agent - Analyzes technical indicators and generates trading signals
-14. Risk Manager - Calculates risk metrics and sets position limits
-15. Portfolio Manager - Makes final trading decisions and generates orders
+1. Aswath Damodaran Agent - The Dean of Valuation, focuses on story, numbers, and disciplined valuation
+2. Ben Graham Agent - The godfather of value investing, only buys hidden gems with a margin of safety
+3. Bill Ackman Agent - An activist investor, takes bold positions and pushes for change
+4. Cathie Wood Agent - The queen of growth investing, believes in the power of innovation and disruption
+5. Charlie Munger Agent - Warren Buffett's partner, only buys wonderful businesses at fair prices
+6. Michael Burry Agent - The Big Short contrarian who hunts for deep value
+7. Peter Lynch Agent - Practical investor who seeks "ten-baggers" in everyday businesses
+8. Phil Fisher Agent - Meticulous growth investor who uses deep "scuttlebutt" research 
+9. Rakesh Jhunjhunwala Agent - The Big Bull of India
+10. Stanley Druckenmiller Agent - Macro legend who hunts for asymmetric opportunities with growth potential
+11. Warren Buffett Agent - The oracle of Omaha, seeks wonderful companies at a fair price
+12. Valuation Agent - Calculates the intrinsic value of a stock and generates trading signals
+13. Sentiment Agent - Analyzes market sentiment and generates trading signals
+14. Fundamentals Agent - Analyzes fundamental data and generates trading signals
+15. Technicals Agent - Analyzes technical indicators and generates trading signals
+16. Risk Manager - Calculates risk metrics and sets position limits
+17. Portfolio Manager - Makes final trading decisions and generates orders
     
-<img width="1042" alt="Screenshot 2025-03-22 at 6 19 07 PM" src="https://github.com/user-attachments/assets/cbae3dcf-b571-490d-b0ad-3f0f035ac0d4" />
+<img width="1042" alt="Screenshot 2025-03-22 at 6 19 07 PM" src="https://github.com/user-attachments/assets/cbae3dcf-b571-490d-b0ad-3f0f035ac0d4" />
 
 
 **Note**: the system simulates trading decisions, it does not actually trade.
@@ -32,10 +34,10 @@ This system employs several agents working together:
 This project is for **educational and research purposes only**.
 
 - Not intended for real trading or investment
-- No warranties or guarantees provided
-- Past performance does not indicate future results
+- No investment advice or guarantees provided
 - Creator assumes no liability for financial losses
 - Consult a financial advisor for investment decisions
+- Past performance does not indicate future results
 
 By using this software, you agree to use it solely for learning purposes.
 
@@ -46,7 +48,6 @@ By using this software, you agree to use it solely for learning purposes.
 - [Usage](#usage)
   - [Running the Hedge Fund](#running-the-hedge-fund)
   - [Running the Backtester](#running-the-backtester)
-- [Project Structure](#project-structure)
 - [Contributing](#contributing)
 - [Feature Requests](#feature-requests)
 - [License](#license)
@@ -110,7 +111,12 @@ cp .env.example .env
 
 4. Edit the .env file to add your API keys as described above.
 
-5. Build the Docker image:
+5. Navigate to the docker directory:
+```bash
+cd docker
+```
+
+6. Build the Docker image:
 ```bash
 # On Linux/Mac:
 ./run.sh build
@@ -135,7 +141,12 @@ poetry run python src/main.py --ticker AAPL,MSFT,NVDA
 ```
 
 #### With Docker
+**Note**: All Docker commands must be run from the `docker/` directory.
+
 ```bash
+# Navigate to the docker directory first
+cd docker
+
 # On Linux/Mac:
 ./run.sh --ticker AAPL,MSFT,NVDA main
 
@@ -152,10 +163,11 @@ You can also specify a `--ollama` flag to run the AI hedge fund using local LLMs
 # With Poetry:
 poetry run python src/main.py --ticker AAPL,MSFT,NVDA --ollama
 
-# With Docker (on Linux/Mac):
+# With Docker (from docker/ directory):
+# On Linux/Mac:
 ./run.sh --ticker AAPL,MSFT,NVDA --ollama main
 
-# With Docker (on Windows):
+# On Windows:
 run.bat --ticker AAPL,MSFT,NVDA --ollama main
 ```
 
@@ -165,10 +177,11 @@ You can also specify a `--show-reasoning` flag to print the reasoning of each ag
 # With Poetry:
 poetry run python src/main.py --ticker AAPL,MSFT,NVDA --show-reasoning
 
-# With Docker (on Linux/Mac):
+# With Docker (from docker/ directory):
+# On Linux/Mac:
 ./run.sh --ticker AAPL,MSFT,NVDA --show-reasoning main
 
-# With Docker (on Windows):
+# On Windows:
 run.bat --ticker AAPL,MSFT,NVDA --show-reasoning main
 ```
 
@@ -178,10 +191,11 @@ You can optionally specify the start and end dates to make decisions for a speci
 # With Poetry:
 poetry run python src/main.py --ticker AAPL,MSFT,NVDA --start-date 2024-01-01 --end-date 2024-03-01 
 
-# With Docker (on Linux/Mac):
+# With Docker (from docker/ directory):
+# On Linux/Mac:
 ./run.sh --ticker AAPL,MSFT,NVDA --start-date 2024-01-01 --end-date 2024-03-01 main
 
-# With Docker (on Windows):
+# On Windows:
 run.bat --ticker AAPL,MSFT,NVDA --start-date 2024-01-01 --end-date 2024-03-01 main
 ```
 
@@ -193,7 +207,12 @@ poetry run python src/backtester.py --ticker AAPL,MSFT,NVDA
 ```
 
 #### With Docker
+**Note**: All Docker commands must be run from the `docker/` directory.
+
 ```bash
+# Navigate to the docker directory first
+cd docker
+
 # On Linux/Mac:
 ./run.sh --ticker AAPL,MSFT,NVDA backtest
 
@@ -211,10 +230,11 @@ You can optionally specify the start and end dates to backtest over a specific t
 # With Poetry:
 poetry run python src/backtester.py --ticker AAPL,MSFT,NVDA --start-date 2024-01-01 --end-date 2024-03-01
 
-# With Docker (on Linux/Mac):
+# With Docker (from docker/ directory):
+# On Linux/Mac:
 ./run.sh --ticker AAPL,MSFT,NVDA --start-date 2024-01-01 --end-date 2024-03-01 backtest
 
-# With Docker (on Windows):
+# On Windows:
 run.bat --ticker AAPL,MSFT,NVDA --start-date 2024-01-01 --end-date 2024-03-01 backtest
 ```
 
@@ -223,34 +243,12 @@ You can also specify a `--ollama` flag to run the backtester using local LLMs.
 # With Poetry:
 poetry run python src/backtester.py --ticker AAPL,MSFT,NVDA --ollama
 
-# With Docker (on Linux/Mac):
+# With Docker (from docker/ directory):
+# On Linux/Mac:
 ./run.sh --ticker AAPL,MSFT,NVDA --ollama backtest
 
-# With Docker (on Windows):
+# On Windows:
 run.bat --ticker AAPL,MSFT,NVDA --ollama backtest
-```
-
-
-## Project Structure 
-```
-ai-hedge-fund/
-├── src/
-│   ├── agents/                   # Agent definitions and workflow
-│   │   ├── bill_ackman.py        # Bill Ackman agent
-│   │   ├── fundamentals.py       # Fundamental analysis agent
-│   │   ├── portfolio_manager.py  # Portfolio management agent
-│   │   ├── risk_manager.py       # Risk management agent
-│   │   ├── sentiment.py          # Sentiment analysis agent
-│   │   ├── technicals.py         # Technical analysis agent
-│   │   ├── valuation.py          # Valuation analysis agent
-│   │   ├── ...                   # Other agents
-│   │   ├── warren_buffett.py     # Warren Buffett agent
-│   ├── tools/                    # Agent tools
-│   │   ├── api.py                # API tools
-│   ├── backtester.py             # Backtesting tools
-│   ├── main.py # Main entry point
-├── pyproject.toml
-├── ...
 ```
 
 ## Contributing

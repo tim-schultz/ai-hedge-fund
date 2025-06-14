@@ -8,7 +8,7 @@ from src.utils.progress import progress
 
 
 ##### Fundamental Agent #####
-def fundamentals_agent(state: AgentState):
+def fundamentals_analyst_agent(state: AgentState):
     """Analyzes fundamental data and generates trading signals for multiple tickers."""
     data = state["data"]
     end_date = data["end_date"]
@@ -18,9 +18,7 @@ def fundamentals_agent(state: AgentState):
     fundamental_analysis = {}
 
     for ticker in tickers:
-        progress.update_status(
-            "fundamentals_agent", ticker, "Fetching financial metrics"
-        )
+        progress.update_status("fundamentals_analyst_agent", ticker, "Fetching financial metrics")
 
         # Get the financial metrics
         financial_metrics = get_financial_metrics(
@@ -31,9 +29,7 @@ def fundamentals_agent(state: AgentState):
         )
 
         if not financial_metrics:
-            progress.update_status(
-                "fundamentals_agent", ticker, "Failed: No financial metrics found"
-            )
+            progress.update_status("fundamentals_analyst_agent", ticker, "Failed: No financial metrics found")
             continue
 
         # Pull the most recent financial metrics
@@ -43,7 +39,7 @@ def fundamentals_agent(state: AgentState):
         signals = []
         reasoning = {}
 
-        progress.update_status("fundamentals_agent", ticker, "Analyzing profitability")
+        progress.update_status("fundamentals_analyst_agent", ticker, "Analyzing profitability")
         # 1. Profitability Analysis
         return_on_equity = metrics.return_on_equity
         net_margin = metrics.net_margin
@@ -81,7 +77,7 @@ def fundamentals_agent(state: AgentState):
             ),
         }
 
-        progress.update_status("fundamentals_agent", ticker, "Analyzing growth")
+        progress.update_status("fundamentals_analyst_agent", ticker, "Analyzing growth")
         # 2. Growth Analysis
         revenue_growth = metrics.revenue_growth
         earnings_growth = metrics.earnings_growth
@@ -119,9 +115,7 @@ def fundamentals_agent(state: AgentState):
             ),
         }
 
-        progress.update_status(
-            "fundamentals_agent", ticker, "Analyzing financial health"
-        )
+        progress.update_status("fundamentals_analyst_agent", ticker, "Analyzing financial health")
         # 3. Financial Health
         current_ratio = metrics.current_ratio
         debt_to_equity = metrics.debt_to_equity
@@ -158,9 +152,7 @@ def fundamentals_agent(state: AgentState):
             + (f"D/E: {debt_to_equity:.2f}" if debt_to_equity else "D/E: N/A"),
         }
 
-        progress.update_status(
-            "fundamentals_agent", ticker, "Analyzing valuation ratios"
-        )
+        progress.update_status("fundamentals_analyst_agent", ticker, "Analyzing valuation ratios")
         # 4. Price to X ratios
         pe_ratio = metrics.price_to_earnings_ratio
         pb_ratio = metrics.price_to_book_ratio
@@ -192,7 +184,7 @@ def fundamentals_agent(state: AgentState):
             + (f"P/S: {ps_ratio:.2f}" if ps_ratio else "P/S: N/A"),
         }
 
-        progress.update_status("fundamentals_agent", ticker, "Calculating final signal")
+        progress.update_status("fundamentals_analyst_agent", ticker, "Calculating final signal")
         # Determine overall signal
         bullish_signals = signals.count("bullish")
         bearish_signals = signals.count("bearish")
@@ -216,12 +208,12 @@ def fundamentals_agent(state: AgentState):
             "reasoning": reasoning,
         }
 
-        progress.update_status("fundamentals_agent", ticker, "Done")
+        progress.update_status("fundamentals_analyst_agent", ticker, "Done", analysis=json.dumps(reasoning, indent=4))
 
     # Create the fundamental analysis message
     message = HumanMessage(
         content=json.dumps(fundamental_analysis),
-        name="fundamentals_agent",
+        name="fundamentals_analyst_agent",
     )
 
     # Print the reasoning if the flag is set
@@ -229,8 +221,10 @@ def fundamentals_agent(state: AgentState):
         show_agent_reasoning(fundamental_analysis, "Fundamental Analysis Agent")
 
     # Add the signal to the analyst_signals list
-    state["data"]["analyst_signals"]["fundamentals_agent"] = fundamental_analysis
+    state["data"]["analyst_signals"]["fundamentals_analyst_agent"] = fundamental_analysis
 
+    progress.update_status("fundamentals_analyst_agent", None, "Done")
+    
     return {
         "messages": [message],
         "data": data,

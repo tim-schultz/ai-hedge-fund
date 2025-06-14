@@ -115,8 +115,7 @@ def cathie_wood_agent(state: AgentState):
         cw_output = generate_cathie_wood_output(
             ticker=ticker,
             analysis_data=analysis_data,
-            model_name=state["metadata"]["model_name"],
-            model_provider=state["metadata"]["model_provider"],
+            state=state,
         )
 
         cw_analysis[ticker] = {
@@ -125,7 +124,7 @@ def cathie_wood_agent(state: AgentState):
             "reasoning": cw_output.reasoning,
         }
 
-        progress.update_status("cathie_wood_agent", ticker, "Done")
+        progress.update_status("cathie_wood_agent", ticker, "Done", analysis=cw_output.reasoning)
 
     message = HumanMessage(content=json.dumps(cw_analysis), name="cathie_wood_agent")
 
@@ -133,6 +132,8 @@ def cathie_wood_agent(state: AgentState):
         show_agent_reasoning(cw_analysis, "Cathie Wood Agent")
 
     state["data"]["analyst_signals"]["cathie_wood_agent"] = cw_analysis
+
+    progress.update_status("cathie_wood_agent", None, "Done")
 
     return {"messages": [message], "data": state["data"]}
 
@@ -485,8 +486,7 @@ def analyze_cathie_wood_valuation(
 def generate_cathie_wood_output(
     ticker: str,
     analysis_data: dict[str, any],
-    model_name: str,
-    model_provider: str,
+    state: AgentState,
 ) -> CathieWoodSignal:
     """
     Generates investment decisions in the style of Cathie Wood.
@@ -554,10 +554,9 @@ def generate_cathie_wood_output(
 
     return call_llm(
         prompt=prompt,
-        model_name=model_name,
-        model_provider=model_provider,
         pydantic_model=CathieWoodSignal,
         agent_name="cathie_wood_agent",
+        state=state,
         default_factory=create_default_cathie_wood_signal,
     )
 
