@@ -12,7 +12,7 @@ console = Console()
 class AgentProgress:
     """Manages progress tracking for multiple agents."""
 
-    def __init__(self):
+    def __init__(self) -> None:
         self.agent_status: Dict[str, Dict[str, str]] = {}
         self.table = Table(show_header=False, box=None, padding=(0, 1))
         self.live = Live(self.table, console=console, refresh_per_second=4)
@@ -41,7 +41,7 @@ class AgentProgress:
             self.live.stop()
             self.started = False
 
-    def update_status(self, agent_name: str, ticker: Optional[str] = None, status: str = "", analysis: Optional[str] = None):
+    def update_status(self, agent_name: str, ticker: Optional[str] = None, status: str = "", analysis: Optional[str] = None) -> None:
         """Update the status of an agent."""
         if agent_name not in self.agent_status:
             self.agent_status[agent_name] = {"status": "", "ticker": None}
@@ -52,7 +52,7 @@ class AgentProgress:
             self.agent_status[agent_name]["status"] = status
         if analysis:
             self.agent_status[agent_name]["analysis"] = analysis
-        
+
         # Set the timestamp as UTC datetime
         timestamp = datetime.now(timezone.utc).isoformat()
         self.agent_status[agent_name]["timestamp"] = timestamp

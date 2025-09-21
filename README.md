@@ -130,6 +130,14 @@ poetry run python src/backtester.py --ticker AAPL,MSFT,NVDA
 
 Note: The `--ollama`, `--start-date`, and `--end-date` flags work for the backtester, as well!
 
+#### Type Checking with MyPy
+The project includes comprehensive type checking with MyPy. To run type checking:
+```bash
+poetry run mypy src/
+```
+
+Type checking helps ensure code reliability and catch potential errors early in development.
+
 ### 🖥️ Web Application
 
 The new way to run the AI Hedge Fund is through our web application that provides a user-friendly interface. This is recommended for users who prefer visual interfaces over command line tools.

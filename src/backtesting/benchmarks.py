@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+from typing import Optional
+
 import pandas as pd
 
 from src.tools.api import get_price_data
@@ -28,5 +30,3 @@ class BenchmarkCalculator:
             return (float(last_close) / float(first_close) - 1.0) * 100.0
         except Exception:
             return None
-
-

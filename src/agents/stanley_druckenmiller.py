@@ -1,3 +1,4 @@
+from typing import Any
 from src.graph.state import AgentState, show_agent_reasoning
 from src.tools.api import (
     get_financial_metrics,
@@ -16,6 +17,7 @@ from src.utils.progress import progress
 from src.utils.llm import call_llm
 import statistics
 from src.utils.api_key import get_api_key_from_state
+
 
 class StanleyDruckenmillerSignal(BaseModel):
     signal: Literal["bullish", "bearish", "neutral"]
@@ -105,13 +107,7 @@ def stanley_druckenmiller_agent(state: AgentState, agent_id: str = "stanley_druc
         # Combine partial scores with weights typical for Druckenmiller:
         #   35% Growth/Momentum, 20% Risk/Reward, 20% Valuation,
         #   15% Sentiment, 10% Insider Activity = 100%
-        total_score = (
-            growth_momentum_analysis["score"] * 0.35
-            + risk_reward_analysis["score"] * 0.20
-            + valuation_analysis["score"] * 0.20
-            + sentiment_analysis["score"] * 0.15
-            + insider_activity["score"] * 0.10
-        )
+        total_score = growth_momentum_analysis["score"] * 0.35 + risk_reward_analysis["score"] * 0.20 + valuation_analysis["score"] * 0.20 + sentiment_analysis["score"] * 0.15 + insider_activity["score"] * 0.10
 
         max_possible_score = 10
 
@@ -159,7 +155,7 @@ def stanley_druckenmiller_agent(state: AgentState, agent_id: str = "stanley_druc
     state["data"]["analyst_signals"][agent_id] = druck_analysis
 
     progress.update_status(agent_id, None, "Done")
-    
+
     return {"messages": [message], "data": state["data"]}
 
 
@@ -528,7 +524,7 @@ def analyze_druckenmiller_valuation(financial_line_items: list, market_cap: floa
 
 def generate_druckenmiller_output(
     ticker: str,
-    analysis_data: dict[str, any],
+    analysis_data: dict[str, Any],
     state: AgentState,
     agent_id: str,
 ) -> StanleyDruckenmillerSignal:
@@ -538,8 +534,8 @@ def generate_druckenmiller_output(
     template = ChatPromptTemplate.from_messages(
         [
             (
-              "system",
-              """You are a Stanley Druckenmiller AI agent, making investment decisions using his principles:
+                "system",
+                """You are a Stanley Druckenmiller AI agent, making investment decisions using his principles:
             
               1. Seek asymmetric risk-reward opportunities (large upside, limited downside).
               2. Emphasize growth, momentum, and market sentiment.
@@ -567,8 +563,8 @@ def generate_druckenmiller_output(
               """,
             ),
             (
-              "human",
-              """Based on the following analysis, create a Druckenmiller-style investment signal.
+                "human",
+                """Based on the following analysis, create a Druckenmiller-style investment signal.
 
               Analysis Data for {ticker}:
               {analysis_data}
@@ -587,11 +583,7 @@ def generate_druckenmiller_output(
     prompt = template.invoke({"analysis_data": json.dumps(analysis_data, indent=2), "ticker": ticker})
 
     def create_default_signal():
-        return StanleyDruckenmillerSignal(
-            signal="neutral",
-            confidence=0.0,
-            reasoning="Error in analysis, defaulting to neutral"
-        )
+        return StanleyDruckenmillerSignal(signal="neutral", confidence=0.0, reasoning="Error in analysis, defaulting to neutral")
 
     return call_llm(
         prompt=prompt,

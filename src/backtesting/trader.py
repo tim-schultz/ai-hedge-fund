@@ -35,5 +35,3 @@ class TradeExecutor:
 
         # hold or unknown action
         return 0
-
-

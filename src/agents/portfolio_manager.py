@@ -1,44 +1,69 @@
+from __future__ import annotations
+
 import json
 import time
+from typing import Any, Dict, List
+
 from langchain_core.messages import HumanMessage
 from langchain_core.prompts import ChatPromptTemplate
-
-from src.graph.state import AgentState, show_agent_reasoning
 from pydantic import BaseModel, Field
 from typing_extensions import Literal
-from src.utils.progress import progress
+
+from src.agents.base import BaseDecisionAgent
+from src.graph.state import AgentState, show_agent_reasoning
+from src.domain_types import (
+    OrderSide,
+    PortfolioDecision,
+    PositionType,
+    RiskMetrics,
+    Ticker,
+)
 from src.utils.llm import call_llm
-
-
-class PortfolioDecision(BaseModel):
-    action: Literal["buy", "sell", "short", "cover", "hold"]
-    quantity: int = Field(description="Number of shares to trade")
-    confidence: int = Field(description="Confidence 0-100")
-    reasoning: str = Field(description="Reasoning for the decision")
+from src.utils.progress import progress
 
 
 class PortfolioManagerOutput(BaseModel):
-    decisions: dict[str, PortfolioDecision] = Field(description="Dictionary of ticker to trading decisions")
+    decisions: Dict[Ticker, PortfolioDecision] = Field(description="Dictionary of ticker to trading decisions")
 
 
-##### Portfolio Management Agent #####
-def portfolio_management_agent(state: AgentState, agent_id: str = "portfolio_manager"):
+class PortfolioManagerAgent(BaseDecisionAgent):
+    """Portfolio management agent that makes final trading decisions."""
+
+    @property
+    def name(self) -> str:
+        return "Portfolio Manager"
+
+    def analyze(self, state: AgentState) -> Dict[str, Any]:
+        """Analyze all signals and make portfolio decisions."""
+        return portfolio_management_analysis(state, self)
+
+    def make_decision(
+        self,
+        analyses: List[Dict[str, Any]],
+        portfolio_state: Dict[str, Any],
+    ) -> Dict[str, Any]:
+        """Make portfolio decisions based on all analyses."""
+        # This would be implemented for more complex decision making
+        return {}
+
+
+def portfolio_management_analysis(state: AgentState, agent: PortfolioManagerAgent) -> Dict[str, Any]:
     """Makes final trading decisions and generates orders for multiple tickers"""
 
     portfolio = state["data"]["portfolio"]
     analyst_signals = state["data"]["analyst_signals"]
-    tickers = state["data"]["tickers"]
+    tickers: List[Ticker] = state["data"]["tickers"]
 
     position_limits = {}
     current_prices = {}
     max_shares = {}
     signals_by_ticker = {}
     for ticker in tickers:
-        progress.update_status(agent_id, ticker, "Processing analyst signals")
+        progress.update_status(agent.name, ticker, "Processing analyst signals")
 
         # Find the corresponding risk manager for this portfolio manager
-        if agent_id.startswith("portfolio_manager_"):
-            suffix = agent_id.split('_')[-1]
+        if agent.name.startswith("portfolio_manager_"):
+            suffix = agent.name.split("_")[-1]
             risk_manager_id = f"risk_management_agent_{suffix}"
         else:
             risk_manager_id = "risk_management_agent"  # Fallback for CLI
@@ -65,7 +90,7 @@ def portfolio_management_agent(state: AgentState, agent_id: str = "portfolio_man
 
     state["data"]["current_prices"] = current_prices
 
-    progress.update_status(agent_id, None, "Generating trading decisions")
+    progress.update_status(agent.name, None, "Generating trading decisions")
 
     result = generate_trading_decision(
         tickers=tickers,
@@ -73,19 +98,18 @@ def portfolio_management_agent(state: AgentState, agent_id: str = "portfolio_man
         current_prices=current_prices,
         max_shares=max_shares,
         portfolio=portfolio,
-        agent_id=agent_id,
+        agent_name=agent.name,
         state=state,
     )
     message = HumanMessage(
         content=json.dumps({ticker: decision.model_dump() for ticker, decision in result.decisions.items()}),
-        name=agent_id,
+        name=agent.name,
     )
 
     if state["metadata"]["show_reasoning"]:
-        show_agent_reasoning({ticker: decision.model_dump() for ticker, decision in result.decisions.items()},
-                             "Portfolio Manager")
+        show_agent_reasoning({ticker: decision.model_dump() for ticker, decision in result.decisions.items()}, "Portfolio Manager")
 
-    progress.update_status(agent_id, None, "Done")
+    progress.update_status(agent.name, None, "Done")
 
     return {
         "messages": state["messages"] + [message],
@@ -94,10 +118,10 @@ def portfolio_management_agent(state: AgentState, agent_id: str = "portfolio_man
 
 
 def compute_allowed_actions(
-        tickers: list[str],
-        current_prices: dict[str, float],
-        max_shares: dict[str, int],
-        portfolio: dict[str, float],
+    tickers: list[str],
+    current_prices: dict[str, float],
+    max_shares: dict[str, int],
+    portfolio: dict[str, float],
 ) -> dict[str, dict[str, int]]:
     """Compute allowed actions and max quantities for each ticker deterministically."""
     allowed = {}
@@ -175,13 +199,13 @@ def _compact_signals(signals_by_ticker: dict[str, dict]) -> dict[str, dict]:
 
 
 def generate_trading_decision(
-        tickers: list[str],
-        signals_by_ticker: dict[str, dict],
-        current_prices: dict[str, float],
-        max_shares: dict[str, int],
-        portfolio: dict[str, float],
-        agent_id: str,
-        state: AgentState,
+    tickers: List[str],
+    signals_by_ticker: Dict[str, Dict[str, Any]],
+    current_prices: Dict[str, float],
+    max_shares: Dict[str, int],
+    portfolio: Dict[str, float],
+    agent_name: str,
+    state: AgentState,
 ) -> PortfolioManagerOutput:
     """Get decisions from the LLM with deterministic constraints and a minimal prompt."""
 
@@ -195,9 +219,7 @@ def generate_trading_decision(
         aa = allowed_actions_full.get(t, {"hold": 0})
         # If only 'hold' key exists, there is no trade possible
         if set(aa.keys()) == {"hold"}:
-            prefilled_decisions[t] = PortfolioDecision(
-                action="hold", quantity=0, confidence=100.0, reasoning="No valid trade available"
-            )
+            prefilled_decisions[t] = PortfolioDecision(action="hold", quantity=0, confidence=100.0, reasoning="No valid trade available")
         else:
             tickers_for_llm.append(t)
 
@@ -211,24 +233,8 @@ def generate_trading_decision(
     # Minimal prompt template
     template = ChatPromptTemplate.from_messages(
         [
-            (
-                "system",
-                "You are a portfolio manager.\n"
-                "Inputs per ticker: analyst signals and allowed actions with max qty (already validated).\n"
-                "Pick one allowed action per ticker and a quantity ≤ the max. "
-                "Keep reasoning very concise (max 100 chars). No cash or margin math. Return JSON only."
-            ),
-            (
-                "human",
-                "Signals:\n{signals}\n\n"
-                "Allowed:\n{allowed}\n\n"
-                "Format:\n"
-                "{{\n"
-                '  "decisions": {{\n'
-                '    "TICKER": {{"action":"...","quantity":int,"confidence":int,"reasoning":"..."}}\n'
-                "  }}\n"
-                "}}"
-            ),
+            ("system", "You are a portfolio manager.\n" "Inputs per ticker: analyst signals and allowed actions with max qty (already validated).\n" "Pick one allowed action per ticker and a quantity ≤ the max. " "Keep reasoning very concise (max 100 chars). No cash or margin math. Return JSON only."),
+            ("human", "Signals:\n{signals}\n\n" "Allowed:\n{allowed}\n\n" "Format:\n" "{{\n" '  "decisions": {{\n' '    "TICKER": {{"action":"...","quantity":int,"confidence":int,"reasoning":"..."}}\n' "  }}\n" "}}"),
         ]
     )
 
@@ -243,15 +249,13 @@ def generate_trading_decision(
         # start from prefilled
         decisions = dict(prefilled_decisions)
         for t in tickers_for_llm:
-            decisions[t] = PortfolioDecision(
-                action="hold", quantity=0, confidence=0.0, reasoning="Default decision: hold"
-            )
+            decisions[t] = PortfolioDecision(action="hold", quantity=0, confidence=0.0, reasoning="Default decision: hold")
         return PortfolioManagerOutput(decisions=decisions)
 
     llm_out = call_llm(
         prompt=prompt,
         pydantic_model=PortfolioManagerOutput,
-        agent_name=agent_id,
+        agent_name=agent_name,
         state=state,
         default_factory=create_default_portfolio_output,
     )
@@ -260,3 +264,10 @@ def generate_trading_decision(
     merged = dict(prefilled_decisions)
     merged.update(llm_out.decisions)
     return PortfolioManagerOutput(decisions=merged)
+
+
+# Legacy function for backward compatibility
+def portfolio_management_agent(state: AgentState, agent_id: str = "portfolio_manager") -> Dict[str, Any]:
+    """Legacy function that maintains compatibility with existing workflow."""
+    agent = PortfolioManagerAgent()
+    return agent.analyze(state)

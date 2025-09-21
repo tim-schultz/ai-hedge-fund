@@ -1,3 +1,4 @@
+from typing import Any
 from src.graph.state import AgentState, show_agent_reasoning
 from src.tools.api import get_financial_metrics, get_market_cap, search_line_items
 from langchain_core.prompts import ChatPromptTemplate
@@ -23,8 +24,8 @@ def mohnish_pabrai_agent(state: AgentState, agent_id: str = "mohnish_pabrai_agen
     tickers = data["tickers"]
     api_key = get_api_key_from_state(state, "FINANCIAL_DATASETS_API_KEY")
 
-    analysis_data: dict[str, any] = {}
-    pabrai_analysis: dict[str, any] = {}
+    analysis_data: dict[str, Any] = {}
+    pabrai_analysis: dict[str, Any] = {}
 
     # Pabrai focuses on: downside protection, simple business, moat via unit economics, FCF yield vs alternatives,
     # and potential for doubling in 2-3 years at low risk.
@@ -75,11 +76,7 @@ def mohnish_pabrai_agent(state: AgentState, agent_id: str = "mohnish_pabrai_agen
         double_potential = analyze_double_potential(line_items, market_cap)
 
         # Combine to an overall score in spirit of Pabrai: heavily weight downside and cash yield
-        total_score = (
-            downside["score"] * 0.45
-            + valuation["score"] * 0.35
-            + double_potential["score"] * 0.20
-        )
+        total_score = downside["score"] * 0.45 + valuation["score"] * 0.35 + double_potential["score"] * 0.20
         max_score = 10
 
         if total_score >= 7.5:
@@ -127,7 +124,7 @@ def mohnish_pabrai_agent(state: AgentState, agent_id: str = "mohnish_pabrai_agen
     return {"messages": [message], "data": state["data"]}
 
 
-def analyze_downside_protection(financial_line_items: list) -> dict[str, any]:
+def analyze_downside_protection(financial_line_items: list) -> dict[str, Any]:
     """Assess balance-sheet strength and downside resiliency (capital preservation first)."""
     if not financial_line_items:
         return {"score": 0, "details": "Insufficient data"}
@@ -193,7 +190,7 @@ def analyze_downside_protection(financial_line_items: list) -> dict[str, any]:
     return {"score": min(10, score), "details": "; ".join(details)}
 
 
-def analyze_pabrai_valuation(financial_line_items: list, market_cap: float | None) -> dict[str, any]:
+def analyze_pabrai_valuation(financial_line_items: list, market_cap: float | None) -> dict[str, Any]:
     """Value via simple FCF yield and asset-light preference (keep it simple, low mistakes)."""
     if not financial_line_items or market_cap is None or market_cap <= 0:
         return {"score": 0, "details": "Insufficient data", "fcf_yield": None, "normalized_fcf": None}
@@ -205,7 +202,7 @@ def analyze_pabrai_valuation(financial_line_items: list, market_cap: float | Non
     if not fcf_values or len(fcf_values) < 3:
         return {"score": 0, "details": "Insufficient FCF history", "fcf_yield": None, "normalized_fcf": None}
 
-    normalized_fcf = sum(fcf_values[:min(5, len(fcf_values))]) / min(5, len(fcf_values))
+    normalized_fcf = sum(fcf_values[: min(5, len(fcf_values))]) / min(5, len(fcf_values))
     if normalized_fcf <= 0:
         return {"score": 0, "details": "Non-positive normalized FCF", "fcf_yield": None, "normalized_fcf": normalized_fcf}
 
@@ -250,7 +247,7 @@ def analyze_pabrai_valuation(financial_line_items: list, market_cap: float | Non
     return {"score": min(10, score), "details": "; ".join(details), "fcf_yield": fcf_yield, "normalized_fcf": normalized_fcf}
 
 
-def analyze_double_potential(financial_line_items: list, market_cap: float | None) -> dict[str, any]:
+def analyze_double_potential(financial_line_items: list, market_cap: float | None) -> dict[str, Any]:
     """Estimate low-risk path to double capital in ~2-3 years: runway from FCF growth + rerating."""
     if not financial_line_items or market_cap is None or market_cap <= 0:
         return {"score": 0, "details": "Insufficient data"}
@@ -305,15 +302,16 @@ def analyze_double_potential(financial_line_items: list, market_cap: float | Non
 
 def generate_pabrai_output(
     ticker: str,
-    analysis_data: dict[str, any],
+    analysis_data: dict[str, Any],
     state: AgentState,
     agent_id: str,
 ) -> MohnishPabraiSignal:
     """Generate Pabrai-style decision focusing on low risk, high uncertainty bets and cloning."""
-    template = ChatPromptTemplate.from_messages([
-        (
-          "system",
-          """You are Mohnish Pabrai. Apply my value investing philosophy:
+    template = ChatPromptTemplate.from_messages(
+        [
+            (
+                "system",
+                """You are Mohnish Pabrai. Apply my value investing philosophy:
 
           - Heads I win; tails I don't lose much: prioritize downside protection first.
           - Buy businesses with simple, understandable models and durable moats.
@@ -325,10 +323,10 @@ def generate_pabrai_output(
 
             Provide candid, checklist-driven reasoning, with emphasis on capital preservation and expected mispricing.
             """,
-        ),
-        (
-          "human",
-          """Analyze {ticker} using the provided data.
+            ),
+            (
+                "human",
+                """Analyze {ticker} using the provided data.
 
           DATA:
           {analysis_data}
@@ -340,13 +338,16 @@ def generate_pabrai_output(
             "reasoning": "string with Pabrai-style analysis focusing on downside protection, FCF yield, and doubling potential"
           }}
           """,
-        ),
-    ])
+            ),
+        ]
+    )
 
-    prompt = template.invoke({
-        "analysis_data": json.dumps(analysis_data, indent=2),
-        "ticker": ticker,
-    })
+    prompt = template.invoke(
+        {
+            "analysis_data": json.dumps(analysis_data, indent=2),
+            "ticker": ticker,
+        }
+    )
 
     def create_default_pabrai_signal():
         return MohnishPabraiSignal(signal="neutral", confidence=0.0, reasoning="Error in analysis, defaulting to neutral")
@@ -357,4 +358,4 @@ def generate_pabrai_output(
         pydantic_model=MohnishPabraiSignal,
         agent_name=agent_id,
         default_factory=create_default_pabrai_signal,
-    ) 
+    )

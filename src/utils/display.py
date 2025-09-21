@@ -1,3 +1,4 @@
+from typing import Any, Dict
 from colorama import Fore, Style
 from tabulate import tabulate
 from .analysts import ANALYST_ORDER
@@ -14,7 +15,7 @@ def sort_agent_signals(signals):
     return sorted(signals, key=lambda x: analyst_order.get(x[0], 999))
 
 
-def print_trading_output(result: dict) -> None:
+def print_trading_output(result: Dict[str, Any]) -> None:
     """
     Print formatted trading results with colored tables for multiple tickers.
 
@@ -36,7 +37,7 @@ def print_trading_output(result: dict) -> None:
         for agent, signals in result.get("analyst_signals", {}).items():
             if ticker not in signals:
                 continue
-                
+
             # Skip Risk Management agent in the signals section
             if agent == "risk_management_agent":
                 continue
@@ -51,12 +52,12 @@ def print_trading_output(result: dict) -> None:
                 "BEARISH": Fore.RED,
                 "NEUTRAL": Fore.YELLOW,
             }.get(signal_type, Fore.WHITE)
-            
+
             # Get reasoning if available
             reasoning_str = ""
             if "reasoning" in signal and signal["reasoning"]:
                 reasoning = signal["reasoning"]
-                
+
                 # Handle different types of reasoning (string, dict, etc.)
                 if isinstance(reasoning, str):
                     reasoning_str = reasoning
@@ -66,7 +67,7 @@ def print_trading_output(result: dict) -> None:
                 else:
                     # Convert any other type to string
                     reasoning_str = str(reasoning)
-                
+
                 # Wrap long reasoning text to make it more readable
                 wrapped_reasoning = ""
                 current_line = ""
@@ -83,7 +84,7 @@ def print_trading_output(result: dict) -> None:
                             current_line = word
                 if current_line:
                     wrapped_reasoning += current_line
-                
+
                 reasoning_str = wrapped_reasoning
 
             table_data.append(
@@ -147,21 +148,21 @@ def print_trading_output(result: dict) -> None:
             ],
             ["Reasoning", f"{Fore.WHITE}{wrapped_reasoning}{Style.RESET_ALL}"],
         ]
-        
+
         print(f"\n{Fore.WHITE}{Style.BRIGHT}TRADING DECISION:{Style.RESET_ALL} [{Fore.CYAN}{ticker}{Style.RESET_ALL}]")
         print(tabulate(decision_data, tablefmt="grid", colalign=("left", "left")))
 
     # Print Portfolio Summary
     print(f"\n{Fore.WHITE}{Style.BRIGHT}PORTFOLIO SUMMARY:{Style.RESET_ALL}")
     portfolio_data = []
-    
+
     # Extract portfolio manager reasoning (common for all tickers)
     portfolio_manager_reasoning = None
     for ticker, decision in decisions.items():
         if decision.get("reasoning"):
             portfolio_manager_reasoning = decision.get("reasoning")
             break
-            
+
     for ticker, decision in decisions.items():
         action = decision.get("action", "").upper()
         action_color = {
@@ -181,7 +182,7 @@ def print_trading_output(result: dict) -> None:
         )
 
     headers = [f"{Fore.WHITE}Ticker", "Action", "Quantity", "Confidence"]
-    
+
     # Print the portfolio summary table
     print(
         tabulate(
@@ -191,7 +192,7 @@ def print_trading_output(result: dict) -> None:
             colalign=("left", "center", "right", "right"),
         )
     )
-    
+
     # Print Portfolio Manager's reasoning if available
     if portfolio_manager_reasoning:
         # Handle different types of reasoning (string, dict, etc.)
@@ -204,7 +205,7 @@ def print_trading_output(result: dict) -> None:
         else:
             # Convert any other type to string
             reasoning_str = str(portfolio_manager_reasoning)
-            
+
         # Wrap long reasoning text to make it more readable
         wrapped_reasoning = ""
         current_line = ""
@@ -221,7 +222,7 @@ def print_trading_output(result: dict) -> None:
                     current_line = word
         if current_line:
             wrapped_reasoning += current_line
-            
+
         print(f"\n{Fore.WHITE}{Style.BRIGHT}Portfolio Strategy:{Style.RESET_ALL}")
         print(f"{Fore.CYAN}{wrapped_reasoning}{Style.RESET_ALL}")
 
@@ -249,8 +250,8 @@ def print_backtest_results(table_rows: list) -> None:
 
         # Adjusted indexes after adding Long/Short Shares
         position_str = latest_summary[7].split("$")[1].split(Style.RESET_ALL)[0].replace(",", "")
-        cash_str     = latest_summary[8].split("$")[1].split(Style.RESET_ALL)[0].replace(",", "")
-        total_str    = latest_summary[9].split("$")[1].split(Style.RESET_ALL)[0].replace(",", "")
+        cash_str = latest_summary[8].split("$")[1].split(Style.RESET_ALL)[0].replace(",", "")
+        total_str = latest_summary[9].split("$")[1].split(Style.RESET_ALL)[0].replace(",", "")
 
         print(f"Cash Balance: {Fore.CYAN}${float(cash_str):,.2f}{Style.RESET_ALL}")
         print(f"Total Position Value: {Fore.YELLOW}${float(position_str):,.2f}{Style.RESET_ALL}")
@@ -286,14 +287,14 @@ def print_backtest_results(table_rows: list) -> None:
             ],
             tablefmt="grid",
             colalign=(
-                "left",    # Date
-                "left",    # Ticker
+                "left",  # Date
+                "left",  # Ticker
                 "center",  # Action
-                "right",   # Quantity
-                "right",   # Price
-                "right",   # Long Shares
-                "right",   # Short Shares
-                "right",   # Position Value
+                "right",  # Quantity
+                "right",  # Price
+                "right",  # Long Shares
+                "right",  # Short Shares
+                "right",  # Position Value
             ),
         )
     )
@@ -361,7 +362,7 @@ def format_backtest_row(
             f"{action_color}{action.upper()}{Style.RESET_ALL}",
             f"{action_color}{quantity:,.0f}{Style.RESET_ALL}",
             f"{Fore.WHITE}{price:,.2f}{Style.RESET_ALL}",
-            f"{Fore.GREEN}{long_shares:,.0f}{Style.RESET_ALL}",   # Long Shares
-            f"{Fore.RED}{short_shares:,.0f}{Style.RESET_ALL}",    # Short Shares
+            f"{Fore.GREEN}{long_shares:,.0f}{Style.RESET_ALL}",  # Long Shares
+            f"{Fore.RED}{short_shares:,.0f}{Style.RESET_ALL}",  # Short Shares
             f"{Fore.YELLOW}{position_value:,.2f}{Style.RESET_ALL}",
         ]

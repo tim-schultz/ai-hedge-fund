@@ -1,25 +1,26 @@
-import sys
+from __future__ import annotations
 
+import argparse
+import json
+import sys
+from datetime import datetime
+from typing import Any, Dict, List, Optional
+
+import questionary
+from colorama import Fore, Style, init
+from dateutil.relativedelta import relativedelta
 from dotenv import load_dotenv
 from langchain_core.messages import HumanMessage
 from langgraph.graph import END, StateGraph
-from colorama import Fore, Style, init
-import questionary
+
 from src.agents.portfolio_manager import portfolio_management_agent
 from src.agents.risk_manager import risk_management_agent
+from src.cli.input import parse_cli_inputs
 from src.graph.state import AgentState
-from src.utils.display import print_trading_output
 from src.utils.analysts import ANALYST_ORDER, get_analyst_nodes
+from src.utils.display import print_trading_output
 from src.utils.progress import progress
 from src.utils.visualize import save_graph_as_png
-from src.cli.input import (
-    parse_cli_inputs,
-)
-
-import argparse
-from datetime import datetime
-from dateutil.relativedelta import relativedelta
-import json
 
 # Load environment variables from .env file
 load_dotenv()
@@ -27,7 +28,7 @@ load_dotenv()
 init(autoreset=True)
 
 
-def parse_hedge_fund_response(response):
+def parse_hedge_fund_response(response: str) -> Optional[Dict[str, Any]]:
     """Parses a JSON string and returns a dictionary."""
     try:
         return json.loads(response)
@@ -44,21 +45,21 @@ def parse_hedge_fund_response(response):
 
 ##### Run the Hedge Fund #####
 def run_hedge_fund(
-    tickers: list[str],
+    tickers: List[str],
     start_date: str,
     end_date: str,
-    portfolio: dict,
+    portfolio: Dict[str, Any],
     show_reasoning: bool = False,
-    selected_analysts: list[str] = [],
+    selected_analysts: Optional[List[str]] = None,
     model_name: str = "gpt-4.1",
     model_provider: str = "OpenAI",
-):
+) -> Dict[str, Any]:
     # Start progress tracking
     progress.start()
 
     try:
         # Build workflow (default to all analysts when none provided)
-        workflow = create_workflow(selected_analysts if selected_analysts else None)
+        workflow = create_workflow(selected_analysts)
         agent = workflow.compile()
 
         final_state = agent.invoke(
@@ -92,12 +93,12 @@ def run_hedge_fund(
         progress.stop()
 
 
-def start(state: AgentState):
+def start(state: AgentState) -> AgentState:
     """Initialize the workflow with the input message."""
     return state
 
 
-def create_workflow(selected_analysts=None):
+def create_workflow(selected_analysts: Optional[List[str]] = None) -> StateGraph:
     """Create the workflow with selected analysts."""
     workflow = StateGraph(AgentState)
     workflow.add_node("start_node", start)
