@@ -846,7 +846,7 @@ def generate_buffett_output(
     return call_llm(
         prompt=prompt,
         pydantic_model=WarrenBuffettSignal,
-        agent_name=agent.name,
+        agent_name=agent_id,
         state=state,
         default_factory=create_default_warren_buffett_signal,
     )

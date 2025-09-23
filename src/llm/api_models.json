@@ -80,6 +80,16 @@
     "provider": "GigaChat"
   },
   {
+    "display_name": "Claude Opus (Code)",
+    "model_name": "opus",
+    "provider": "ClaudeCode"
+  },
+  {
+    "display_name": "Claude Sonnet (Code)",
+    "model_name": "sonnet",
+    "provider": "ClaudeCode"
+  },
+  {
     "display_name": "Azure Open AI Deployment",
     "model_name": "",
     "provider": "Azure OpenAI"

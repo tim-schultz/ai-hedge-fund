@@ -4,10 +4,22 @@ from langchain_anthropic import ChatAnthropic
 from langchain_deepseek import ChatDeepSeek
 from langchain_google_genai import ChatGoogleGenerativeAI
 from langchain_groq import ChatGroq
-from langchain_xai import ChatXAI
 from langchain_openai import ChatOpenAI, AzureChatOpenAI
-from langchain_openai import ChatOpenAI
-from langchain_gigachat import GigaChat
+
+try:
+    from langchain_xai import ChatXAI
+
+    XAI_AVAILABLE = True
+except ImportError:
+    XAI_AVAILABLE = False
+    ChatXAI = None
+try:
+    from langchain_gigachat import GigaChat
+
+    GIGACHAT_AVAILABLE = True
+except ImportError:
+    GIGACHAT_AVAILABLE = False
+    GigaChat = None
 from langchain_ollama import ChatOllama
 from enum import Enum
 from pydantic import BaseModel
@@ -20,6 +32,7 @@ class ModelProvider(str, Enum):
 
     ALIBABA = "Alibaba"
     ANTHROPIC = "Anthropic"
+    CLAUDE_CODE = "ClaudeCode"
     DEEPSEEK = "DeepSeek"
     GOOGLE = "Google"
     GROQ = "Groq"
@@ -117,7 +130,12 @@ def get_models_list():
 
 
 def get_model(model_name: str, model_provider: ModelProvider, api_keys: dict = None) -> ChatOpenAI | ChatGroq | ChatOllama | GigaChat | None:
-    if model_provider == ModelProvider.GROQ:
+    if model_provider == ModelProvider.CLAUDE_CODE:
+        # Import here to avoid circular dependency
+        from src.llm.claude_code_provider import get_claude_code_model
+
+        return get_claude_code_model(model_name)
+    elif model_provider == ModelProvider.GROQ:
         api_key = (api_keys or {}).get("GROQ_API_KEY") or os.getenv("GROQ_API_KEY")
         if not api_key:
             # Print error to console
@@ -182,12 +200,16 @@ def get_model(model_name: str, model_provider: ModelProvider, api_keys: dict = N
             },
         )
     elif model_provider == ModelProvider.XAI:
+        if not XAI_AVAILABLE:
+            raise ValueError("xAI is not available. Install with: pip install langchain-xai")
         api_key = (api_keys or {}).get("XAI_API_KEY") or os.getenv("XAI_API_KEY")
         if not api_key:
             print(f"API Key Error: Please make sure XAI_API_KEY is set in your .env file or provided via API keys.")
             raise ValueError("xAI API key not found. Please make sure XAI_API_KEY is set in your .env file or provided via API keys.")
         return ChatXAI(model=model_name, api_key=api_key)
     elif model_provider == ModelProvider.GIGACHAT:
+        if not GIGACHAT_AVAILABLE:
+            raise ValueError("GigaChat is not available. Install with: pip install langchain-gigachat")
         if os.getenv("GIGACHAT_USER") or os.getenv("GIGACHAT_PASSWORD"):
             return GigaChat(model=model_name)
         else:
